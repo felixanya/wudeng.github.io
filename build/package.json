@@ -1,0 +1,20 @@
+{
+  "name": "mdtool",
+  "version": "0.1.0",
+  "description": "a build tool for markdown blog",
+  "author": "gaccob <gaccob@qq.com>",
+  "private": true,
+  "devDependencies": {
+    "commander": "latest",
+    "highlight.js": "latest",
+    "marked": "latest",
+    "parse5": "latest",
+    "marked-toc": "latest"
+  },
+  "dependencies": {
+    "highlight": "^0.2.4",
+    "highlight.js": "^9.12.0",
+    "marked-toc": "^0.3.0",
+    "parse5": "^3.0.2"
+  }
+}

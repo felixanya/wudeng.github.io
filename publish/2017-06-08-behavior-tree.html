@@ -1,0 +1,116 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="/index.html">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <!--
+                <a class="btn btn-default" href="mailto:wudeng256#qq.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+                -->
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h1>基于Erlang的行为树实现</h1><ul>
+<li><a href="#什么是行为树">什么是行为树</a></li>
+<li><a href="#为什么使用行为树">为什么使用行为树</a></li>
+<li><a href="#组成部分">组成部分</a></li>
+<li><a href="#具体实现">具体实现</a></li>
+<li><a href="#参考文档">参考文档</a></li>
+</ul>
+<h2><a name="什么是行为树" class="anchor" href="#什么是行为树"><span class="header-link"></span></a>什么是行为树</h2><p>行为树，英文是Behavior Tree，简称BT，是由行为节点组成的树状结构。行为树的每个节点都会返回一个状态，成功，失败，运行，父节点根据子节点的返回值做出相应的决策。
+在游戏开发中，行为树主要用来实现怪物AI的行为决策，根据条件以及环境来决定怪物执行什么样的行为，如攻击，逃跑，巡逻，休息等。</p>
+<h2><a name="为什么使用行为树" class="anchor" href="#为什么使用行为树"><span class="header-link"></span></a>为什么使用行为树</h2><p>怪物行为的控制一般来说有三种方法，</p>
+<ul>
+<li>最简单的if-else嵌套。这种方法最直观，但是维护起来比较困难。</li>
+<li>第二种方法是有限状态机。根据怪物当前所处的状态和当前的环境，决定状态如何迁移。当状态较多时，状态之间的迁移会比较复杂。而且增加状态时需要改动的地方很多。</li>
+<li>行为树相对于前两种方式的优势在于，他实现了控制逻辑与行为逻辑的分离，控制逻辑就是行为树，行为逻辑则是各个行为节点。对于游戏开发来说，我们可以让策划通过
+行为树编辑器来编辑行为树，程序只需要实现具体的行为节点，就可以实现行为决策。</li>
+</ul>
+<h2><a name="组成部分" class="anchor" href="#组成部分"><span class="header-link"></span></a>组成部分</h2><p>行为树有四种类型的节点，分别是</p>
+<ul>
+<li>控制节点，最主要的是选择节点（Selector）和顺序节点（Sequence）。控制节点都不是叶子节点，它根据子节点的返回值返回成功，失败，运行这三种状态。</li>
+<li>行为节点，具体的行为逻辑，如逃跑，巡逻。行为节点一般是叶子节点，返回成功，失败，运行这三种状态。</li>
+<li>条件节点，叶子节点，返回成功，失败这两种状态。</li>
+<li>装饰节点，非叶子节点，实现一些附加的逻辑。如取反。</li>
+</ul>
+<p>黑板（blackboard）是行为树实现中用来存储变量，感知环境的一个概念，节点可以访问黑板来存取变量。</p>
+<p>行为树一般以一定的频率周期性的执行tick函数，每次tick都从根节点开始执行。有一些行为树会直接从返回运行的节点开始执行，这样的话如果有低优先级的节点一直返回运行状态，
+遇到高优先级的节点时则无法打断低优先级的节点。比如怪物在巡逻的时候返回运行，这时候如果有玩家攻击它，合理的反应是进行反击或者逃跑，但是如果每次tick都从巡逻节点开始执行，
+则根本不会处理到反击或逃跑的逻辑。</p>
+<h2><a name="具体实现" class="anchor" href="#具体实现"><span class="header-link"></span></a>具体实现</h2><p>Erlang版行为树的具体实现参考了Behavior3的版本。每个节点的执行逻辑:</p>
+<pre><code class="lang--erlang">execute(<span class="hljs-comment">#node{id = Id} = Node, #tick{blackboard = Blackboard} = Tick) -&gt;</span>
+    Tick1 = enter_cb(<span class="hljs-keyword">Node</span><span class="hljs-title">, Tick</span>),
+    Tick2 = case get_key({is_open, Id}, Blackboard, <span class="hljs-literal">false</span>) of 
+        <span class="hljs-literal">false</span> -&gt; open_cb(<span class="hljs-keyword">Node</span><span class="hljs-title">, Tick1</span>);
+        <span class="hljs-literal">true</span> -&gt; Tick1
+    end,
+    {Status, Tick3} = tick_cb(<span class="hljs-keyword">Node</span><span class="hljs-title">, Tick2</span>),
+    Tick4 = case Status of 
+        running -&gt; Tick3;
+        _ -&gt; close_cb(<span class="hljs-keyword">Node</span><span class="hljs-title">, Tick3</span>)
+    end,
+    Tick5 = exit_cb(<span class="hljs-keyword">Node</span><span class="hljs-title">, Tick4</span>),
+    {Status, Tick5}.
+</code></pre>
+<ul>
+<li><p>选择节点</p>
+<pre><code>priority<span class="hljs-function"><span class="hljs-params">([], Tick)</span> -&gt;</span>
+  {<span class="hljs-literal">false</span>, Tick};
+priority<span class="hljs-function"><span class="hljs-params">([C|Children], Tick)</span> -&gt;</span>
+  <span class="hljs-keyword">case</span> execute(C, Tick) <span class="hljs-keyword">of</span>
+      {<span class="hljs-literal">true</span>, NewTick}<span class="hljs-function"> -&gt;</span> 
+          {<span class="hljs-literal">true</span>, NewTick};
+      {running, NewTick}<span class="hljs-function"> -&gt;</span>
+          {running, NewTick};
+      {<span class="hljs-literal">false</span>, NewTick}<span class="hljs-function"> -&gt;</span>
+          priority(Children, NewTick)
+  end.
+</code></pre></li>
+<li><p>顺序节点</p>
+<pre><code>priority<span class="hljs-function"><span class="hljs-params">([], Tick)</span> -&gt;</span>
+  {<span class="hljs-literal">false</span>, Tick};
+priority<span class="hljs-function"><span class="hljs-params">([C|Children], Tick)</span> -&gt;</span>
+  <span class="hljs-keyword">case</span> execute(C, Tick) <span class="hljs-keyword">of</span>
+      {<span class="hljs-literal">true</span>, NewTick}<span class="hljs-function"> -&gt;</span> 
+          {<span class="hljs-literal">true</span>, NewTick};
+      {running, NewTick}<span class="hljs-function"> -&gt;</span>
+          {running, NewTick};
+      {<span class="hljs-literal">false</span>, NewTick}<span class="hljs-function"> -&gt;</span>
+          priority(Children, NewTick)
+  end.
+</code></pre></li>
+</ul>
+<h2><a name="参考文档" class="anchor" href="#参考文档"><span class="header-link"></span></a>参考文档</h2><p><a href="https://github.com/wudeng/behavior_tree/">参考源码</a></p>
+</div>
+
+    </div>
+
+</div>
+</body>
+</html>

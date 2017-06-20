@@ -1,0 +1,9 @@
+{
+    "2017-06-08-behavior-tree": {
+        "name": "2017-06-08-behavior-tree",
+        "stamp": "2017-6-8",
+        "link": "../publish/2017-06-08-behavior-tree.html",
+        "summary": "<a href=\"publish/2017-06-08-behavior-tree.html\"><h1>基于Erlang的行为树实现</h1>\n</a><ul>\n<li><a href=\"#什么是行为树\">什么是行为树</a></li>\n<li><a href=\"#为什么使用行为树\">为什么使用行为树</a></li>\n<li><a href=\"#组成部分\">组成部分</a></li>\n<li><a href=\"#具体实现\">具体实现</a></li>\n<li><a href=\"#参考文档\">参考文档</a></li>\n</ul>\n<h2><a name=\"什么是行为树\" class=\"anchor\" href=\"#什么是行为树\"><span class=\"header-link\"></span></a>什么是行为树</h2>\n<p>行为树，英文是Behavior Tree，简称BT，是由行为节点组成的树状结构。行为树的每个节点都会返回一个状态，成功，失败，运行，父节点根据子节点的返回值做出相应的决策。\n在游戏开发中，行为树主要用来实现怪物AI的行为决策，根据条件以及环境来决定怪物执行什么样的行为，如攻击，逃跑，巡逻，休息等。</p>\n<h2><a name=\"为什么使用行为树\" class=\"anchor\" href=\"#为什么使用行为树\"><span class=\"header-link\"></span></a>为什么使用行为树</h2>\n",
+        "title": "基于Erlang的行为树实现"
+    }
+}
