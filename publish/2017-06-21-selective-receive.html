@@ -1,0 +1,265 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <!--
+                <a class="btn btn-default" href="mailto:wudeng256#qq.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+                -->
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h1>Erlang的Selective Receive机制</h1><ul>
+<li><a href="#selective-receive">Selective Receive</a></li>
+<li><a href="#验证">验证</a></li>
+<li><a href="#求证">求证</a></li>
+<li><a href="#深入源码">深入源码</a></li>
+<li><a href="#结论">结论</a></li>
+<li><a href="#参考">参考</a></li>
+</ul>
+<h2><a name="selective-receive" class="anchor" href="#selective-receive"><span class="header-link"></span></a>Selective Receive</h2><p>Joe的Programming Erlang中讲到了Selective Receive的时候，提到了一个<code>save queue</code>的概念。</p>
+<blockquote>
+<pre><code>receive
+  P<span class="hljs-function"><span class="hljs-title">attern1</span> [<span class="hljs-keyword">when</span> Guard1] -&gt;</span>
+  Expressions1;
+  P<span class="hljs-function"><span class="hljs-title">attern2</span> [<span class="hljs-keyword">when</span> Guard2] -&gt;</span>
+  Expressions2;
+  ...
+after
+  T<span class="hljs-function"><span class="hljs-title">ime</span> -&gt;</span>
+  ExpressionsTimeout
+end
+</code></pre><ul>
+<li>When we enter a receive statement, we start a timer (but only if an after section is present in the expression).</li>
+<li>Take the first message in the mailbox and try to match it against Pattern1, Pattern2, and so on. If the match succeeds, the message is removed from the mailbox, and the expressions following the pattern are evaluated.</li>
+<li>If none of the patterns in the receive statement matches the first message in the mailbox, then the first message is removed from the mailbox and put into a &quot;<em>save queue</em>.&quot; The second message in the mailbox is then tried. This procedure is repeated until a matching message is found or until all the messages in the mailbox have been examined.</li>
+<li>If none of the messages in the mailbox matches, then the process is suspended and will be rescheduled for execution the next time a new message is put in the mailbox. Note that when a new message arrives, the messages in the save queue are not rematched; only the new message is matched.</li>
+<li>As soon as a message has been matched, then all messages that have been put into the save queue are reentered into the mailbox in the order in which they arrived at the process. If a timer was set, it is cleared.</li>
+<li>If the timer elapses when we are waiting for a message, then evaluate the expressions ExpressionsTimeout and put any saved messages back into the mailbox in the order in which they arrived at the process.</li>
+</ul>
+</blockquote>
+<p>在进入一个receive语句的时候，没有被匹配的消息被临时移到<code>save queue</code>中，等当前receive语句匹配到消息以后再移回消息队列。那么为什么不能直接丢弃这些没有被匹配的消息呢？
+要回答这个问题，就不能把思维局限在一个receive语句。实际上，在进程中，receive语句可以是嵌套，可以是串联的，当前不能匹配的消息，是可能在嵌套的receive或者后续的receive匹配到的。
+丢弃消息会出现问题。当然为了防止未知消息的堆积，一般会有一个匹配一切的语句，remove掉不需要的消息。</p>
+<p><img src="../data/2017-06-21-selective-receive/selective_receive.png" alt=""></p>
+<p>嵌套的receive：</p>
+<pre><code class="lang-cpp"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>{
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">""</span>);
+}
+</code></pre>
+<pre><code class="lang-erlang"><span class="hljs-function"><span class="hljs-title">loop</span><span class="hljs-params">()</span> -&gt;</span>
+    <span class="hljs-keyword">receive</span>
+        {smoke, Smoker, AvailableMaterials} -&gt;
+            Smoker ! smoke,
+            <span class="hljs-keyword">receive</span> 
+                doneSmoke -&gt;
+                    loop()
+            <span class="hljs-keyword">end</span>
+    <span class="hljs-keyword">end</span>
+</code></pre>
+<p>以及：</p>
+<pre><code class="lang-erlang">loop() -&gt;
+    receive 
+        {high_prio, Msg} -&gt;
+            process_high;
+        <span class="hljs-built_in">after</span> <span class="hljs-number">0</span> -&gt;
+            receive 
+                {low_prio, Msg} -&gt;
+                    process_low;
+                <span class="hljs-keyword">_</span> -&gt;
+                    ok
+            <span class="hljs-keyword">end</span>
+    <span class="hljs-keyword">end</span>,
+    loop()
+</code></pre>
+<p>串联的receive：</p>
+<pre><code class="lang-erlang">    receive 
+        foo -&gt; ok
+    <span class="hljs-keyword">end</span>,
+    receive 
+        bar -&gt; ok
+    <span class="hljs-keyword">end</span>
+</code></pre>
+<h2><a name="验证" class="anchor" href="#验证"><span class="header-link"></span></a>验证</h2><p>启动一个分布式节点，方便通过远程shell连过来。</p>
+<pre><code>(foo@deng)<span class="hljs-number">1</span>&gt; erlang:register(<span class="hljs-keyword">shell</span><span class="bash">,self()).
+</span>true
+</code></pre><p>向shell进程发消息，并进入匹配。</p>
+<pre><code>(foo<span class="hljs-variable">@deng</span>)<span class="hljs-number">2</span>&gt; <span class="hljs-keyword">self</span>() ! c, <span class="hljs-keyword">self</span>() ! d, <span class="hljs-keyword">self</span>() ! a.
+a
+(foo<span class="hljs-variable">@deng</span>)<span class="hljs-number">3</span>&gt; process_info(<span class="hljs-keyword">self</span>(),messages).     
+{messages,[c,d,a]}
+(foo<span class="hljs-variable">@deng</span>)<span class="hljs-number">4</span>&gt; receive a -&gt; ok <span class="hljs-keyword">end</span>.
+ok
+(foo<span class="hljs-variable">@deng</span>)<span class="hljs-number">5</span>&gt; process_info(<span class="hljs-keyword">self</span>(),messages).
+{messages,[c,d]}
+(foo<span class="hljs-variable">@deng</span>)<span class="hljs-number">6</span>&gt; receive a -&gt; ok <span class="hljs-keyword">end</span>.
+</code></pre><p>这时候shell进入了receive的等待过程，按照之前的说法，这时候shell的消息队列应该为空，我们通过远程shell连上来查看shell的消息队列。</p>
+<pre><code>(<span class="hljs-selector-tag">foo</span>@<span class="hljs-keyword">deng</span>)<span class="hljs-keyword">3</span>&gt; process_info(whereis(shell),messages).
+{<span class="hljs-selector-tag">messages</span>,<span class="hljs-selector-attr">[c,d]</span>}
+</code></pre><p>我们看到shell的进程队列并不为空。</p>
+<h2><a name="求证" class="anchor" href="#求证"><span class="header-link"></span></a>求证</h2><p>在官网上找到一段对receive的描述：</p>
+<blockquote>
+<p>Each process has its own input queue for messages it receives. New messages received are put at the end of the queue. When a process executes a receive, the first message in the queue is matched against the first pattern in the receive. If this matches, the message is removed from the queue and the actions corresponding to the pattern are executed.</p>
+<p>However, if the first pattern does not match, the second pattern is tested. If this matches, the message is removed from the queue and the actions corresponding to the second pattern are executed. If the second pattern does not match, the third is tried and so on until there are no more patterns to test. If there are no more patterns to test, the first message is <strong>kept in the queue</strong> and the second message is tried instead. If this matches any pattern, the appropriate actions are executed and the second message is removed from the queue (keeping the first message and any other messages in the queue). If the second message does not match, the third message is tried, and so on, until the end of the queue is reached. If the end of the queue is reached, the process blocks (stops execution) and waits until a new message is received and this procedure is repeated.</p>
+<p>The Erlang implementation is &quot;clever&quot; and minimizes the number of times each message is tested against the patterns in each receive.</p>
+</blockquote>
+<p>并没有提到save queue，消息没有被匹配的时候是留在消息队列中的。</p>
+<h2><a name="深入源码" class="anchor" href="#深入源码"><span class="header-link"></span></a>深入源码</h2><p>beam_receive.erl文件中有这么一段：</p>
+<blockquote>
+<p>In code such as:</p>
+<pre><code>   Ref = make_ref(),        <span class="hljs-comment">%Or erlang:monitor(process, Pid)</span>
+     .
+     .
+     .
+   <span class="hljs-keyword">receive</span>
+      {Ref,Reply} -&gt; Reply
+   <span class="hljs-keyword">end</span>.
+</code></pre><p>we know that none of the messages that exist in the message queue
+before the call to make_ref/0 can be matched out in the receive
+statement. Therefore we can avoid going through the entire message
+queue if we introduce two new instructions (here written as
+BIFs in pseudo-Erlang):</p>
+<pre><code>   recv_mark(SomeUniqInteger),
+   Ref = make_ref(),
+     .
+     .
+     .
+   recv_set(SomeUniqInteger),
+   <span class="hljs-keyword">receive</span>
+      {Ref,Reply} -&gt; Reply
+   <span class="hljs-keyword">end</span>.
+</code></pre><p>The recv_mark/1 instruction will save the current position and
+SomeUniqInteger in the process context. The recv_set
+instruction will verify that SomeUniqInteger is still stored
+in the process context. If it is, it will set the current pointer
+for the message queue (the next message to be read out) to the
+position that was saved by recv_mark/1.</p>
+<p>The remove_message instruction must be modified to invalidate
+the information stored by the previous recv_mark/1, in case there
+is another receive executed between the calls to recv_mark/1 and
+recv_set/1.</p>
+<p>We use a reference to a label (i.e. a position in the loaded code)
+as the SomeUniqInteger.</p>
+</blockquote>
+<p>beam_emu.c文件中画出了receive语句的执行流程如下：</p>
+<pre><code>Skeleton <span class="hljs-keyword">for</span> receive <span class="hljs-symbol">statement:</span>
+
+            recv_mark L1                     Optional
+            call make_ref/monitor            Optional
+            ...
+            recv_set L1                      Optional
+     <span class="hljs-symbol">L1:</span>          &lt;-------------------+
+                  &lt;-----------+       <span class="hljs-params">|
+                              |</span>         <span class="hljs-params">|
+            loop_rec L2 ------+---+   |</span>
+            ...               <span class="hljs-params">|   |</span>   <span class="hljs-params">|
+            remove_message       |</span>   <span class="hljs-params">|      |</span>
+            jump L3           <span class="hljs-params">|   |</span>   <span class="hljs-params">|
+    ...              |</span>   <span class="hljs-params">|   |</span>
+    loop_rec_end L1 --+   <span class="hljs-params">|   |</span>
+     <span class="hljs-symbol">L2:</span>          &lt;---------------+   <span class="hljs-params">|
+       wait L1  -----------------+      <span class="hljs-keyword">or</span> wait_timeout
+    timeout
+
+ L3:    Code after receive...</span>
+</code></pre><p>erl_process.h定义了process结构，包含两个队列，一个公共队列，对于支持SMP的进程，可能存在多个进程同时向一个进程写消息的情况，这种情况下需要给消息队列加锁，这意味着进程自己处理消息的时候也需要加锁。
+为了提高效率，引入了一个ErlMessageInQueue，其他进程先把消息写入这个进程，进程自己通过ErlMessageQueue来读取消息。这里我们重点关注ErlMessageQueue.</p>
+<pre><code><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">process</span> {</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">ifdef</span> ERTS_SMP</span>
+    ErlMessageInQueue msg_inq;
+<span class="hljs-meta">#<span class="hljs-meta-keyword">endif</span></span>
+    ErlMessageQueue msg; <span class="hljs-comment">// message queue</span>
+    ...
+}
+</code></pre><p>ErlMessageQueue的结构定义如下：</p>
+<pre><code><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span>{</span>
+    ErlMessage* first;
+    ErlMessage** last;  <span class="hljs-comment">/* point to the last next pointer */</span>
+    ErlMessage** save;
+    Sint len;            <span class="hljs-comment">/* queue length */</span>
+    <span class="hljs-comment">/*
+     * The following two fields are used by the recv_mark/1 and
+     * recv_set/1 instructions.
+     */</span>
+    BeamInstr* mark;        <span class="hljs-comment">/* address to rec_loop/2 instruction */</span>
+    ErlMessage** saved_last;    <span class="hljs-comment">/* saved last pointer */</span>
+}
+</code></pre><p>获取当前消息，读取的是save指针指向的消息，最开始进入匹配的时候，save是指向链表头的，消息匹配不成功以后save向后移。</p>
+<pre><code>/* Get <span class="hljs-string">"current"</span> message */
+#define PEEK_MESSAGE(<span class="hljs-name">p</span>)  (<span class="hljs-name">*</span>(<span class="hljs-name">p</span>)-&gt;msg.save)
+</code></pre><p>下面我们通过汇编文件来分析receive的过程，先编辑一个源文件：</p>
+<pre><code><span class="hljs-keyword">-module</span><span class="hljs-params">(test)</span>.
+
+<span class="hljs-keyword">-compile</span><span class="hljs-params">(export_all)</span>.
+
+<span class="hljs-function"><span class="hljs-title">t</span><span class="hljs-params">()</span> -&gt;</span>
+    <span class="hljs-keyword">receive</span>
+        ok -&gt; ok
+    <span class="hljs-keyword">end</span>.
+</code></pre><p>编译：</p>
+<pre><code><span class="hljs-meta">1&gt; </span>c(test).
+{ok,test}
+<span class="hljs-meta">2&gt; </span>erts_debug:df(test).
+ok
+</code></pre><p>在目录下找到<code>test.dis</code>文件，找到函数t的实现：</p>
+<pre><code><span class="hljs-number">08235938</span>: i_func_info_IaaI <span class="hljs-number">0</span> test t <span class="hljs-number">0</span> 
+<span class="hljs-number">0823594</span>C: i_loop_rec_fr f(<span class="hljs-number">08235974</span>) x(<span class="hljs-number">0</span>) 
+<span class="hljs-number">08235954</span>: i_is_eq_exact_immed_frc f(<span class="hljs-number">0823596</span>C) x(<span class="hljs-number">0</span>) ok 
+<span class="hljs-number">08235960</span>: <span class="hljs-comment">remove_message </span>
+<span class="hljs-number">08235964</span>: move_return_cr ok x(<span class="hljs-number">0</span>) 
+<span class="hljs-number">0823596</span>C: loop_rec_end_f test:t/<span class="hljs-number">0</span> 
+<span class="hljs-number">08235974</span>: wait_locked_f test:t/<span class="hljs-number">0</span>
+</code></pre><p>实现在<code>beam_emu.c</code>中:</p>
+<ul>
+<li>i_loop_rec_fr: Pick up the next message and place it in x(0),  If no message, jump to a wait or wait_timeout instruction. </li>
+<li>loop_rec_end_f: Advance the save pointer to the next message (the current message didn&#39;t match), then jump to the loop_rec instruction.</li>
+</ul>
+<h2><a name="结论" class="anchor" href="#结论"><span class="header-link"></span></a>结论</h2><p>实际上并不存在<code>save queue</code>这一实体，也不存在消息在<code>save queue</code>和<code>message queue</code>之间相互拷贝，save queue可能只是老爷子为了说阐述消息匹配机制引入的一个抽象。
+消息没有匹配到的时候只是将save指针向后移一个单位。</p>
+<ul>
+<li>对于每一次receive，每个消息最多匹配一次。没有匹配的消息在有新消息进来的时候并不会重新匹配，而是直接匹配新消息。</li>
+<li>一旦有消息匹配完成或者超时，save指针重置，意味着下次进入receive仍然要消息队列的最开始进行匹配。无法匹配的消息这时候会再次进行匹配。可以通过make_ref来避免。</li>
+<li>要防止进程中存在无法匹配的消息。因为消息堆积起来对性能产生负面影响，每次receive都会对这些消息进行匹配。</li>
+</ul>
+<p>PS：本文所有实现基于R1603版本。</p>
+<h2><a name="参考" class="anchor" href="#参考"><span class="header-link"></span></a>参考</h2><ul>
+<li><a href="http://erlang.org/doc/getting_started/conc_prog.html">Concurrent Programming</a></li>
+<li><a href="http://ndpar.blogspot.hk/2010/11/erlang-explained-selective-receive.html">Erlang explained: Selective receive</a></li>
+<li><a href="http://learnyousomeerlang.com/more-on-multiprocessing">More On Multiprocessing</a></li>
+<li><a href="http://blog.csdn.net/mycwq/article/details/44049749">探讨erlang消息选择性接收特性</a></li>
+<li><a href="http://www.cnblogs.com/me-sa/archive/2013/03/06/make_ref.html">make_ref 与 Selective Receive</a></li>
+</ul>
+</div>
+
+    </div>
+
+</div>
+</body>
+</html>
