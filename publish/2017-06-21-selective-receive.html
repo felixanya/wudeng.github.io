@@ -68,12 +68,8 @@ end
 <p>在进入一个receive语句的时候，没有被匹配的消息被临时移到<code>save queue</code>中，等当前receive语句匹配到消息以后再移回消息队列。那么为什么不能直接丢弃这些没有被匹配的消息呢？
 要回答这个问题，就不能把思维局限在一个receive语句。实际上，在进程中，receive语句可以是嵌套，可以是串联的，当前不能匹配的消息，是可能在嵌套的receive或者后续的receive匹配到的。
 丢弃消息会出现问题。当然为了防止未知消息的堆积，一般会有一个匹配一切的语句，remove掉不需要的消息。</p>
-<p><img src="../data/2017-06-21-selective-receive/selective_receive.png" alt=""></p>
+<p><img src="../data/2017-06-21-selective-receive/selective_receive.png" alt="selective receive"></p>
 <p>嵌套的receive：</p>
-<pre><code class="lang-cpp"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>{
-    <span class="hljs-built_in">printf</span>(<span class="hljs-string">""</span>);
-}
-</code></pre>
 <pre><code class="lang-erlang"><span class="hljs-function"><span class="hljs-title">loop</span><span class="hljs-params">()</span> -&gt;</span>
     <span class="hljs-keyword">receive</span>
         {smoke, Smoker, AvailableMaterials} -&gt;

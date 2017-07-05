@@ -7,6 +7,30 @@
 
     <!-- auto complete by template replacement -->
     <item>
+    <title>Beam虚拟机</title>
+    <link>http://wudeng.github.io/publish/2017-07-05-beam-virtual-machine.html</link>
+    <description>
+<a href="publish/2017-07-05-beam-virtual-machine.html"><h1>Beam虚拟机</h1>
+</a><ul>
+<li><a href="#数据区">数据区</a></li>
+<li><a href="#数据对象">数据对象</a></li>
+<li><a href="#寄存器">寄存器</a></li>
+<li><a href="#重要的指令">重要的指令</a></li>
+<li><a href="#并发">并发</a></li>
+<li><a href="#参考文档">参考文档</a></li>
+</ul>
+<p>通过-S选项可以将erl源文件编译成汇编文件。</p>
+<pre><code><span class="hljs-meta">$</span><span class="bash"> erlc -S test.erl</span>
+</code></pre>
+<p>反编译 </p>
+
+        <a href="http://wudeng.github.io/publish/2017-07-05-beam-virtual-machine.html">阅读全文 >> </a>
+    </description>
+    <pubDate>2017-7-5</pubDate>
+</item>
+
+
+<item>
     <title>Erlang的Selective Receive机制</title>
     <link>http://wudeng.github.io/publish/2017-06-21-selective-receive.html</link>
     <description>
