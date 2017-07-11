@@ -1,0 +1,140 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <!--
+                <a class="btn btn-default" href="mailto:wudeng256#qq.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+                -->
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h1>数据库事务</h1><ul>
+<li><a href="#隔离级别">隔离级别</a></li>
+<li><a href="#参考文档">参考文档</a></li>
+</ul>
+<p>事务需要满足ACID特征。Mysql的innodb引擎支持事务。</p>
+<ul>
+<li>原子性，Atomicity, 一个事务是不可分割的整体，要么全部成功(committed)，要么全部失败(rolled back)，不存在部分成功。</li>
+<li>一致性，Consistency，数据总是从一致性的状态转移到另一个一致性的状态，总是处于有意义的状态。比如转账，A的钱减少，B的钱增加，总和是不变的。</li>
+<li>隔离性，Isolation，主要解决多个事务<strong>并发读写</strong>的问题，一个事务未提交，那么它对数据的修改对外是不可见的。</li>
+<li>持久性，Durability，一个事务一旦提交，对数据的影响的永久性的，就算断电，系统崩溃也是如此。</li>
+</ul>
+<p>四个性质最根本的是一致性，其他三个性质都是服务于一致性的。</p>
+<h2><a name="隔离级别" class="anchor" href="#隔离级别"><span class="header-link"></span></a>隔离级别</h2><p>当多个进程的事务同时读写数据时，就会出现一些问题。</p>
+<ul>
+<li>脏读，read uncommitted，一个事务可以读到其他事务尚未提交的修改。尚未提交意味着可能回滚，那么该事务读到的就是无效的数据。</li>
+<li>不可重复读，unrepeatable read，同一个事务范围内多次查询却返回了不同的数据，这是因为在查询间隙，数据被另外的事务修改了。</li>
+<li>虚读，幻读，phantom read，同一个事务范围内，相同的操作两次读取的记录数不一样，比如多出来一行。跟不可重复读的对象不一样，幻读针对的是一批数据，而后者指的是同一个数据。</li>
+</ul>
+<p>隔离性是为解决上面的问题，innodb通过不同的锁策略支持四个级别的隔离性。</p>
+<ul>
+<li>Read uncommitted，最低级别，任何情况都无法保证。</li>
+<li>Read committed，可避免脏读。</li>
+<li>Repeatable read，可避免脏读，不可重复读，innodb的默认级别。</li>
+<li>Serializable，最高级别，可避免脏读，不可重复读，幻读的发生，效率最低，一般通过锁表来实现。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>隔离级别</th>
+<th>脏读</th>
+<th>不可重复读</th>
+<th>幻读</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>未提交读</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>已提交读</td>
+<td>No</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>可重复读</td>
+<td>No</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>可串行化</td>
+<td>No</td>
+<td>No</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<p>mysql中查看隔离级别：</p>
+<pre><code><span class="hljs-section">mysql&gt; select @@global.tx_isolation, @@tx_isolation;
++-----------------------+----------------+</span>
+<span class="hljs-section">| @@global.tx_isolation | @@tx_isolation |
++-----------------------+----------------+</span>
+<span class="hljs-section">| READ-COMMITTED        | READ-COMMITTED |
++-----------------------+----------------+</span>
+1 row in set (0.00 sec)
+</code></pre><p>innodb可以通过下面的命令设置隔离级别，注意带global, session或者都不带效果是不一样的。</p>
+<pre><code><span class="hljs-keyword">set</span> [<span class="hljs-keyword">global</span> | <span class="hljs-keyword">session</span>] <span class="hljs-keyword">transaction</span> <span class="hljs-keyword">isolation</span> <span class="hljs-keyword">level</span> [<span class="hljs-keyword">read</span> uncommitted |<span class="hljs-keyword">read</span> committed |repeatable <span class="hljs-keyword">read</span> | <span class="hljs-keyword">serializable</span>];
+</code></pre><ul>
+<li>With the GLOBAL keyword, the statement applies globally for all subsequent sessions. Existing sessions are unaffected.</li>
+<li>With the SESSION keyword, the statement applies to all subsequent transactions performed within the current session.</li>
+<li>Without any SESSION or GLOBAL keyword, the statement applies to the next (not started) transaction performed within the current session. Subsequent transactions revert to using the SESSION isolation level.</li>
+</ul>
+<p>在事务内部无法修改下一个事务的隔离级别：</p>
+<pre><code><span class="hljs-meta">mysql&gt;</span><span class="bash"> begin;</span>
+Query OK, 0 rows affected (0.00 sec)
+<span class="hljs-meta">mysql&gt;</span><span class="bash"> <span class="hljs-built_in">set</span> transaction isolation level serializable;</span>
+ERROR 1568 (25001): Transaction isolation level can't be changed while a transaction is in progress
+<span class="hljs-meta">mysql&gt;</span><span class="bash"> commit;</span>
+Query OK, 0 rows affected (0.00 sec)
+<span class="hljs-meta">mysql&gt;</span><span class="bash"> <span class="hljs-built_in">set</span> transaction isolation level serializable;</span>
+Query OK, 0 rows affected (0.00 sec)
+</code></pre><p>或者</p>
+<pre><code><span class="hljs-keyword">set</span> tx_isolation <span class="hljs-comment">=</span> <span class="hljs-comment">'read-uncommitted'</span>;
+<span class="hljs-keyword">set</span> tx_isolation <span class="hljs-comment">=</span> <span class="hljs-comment">'read-committed'</span>;
+<span class="hljs-keyword">set</span> tx_isolation <span class="hljs-comment">=</span> <span class="hljs-comment">'repeatable-read'</span>;
+<span class="hljs-keyword">set</span> tx_isolation <span class="hljs-comment">=</span> <span class="hljs-comment">'serializable'</span>;
+</code></pre><h2><a name="参考文档" class="anchor" href="#参考文档"><span class="header-link"></span></a>参考文档</h2><ul>
+<li><a href="http://www.cnblogs.com/fjdingsd/p/5273008.html">数据库事务的四大特性以及事务的隔离级别</a></li>
+<li><a href="https://dev.mysql.com/doc/refman/5.7/en/set-transaction.html">SET TRANSACTION Syntax</a></li>
+<li><a href="https://dev.mysql.com/doc/refman/5.7/en/innodb-transaction-isolation-levels.html">Transaction Isolation Levels</a></li>
+</ul>
+</div>
+
+    </div>
+
+</div>
+</body>
+</html>

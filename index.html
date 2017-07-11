@@ -36,7 +36,34 @@
         </div>
 
         <!-- auto complete by template replacement -->
-        <div class="summary-list"><div class="summary" id="2017-07-05-beam-virtual-machine" style="background-color: #ECECEC;">
+        <div class="summary-list"><div class="summary" id="2017-07-11-database-transaction" style="background-color: #ECECEC;">
+    <div class="markdown-body content">
+        <a href="publish/2017-07-11-database-transaction.html"><h1>数据库事务</h1>
+</a><ul>
+<li><a href="#隔离级别">隔离级别</a></li>
+<li><a href="#参考文档">参考文档</a></li>
+</ul>
+<p>事务需要满足ACID特征。Mysql的innodb引擎支持事务。</p>
+<ul>
+<li>原子性，Atomicity, 一个事务是不可分割的整体，要么全部成功(committed)，要么全部失败(rolled back)，不存在部分成功。</li>
+<li>一致性，Consistency，数据总是从一致性的状态转移到另一个一致性的状态，总是处于有意义的状态。比如转账，A的钱减少，B的钱增加，总和是不变的。</li>
+<li>隔离性，Isolation，主要解决多个事务<strong>并发读写</strong>的问题，一个事务未提交，那么它对数据的修改对外是不可见的。</li>
+<li>持久性，Durability，一个事务一旦提交，对数据的影响的永久性的，就算断电，系统崩溃也是如此。</li>
+</ul>
+<p>四个性质最根本的是一致性，其他三个性质都是服务于一致性的。</p>
+
+    </div>
+    <div class="toolbar">
+        <div class="markdown-body">
+            <a href="publish/2017-07-11-database-transaction.html">阅读全文 >> </a>
+        </div>
+        <hr>
+        <time datetime="2017-7-11">2017-7-11</time>
+    </div>
+</div>
+
+
+<div class="summary" id="2017-07-05-beam-virtual-machine" style="background-color: #F9EDED;">
     <div class="markdown-body content">
         <a href="publish/2017-07-05-beam-virtual-machine.html"><h1>Beam虚拟机</h1>
 </a><ul>
@@ -63,7 +90,7 @@
 </div>
 
 
-<div class="summary" id="2017-06-21-selective-receive" style="background-color: #F9EDED;">
+<div class="summary" id="2017-06-21-selective-receive" style="background-color: #ECECEC;">
     <div class="markdown-body content">
         <a href="publish/2017-06-21-selective-receive.html"><h1>Erlang的Selective Receive机制</h1>
 </a><ul>
@@ -108,7 +135,7 @@ end
 </div>
 
 
-<div class="summary" id="2017-06-08-behavior-tree" style="background-color: #ECECEC;">
+<div class="summary" id="2017-06-08-behavior-tree" style="background-color: #F9EDED;">
     <div class="markdown-body content">
         <a href="publish/2017-06-08-behavior-tree.html"><h1>基于Erlang的行为树实现</h1>
 </a><ul>
