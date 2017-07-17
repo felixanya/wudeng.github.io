@@ -7,6 +7,30 @@
 
     <!-- auto complete by template replacement -->
     <item>
+    <title>Erlang代码加载模式</title>
+    <link>http://wudeng.github.io/publish/2017-07-15-erlang-code-loading.html</link>
+    <description>
+<a href="publish/2017-07-15-erlang-code-loading.html"><h1>Erlang代码加载模式</h1>
+</a><ul>
+<li><a href="#purge">purge</a></li>
+<li><a href="#热更机制">热更机制</a></li>
+<li><a href="#参考文档">参考文档</a></li>
+</ul>
+<p>ERTS中有两种代码加载模式：</p>
+<ul>
+<li>interactive：代码第一次被引用的时候会去代码路径中搜索并加载。</li>
+<li>embedded：一开始就根据boot script来加载。</li>
+</ul>
+<p>code模块对外提供接口，code_server模块处理实际的工作，注册为code_server。维护一个私有ets表code。
+预加载的10个模块，包括erlang_prim_loader，erlang，init，prim_inet，prim_file等模块，需要被code_server用到的模块都属于预加载。</p>
+
+        <a href="http://wudeng.github.io/publish/2017-07-15-erlang-code-loading.html">阅读全文 >> </a>
+    </description>
+    <pubDate>2017-7-15</pubDate>
+</item>
+
+
+<item>
     <title>数据库事务</title>
     <link>http://wudeng.github.io/publish/2017-07-11-database-transaction.html</link>
     <description>

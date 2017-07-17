@@ -26,5 +26,12 @@
         "link": "../publish/2017-07-11-database-transaction.html",
         "summary": "<a href=\"publish/2017-07-11-database-transaction.html\"><h1>数据库事务</h1>\n</a><ul>\n<li><a href=\"#隔离级别\">隔离级别</a></li>\n<li><a href=\"#参考文档\">参考文档</a></li>\n</ul>\n<p>事务需要满足ACID特征。Mysql的innodb引擎支持事务。</p>\n<ul>\n<li>原子性，Atomicity, 一个事务是不可分割的整体，要么全部成功(committed)，要么全部失败(rolled back)，不存在部分成功。</li>\n<li>一致性，Consistency，数据总是从一致性的状态转移到另一个一致性的状态，总是处于有意义的状态。比如转账，A的钱减少，B的钱增加，总和是不变的。</li>\n<li>隔离性，Isolation，主要解决多个事务<strong>并发读写</strong>的问题，一个事务未提交，那么它对数据的修改对外是不可见的。</li>\n<li>持久性，Durability，一个事务一旦提交，对数据的影响的永久性的，就算断电，系统崩溃也是如此。</li>\n</ul>\n<p>四个性质最根本的是一致性，其他三个性质都是服务于一致性的。</p>\n",
         "title": "数据库事务"
+    },
+    "2017-07-15-erlang-code-loading": {
+        "name": "2017-07-15-erlang-code-loading",
+        "stamp": "2017-7-15",
+        "link": "../publish/2017-07-15-erlang-code-loading.html",
+        "summary": "<a href=\"publish/2017-07-15-erlang-code-loading.html\"><h1>Erlang代码加载模式</h1>\n</a><ul>\n<li><a href=\"#purge\">purge</a></li>\n<li><a href=\"#热更机制\">热更机制</a></li>\n<li><a href=\"#参考文档\">参考文档</a></li>\n</ul>\n<p>ERTS中有两种代码加载模式：</p>\n<ul>\n<li>interactive：代码第一次被引用的时候会去代码路径中搜索并加载。</li>\n<li>embedded：一开始就根据boot script来加载。</li>\n</ul>\n<p>code模块对外提供接口，code_server模块处理实际的工作，注册为code_server。维护一个私有ets表code。\n预加载的10个模块，包括erlang_prim_loader，erlang，init，prim_inet，prim_file等模块，需要被code_server用到的模块都属于预加载。</p>\n",
+        "title": "Erlang代码加载模式"
     }
 }
