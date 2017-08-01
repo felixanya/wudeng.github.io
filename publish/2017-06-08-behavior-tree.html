@@ -49,10 +49,12 @@
 <ul>
 <li>最简单的if-else嵌套。这种方法最直观，但是维护起来比较困难。</li>
 <li>第二种方法是有限状态机。根据怪物当前所处的状态和当前的环境，决定状态如何迁移。当状态较多时，状态之间的迁移会比较复杂。而且增加状态时需要改动的地方很多。</li>
-<li>行为树相对于前两种方式的优势在于，他实现了控制逻辑与行为逻辑的分离，控制逻辑就是行为树，行为逻辑则是各个行为节点。对于游戏开发来说，我们可以让策划通过
-行为树编辑器来编辑行为树，程序只需要实现具体的行为节点，就可以实现行为决策。</li>
+<li>行为树相对于前两种方式的优势在于，他实现了控制逻辑与行为逻辑的分离，控制逻辑就是行为树，行为逻辑则是各个行为节点。
+对于游戏开发来说，我们可以让策划通过行为树编辑器来编辑行为树，程序只需要实现具体的行为节点，就可以实现行为决策。</li>
 </ul>
-<h2><a name="组成部分" class="anchor" href="#组成部分"><span class="header-link"></span></a>组成部分</h2><p>行为树有四种类型的节点，分别是</p>
+<h2><a name="组成部分" class="anchor" href="#组成部分"><span class="header-link"></span></a>组成部分</h2><p>行为树的结构如图。</p>
+<p><img src="../data/2017-06-08-behavior-tree/bt_architecture.png" alt="bt architecture"></p>
+<p>行为树有四种类型的节点，分别是</p>
 <ul>
 <li>控制节点，最主要的是选择节点（Selector）和顺序节点（Sequence）。控制节点都不是叶子节点，它根据子节点的返回值返回成功，失败，运行这三种状态。</li>
 <li>行为节点，具体的行为逻辑，如逃跑，巡逻。行为节点一般是叶子节点，返回成功，失败，运行这三种状态。</li>
@@ -63,6 +65,10 @@
 <p>行为树一般以一定的频率周期性的执行tick函数，每次tick都从根节点开始执行。有一些行为树会直接从返回运行的节点开始执行，这样的话如果有低优先级的节点一直返回运行状态，
 遇到高优先级的节点时则无法打断低优先级的节点。比如怪物在巡逻的时候返回运行，这时候如果有玩家攻击它，合理的反应是进行反击或者逃跑，但是如果每次tick都从巡逻节点开始执行，
 则根本不会处理到反击或逃跑的逻辑。</p>
+<p>要注意的一个问题是，当出现高优先级的行为B1打断低优先级行为B2时，因为每次从根节点开始tick，B2的无法从内部正常的关闭。这时候需要在主逻辑上额外处理一下上上次打开的节点，
+即调用一下这些节点的close函数。Behavior3的实现中通过比较本次的开放节点列表和上次的开放节点列表，找出上次开放，本次没有开放的节点来关闭，这样可能存在一个问题。
+也就是当上次开放的节点在本次tick正常结束的情况下，仍然会被重新关闭一次，即一个节点关闭了两次。解决的办法是，在判断节点是否需要关闭的时候，检测一下节点是否开放，
+如果是开放，则关闭，否则不予处理。Erlang版本的实现中通过遍历行为树节点来找到未正常关闭的节点，考虑到行为树通常不会很大，性能上也可以接受。</p>
 <h2><a name="具体实现" class="anchor" href="#具体实现"><span class="header-link"></span></a>具体实现</h2><p>Erlang版行为树的具体实现参考了Behavior3的版本。每个节点的执行逻辑:</p>
 <pre><code class="lang--erlang">execute(<span class="hljs-comment">#node{id = Id} = Node, #tick{blackboard = Blackboard} = Tick) -&gt;</span>
     Tick1 = enter_cb(<span class="hljs-keyword">Node</span><span class="hljs-title">, Tick</span>),
@@ -78,35 +84,65 @@
     Tick5 = exit_cb(<span class="hljs-keyword">Node</span><span class="hljs-title">, Tick4</span>),
     {Status, Tick5}.
 </code></pre>
-<ul>
-<li><p>选择节点</p>
+<p>选择节点</p>
 <pre><code>priority<span class="hljs-function"><span class="hljs-params">([], Tick)</span> -&gt;</span>
-  {<span class="hljs-literal">false</span>, Tick};
+    {<span class="hljs-literal">false</span>, Tick};
 priority<span class="hljs-function"><span class="hljs-params">([C|Children], Tick)</span> -&gt;</span>
-  <span class="hljs-keyword">case</span> execute(C, Tick) <span class="hljs-keyword">of</span>
-      {<span class="hljs-literal">true</span>, NewTick}<span class="hljs-function"> -&gt;</span> 
-          {<span class="hljs-literal">true</span>, NewTick};
-      {running, NewTick}<span class="hljs-function"> -&gt;</span>
-          {running, NewTick};
-      {<span class="hljs-literal">false</span>, NewTick}<span class="hljs-function"> -&gt;</span>
-          priority(Children, NewTick)
-  end.
-</code></pre></li>
-<li><p>顺序节点</p>
+    <span class="hljs-keyword">case</span> execute(C, Tick) <span class="hljs-keyword">of</span>
+        {<span class="hljs-literal">true</span>, NewTick}<span class="hljs-function"> -&gt;</span> 
+            {<span class="hljs-literal">true</span>, NewTick};
+        {running, NewTick}<span class="hljs-function"> -&gt;</span>
+            {running, NewTick};
+        {<span class="hljs-literal">false</span>, NewTick}<span class="hljs-function"> -&gt;</span>
+            priority(Children, NewTick)
+    end.
+</code></pre><p>顺序节点</p>
 <pre><code>priority<span class="hljs-function"><span class="hljs-params">([], Tick)</span> -&gt;</span>
-  {<span class="hljs-literal">false</span>, Tick};
+    {<span class="hljs-literal">false</span>, Tick};
 priority<span class="hljs-function"><span class="hljs-params">([C|Children], Tick)</span> -&gt;</span>
-  <span class="hljs-keyword">case</span> execute(C, Tick) <span class="hljs-keyword">of</span>
-      {<span class="hljs-literal">true</span>, NewTick}<span class="hljs-function"> -&gt;</span> 
-          {<span class="hljs-literal">true</span>, NewTick};
-      {running, NewTick}<span class="hljs-function"> -&gt;</span>
-          {running, NewTick};
-      {<span class="hljs-literal">false</span>, NewTick}<span class="hljs-function"> -&gt;</span>
-          priority(Children, NewTick)
-  end.
-</code></pre></li>
+    <span class="hljs-keyword">case</span> execute(C, Tick) <span class="hljs-keyword">of</span>
+        {<span class="hljs-literal">true</span>, NewTick}<span class="hljs-function"> -&gt;</span> 
+            {<span class="hljs-literal">true</span>, NewTick};
+        {running, NewTick}<span class="hljs-function"> -&gt;</span>
+            {running, NewTick};
+        {<span class="hljs-literal">false</span>, NewTick}<span class="hljs-function"> -&gt;</span>
+            priority(Children, NewTick)
+    end.
+</code></pre><p>遍历行为树关闭未能正常关闭的节点</p>
+<pre><code><span class="hljs-function"><span class="hljs-title">close_nodes</span><span class="hljs-params">(_, _, [], Tick)</span> -&gt;</span> Tick;
+<span class="hljs-function"><span class="hljs-title">close_nodes</span><span class="hljs-params">(undefined, _, _, Tick)</span> -&gt;</span> Tick;
+<span class="hljs-function"><span class="hljs-title">close_nodes</span><span class="hljs-params">(#node{children = [], child = undefined} = Node, CurOpenNodes, LastOpenNodes, Tick)</span> -&gt;</span>
+    close_node(Node, CurOpenNodes, LastOpenNodes, Tick);
+<span class="hljs-function"><span class="hljs-title">close_nodes</span><span class="hljs-params">(#node{children = Children, child = undefined} = Node, CurOpenNodes, LastOpenNodes, Tick)</span> -&gt;</span>
+    NewTick = close_node(Node, CurOpenNodes, LastOpenNodes, Tick),
+    lists:foldl(
+        <span class="hljs-keyword">fun</span>(Child, Acc) -&gt;
+            close_nodes(Child, CurOpenNodes, LastOpenNodes, Acc)
+        <span class="hljs-keyword">end</span>,
+        NewTick,
+        Children
+    );
+<span class="hljs-function"><span class="hljs-title">close_nodes</span><span class="hljs-params">(#node{children = [], child = Child} = Node, CurOpenNodes, LastOpenNodes, Tick)</span> -&gt;</span>
+    NewTick = close_node(Node, CurOpenNodes, LastOpenNodes, Tick),
+    close_nodes(Child, CurOpenNodes, LastOpenNodes, NewTick).
+<span class="hljs-function"><span class="hljs-title">close_node</span><span class="hljs-params">(#node{id = Id} = Node, CurOpenNodes, LastOpenNodes, #tick{blackboard = Blackboard} = Tick)</span> -&gt;</span>
+    <span class="hljs-keyword">case</span> lists:member(Id, LastOpenNodes) <span class="hljs-keyword">andalso</span> 
+         <span class="hljs-keyword">not</span> lists:member(Id, CurOpenNodes) <span class="hljs-keyword">andalso</span> 
+         get_key({is_open, Id}, Blackboard, false) <span class="hljs-keyword">of</span>
+        <span class="hljs-literal">true</span> -&gt; 
+            <span class="hljs-comment">%%?DEBUG("close_node ~p", [Node]),</span>
+            close_cb_(Node, Tick#tick{blackboard = dict:store({is_open, Id}, false, Blackboard)});
+        <span class="hljs-literal">false</span> -&gt; 
+            Tick
+    <span class="hljs-keyword">end</span>.
+</code></pre><h2><a name="参考文档" class="anchor" href="#参考文档"><span class="header-link"></span></a>参考文档</h2><ul>
+<li><a href="http://guineashots.com/2014/07/25/an-introduction-to-behavior-trees-part-1/">An Introduction to Behavior Tree - Part 1</a></li>
+<li><a href="http://guineashots.com/2014/08/10/an-introduction-to-behavior-trees-part-2/">An Introduction to Behavior Tree - Part 1</a></li>
+<li><a href="http://guineashots.com/2014/08/15/an-introduction-to-behavior-trees-part-3/">An Introduction to Behavior Tree - Part 3</a></li>
+<li><a href="http://blog.renatopp.com/2014/09/24/implementing-a-behavior-tree-part-1/">Implementing A Behavior Tree – Part 1</a></li>
+<li><a href="http://guineashots.com/2014/10/25/implementing-a-behavior-tree-part-2/">Implementing A Behavior Tree – Part 2</a></li>
+<li><a href="https://github.com/wudeng/behavior_tree/">参考源码</a></li>
 </ul>
-<h2><a name="参考文档" class="anchor" href="#参考文档"><span class="header-link"></span></a>参考文档</h2><p><a href="https://github.com/wudeng/behavior_tree/">参考源码</a></p>
 </div>
 
     </div>
