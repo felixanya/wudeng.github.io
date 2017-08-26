@@ -1,0 +1,192 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <!--
+                <a class="btn btn-default" href="mailto:wudeng256#qq.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+                -->
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h1>Erlang Memory Management</h1><ul>
+<li><a href="#概念">概念</a></li>
+<li><a href="#各种分配器">各种分配器</a></li>
+<li><a href="#allocation-strategy">allocation strategy</a></li>
+<li><a href="#统计">统计</a></li>
+<li><a href="#主要配置参数">主要配置参数</a></li>
+<li><a href="#实例">实例</a></li>
+<li><a href="#参考文档">参考文档</a></li>
+</ul>
+<p>系统自带的分配器存在的缺点：</p>
+<ul>
+<li>小内存分配效率低。</li>
+<li>所有数据同样的分配策略，增加碎片。</li>
+<li>缺乏跨平台细粒度的统计</li>
+<li><code>+Mea</code> disable erts allocators and use malloc for everything</li>
+<li>多核内存管理更加重要也更加复杂</li>
+</ul>
+<h2><a name="概念" class="anchor" href="#概念"><span class="header-link"></span></a>概念</h2><ul>
+<li>Block: 虚拟机请求的一块内存区域。</li>
+<li>Carrier: 包含一个或多个Block的内存区域，分为sbc，mbc。正常情况下大部分数据位于mbc。<ul>
+<li>Single Block Carrier sbc<ul>
+<li>大的block进入sbc</li>
+<li><code>+M&lt;S&gt;sbct</code> 默认512k</li>
+<li>可以通过erlang:system_info(allocator)查看各个allocator的配置参数</li>
+</ul>
+</li>
+<li>Multiblock Carrier mbc<ul>
+<li><code>+M&lt;S&gt;smbcs</code> smallest Multiblock carrier size</li>
+<li><code>+M&lt;S&gt;lmbcs</code> largest multiblock Carrier size</li>
+<li><code>+M&lt;S&gt;mbcgs</code> multiblock Carrier grow stage</li>
+<li>如果增加sbct一般也会相应增大smbcs和lmbcs</li>
+</ul>
+</li>
+<li>通过mseg_alloc分配的mbc的大小<ul>
+<li>smbcs+nc*(lmbcs-smbcs)/mbcgs (nc &lt;= mbcgs) </li>
+<li>lmbcs (nc &gt; mbcgs)</li>
+</ul>
+</li>
+<li>通过sys_alloc分配的mbc<ul>
+<li>least number of multiple of ycs satisfying the request</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2><a name="各种分配器" class="anchor" href="#各种分配器"><span class="header-link"></span></a>各种分配器</h2><p>文件erl_alloc.types中列举了所有的分配器类型以及不同数据对应的分配器类型。</p>
+<ul>
+<li>eheap，binary, driver, ets</li>
+<li>temporary <ul>
+<li>c function scope</li>
+<li>temp gc rootset</li>
+<li>dist msg decode</li>
+</ul>
+</li>
+<li>short lived <ul>
+<li>ets match specs </li>
+<li>short timers </li>
+<li>fd select list</li>
+</ul>
+</li>
+<li>standard lived<ul>
+<li>links</li>
+<li>monitors</li>
+</ul>
+</li>
+<li>long lived<ul>
+<li>code</li>
+<li>atoms</li>
+</ul>
+</li>
+<li>fix size <ul>
+<li>process control block</li>
+<li>port control block</li>
+</ul>
+</li>
+</ul>
+<p>分配策略(as)</p>
+<h2><a name="allocation-strategy" class="anchor" href="#allocation-strategy"><span class="header-link"></span></a>allocation strategy</h2><ul>
+<li>Block Oriented<ul>
+<li>best fit: 找到满足要求的最小block，二叉平衡树，logN</li>
+<li>address order best fit</li>
+<li>address order first fit</li>
+<li>good fit</li>
+<li>a fit</li>
+</ul>
+</li>
+<li>Carrier Oriented<ul>
+<li>address order first fit carrier best fit </li>
+<li>address order first fit carrier address order best fit</li>
+</ul>
+</li>
+</ul>
+<p>Carrier分配器</p>
+<ul>
+<li>mseg alloc<ul>
+<li>/dev/zero mmap, munmap, mremap</li>
+<li>cache freeed carries</li>
+</ul>
+</li>
+<li>sys alloc<ul>
+<li>maps to malloc, free</li>
+<li>multiple of +Muycs to help avoid fragmentation</li>
+<li>used for main carrier allocaton</li>
+</ul>
+</li>
+</ul>
+<h2><a name="统计" class="anchor" href="#统计"><span class="header-link"></span></a>统计</h2><p>erlang:system_info(allocator)</p>
+<ul>
+<li>sys_alloc mseg_alloc</li>
+<li>eheap_alloc, ets_alloc, binary_alloc, driver_alloc</li>
+<li>temp_alloc, sl_alloc, std_alloc, ll_alloc, fix_alloc</li>
+</ul>
+<p>erlang:system_info({allocator, Type})</p>
+<h2><a name="主要配置参数" class="anchor" href="#主要配置参数"><span class="header-link"></span></a>主要配置参数</h2><ul>
+<li>sbct</li>
+<li>mbc allocation strategy</li>
+</ul>
+<h2><a name="实例" class="anchor" href="#实例"><span class="header-link"></span></a>实例</h2><p>问题一: large binary</p>
+<ul>
+<li>现象：性能低下，通过strace发现malloc比mmap多得多。</li>
+<li>原因： 统计发现sbcs carrier_size 比 mbcs carrier_size大得多，大量binary放到了sbc。</li>
+<li>解决方案： <ul>
+<li>增大<code>+MBsbct</code>, 同时增大<code>+MBlmbcs</code>和<code>+MBsmbcs</code></li>
+</ul>
+</li>
+</ul>
+<p>问题二：碎片问题</p>
+<p>这是lyse作者在实际项目中遇到的问题，详情见作者博客<a href="https://blog.heroku.com/logplex-down-the-rabbit-hole">logplex down the rabbit hole</a>。</p>
+<ul>
+<li>现象：<ul>
+<li>erlang:memory(total) 7GB</li>
+<li>top 显示 15GB</li>
+<li>崩溃日志：ets_alloc: Cannot allocate XYZ bytes of memory. Abnormal termination</li>
+</ul>
+</li>
+<li>原因： Carrier中残留的block导致Carrier无法回收</li>
+<li>方案：减少碎片<ul>
+<li><code>+MBas aobf</code> address order best fit 更集中</li>
+<li>减小<code>+MBlmbcs</code> 来分配更多的小mbc，更容易被回收</li>
+</ul>
+</li>
+</ul>
+<h2><a name="参考文档" class="anchor" href="#参考文档"><span class="header-link"></span></a>参考文档</h2><ul>
+<li>Memory Management Battle Stories by lukas larsson</li>
+<li><a href="http://erlang.org/doc/man/erts_alloc.html">http://erlang.org/doc/man/erts_alloc.html</a></li>
+<li><a href="https://blog.heroku.com/logplex-down-the-rabbit-hole">logplex down the rabbit hole</a></li>
+</ul>
+</div>
+
+    </div>
+
+</div>
+</body>
+</html>
