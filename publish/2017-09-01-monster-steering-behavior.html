@@ -1,0 +1,121 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <!--
+                <a class="btn btn-default" href="mailto:wudeng256#qq.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+                -->
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h1>怪物包围算法</h1><ul>
+<li><a href="#算法思路">算法思路</a></li>
+<li><a href="#具体实现">具体实现</a></li>
+</ul>
+<p>ARPG游戏中经常出现多个怪物追着玩家跑的情况，如果怪物始终瞄着玩家的位置移动，那么很容易就出现怪物扎堆的情况。
+本文探讨并实现了一个位置管理算法，来解决这个问题。</p>
+<h2><a name="算法思路" class="anchor" href="#算法思路"><span class="header-link"></span></a>算法思路</h2><p>我们的思路是：如果玩家已经在攻击范围内，直接攻击。否则怪物向玩家移动，形成一个以攻击距离为半径，玩家为圆心的包围圈。
+在移动过程中，怪物优先选择怪物所在位置与玩家连线跟圆的交点。 如果交点被占据，则向两边搜索新的位置，直到找到一个位置为止。</p>
+<h2><a name="具体实现" class="anchor" href="#具体实现"><span class="header-link"></span></a>具体实现</h2><p>整个圆是360度，我们把它等分为18个区间，每个区间20度，18个区间基本足以满足对怪物数量的要求了。
+我们首先找到怪物相对玩家位置的角度。</p>
+<p><code>CurAngle = (math:atan2(Z1 - Z0, X1 - X0) / math:pi()) + 180</code></p>
+<p>atan2求出的范围是弧度(-pi, pi]，我们需要将其转换为(0, 360]的角度。
+然后检查是否当前角度所在的区间是否已经被占用，由于区间是一个连续的范围，我们用起点来表示一个区间。</p>
+<pre><code><span class="hljs-keyword">-define</span><span class="hljs-params">(SLICE, <span class="hljs-number">20</span>)</span>. <span class="hljs-comment">%% 极坐标20度为一个slot分布怪物</span>
+
+<span class="hljs-function"><span class="hljs-title">find_angle</span><span class="hljs-params">(PlayerId, PlayerPos, Angle)</span> -&gt;</span>
+    PlayerPos0 = get({player_pos, PlayerId}),
+    PlayerPos0 /= PlayerPos <span class="hljs-keyword">andalso</span> 
+    <span class="hljs-keyword">begin</span> 
+        erase({angle, PlayerId}),
+        put({player_pos, PlayerId}, PlayerPos),
+        ?INFO(<span class="hljs-string">"~p change pos ~p"</span>, [PlayerId, PlayerPos])
+    <span class="hljs-keyword">end</span>,
+    AdjustAngle = (Angle <span class="hljs-keyword">div</span> ?SLICE) * ?SLICE,
+    Angles = occupied_angle(PlayerId),
+    TheAngle = 
+    <span class="hljs-keyword">case</span> lists:member(AdjustAngle, Angles) <span class="hljs-keyword">of</span>
+        <span class="hljs-literal">true</span> -&gt;
+            find_angle1(AdjustAngle, ?SLICE, Angles);
+        <span class="hljs-literal">false</span> -&gt;
+            AdjustAngle
+    <span class="hljs-keyword">end</span>,
+    put({angle, PlayerId}, [TheAngle|Angles]),
+    lib_common:random_n(TheAngle, TheAngle + ?SLICE - <span class="hljs-number">1</span>) <span class="hljs-keyword">rem</span> <span class="hljs-number">360</span>.
+
+<span class="hljs-function"><span class="hljs-title">occupied_angle</span><span class="hljs-params">(PlayerId)</span> -&gt;</span>
+    <span class="hljs-keyword">case</span> get({angle, PlayerId}) <span class="hljs-keyword">of</span>
+        undefined -&gt; [];
+        List -&gt; List
+    <span class="hljs-keyword">end</span>.
+</code></pre><p>如果当前区间已经被占用，则向两边搜索可用的区间。
+我们维护一个Delta差值，逐步增大Delta，向外扩张来搜索新的区间，直到找到为止。之所以限制Delta的范围是不想让怪物越过玩家，
+所以如果所有怪都是从同一个方向向玩家移动的时候会形成一个接近半圆的包围圈。</p>
+<pre><code><span class="hljs-function"><span class="hljs-title">find_angle1</span><span class="hljs-params">(AdjustAngle, Delta, _Angles)</span> <span class="hljs-title">when</span> D<span class="hljs-title">elta</span> &gt; 100 -&gt;</span>
+    AdjustAngle;
+<span class="hljs-function"><span class="hljs-title">find_angle1</span><span class="hljs-params">(AdjustAngle, Delta, Angles)</span> -&gt;</span>
+    Angle1 = (AdjustAngle + Delta) <span class="hljs-keyword">rem</span> <span class="hljs-number">360</span>,
+    <span class="hljs-keyword">case</span> lists:member(Angle1, Angles) <span class="hljs-keyword">of</span>
+        <span class="hljs-literal">true</span> -&gt; 
+            Angle2 = (AdjustAngle - Delta + <span class="hljs-number">360</span>) <span class="hljs-keyword">rem</span> <span class="hljs-number">360</span>,
+            <span class="hljs-keyword">case</span> lists:member(Angle2, Angles) <span class="hljs-keyword">of</span>
+                <span class="hljs-literal">true</span> -&gt;
+                    find_angle1(AdjustAngle, Delta+?SLICE, Angles);
+                <span class="hljs-literal">false</span> -&gt;
+                    Angle2
+            <span class="hljs-keyword">end</span>;
+        <span class="hljs-literal">false</span> -&gt;
+            Angle1
+    <span class="hljs-keyword">end</span>.
+</code></pre><p>解决了怪物分布的问题，还有一个问题就是玩家位置的维护。因为玩家是一直移动的，而且移动的频率很高。
+如果每次玩家移动了以后，都清除掉老的区间，重新计算新的区间。代价会比较大，而且也不是很有必要。
+所以我们只会在玩家离开一段距离导致目标点无法攻击玩家的时候，才更新圆心的位置，所以实际上圆心的位置跟玩家的位置可能存在一定的偏移，
+这一点我们是可以容忍的。</p>
+<pre><code><span class="hljs-type">TargetPos</span> = <span class="hljs-keyword">if</span> 
+    <span class="hljs-type">TP</span> =:= undefined -&gt; 
+        get_target_pos(<span class="hljs-type">PlayerId</span>, <span class="hljs-type">MonsterId</span>, <span class="hljs-type">PlayerPos</span>, <span class="hljs-type">Distance</span>);
+    <span class="hljs-literal">true</span> -&gt; 
+        %% 玩家离开一段距离了，导致目标点无法攻击玩家，则更新目标点
+        <span class="hljs-type">Dis2</span> = lib_map_util:calc_dis2(<span class="hljs-type">TP</span>, <span class="hljs-type">PlayerPos</span>),
+        <span class="hljs-keyword">if</span> 
+            <span class="hljs-type">Dis2</span> =&lt; <span class="hljs-type">Distance</span> * <span class="hljs-type">Distance</span> + ?<span class="hljs-type">EPSILON2</span> -&gt; <span class="hljs-type">TP</span>;
+            <span class="hljs-literal">true</span> -&gt; get_target_pos(<span class="hljs-type">PlayerId</span>, <span class="hljs-type">MonsterId</span>, <span class="hljs-type">PlayerPos</span>, <span class="hljs-type">Distance</span>) 
+        <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">end</span>
+</code></pre><p>TP是老的怪物目标点，如果我们发现怪物的目标点无法攻击到玩家，则更新目标点。这里比较距离的时候还有个坑，
+浮点数的精度有限，所以我们需要加入一个误差，<code>EPSILON2</code>。否则计算出来的目标点有可能会无法满足不等式而导致怪物在玩家周围做小步调整来切换目标点。</p>
+</div>
+
+    </div>
+
+</div>
+</body>
+</html>

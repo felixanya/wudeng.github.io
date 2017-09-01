@@ -40,5 +40,12 @@
         "link": "../publish/2017-08-26-erlang-memory-management.html",
         "summary": "<a href=\"publish/2017-08-26-erlang-memory-management.html\"><h1>Erlang Memory Management</h1>\n</a><ul>\n<li><a href=\"#概念\">概念</a></li>\n<li><a href=\"#各种分配器\">各种分配器</a></li>\n<li><a href=\"#allocation-strategy\">allocation strategy</a></li>\n<li><a href=\"#统计\">统计</a></li>\n<li><a href=\"#主要配置参数\">主要配置参数</a></li>\n<li><a href=\"#实例\">实例</a></li>\n<li><a href=\"#参考文档\">参考文档</a></li>\n</ul>\n<p>系统自带的分配器存在的缺点：</p>\n<ul>\n<li>小内存分配效率低。</li>\n<li>所有数据同样的分配策略，增加碎片。</li>\n<li>缺乏跨平台细粒度的统计</li>\n<li><code>+Mea</code> disable erts allocators and use malloc for everything</li>\n<li>多核内存管理更加重要也更加复杂</li>\n</ul>\n<h2><a name=\"概念\" class=\"anchor\" href=\"#概念\"><span class=\"header-link\"></span></a>概念</h2>\n",
         "title": "Erlang Memory Management"
+    },
+    "2017-09-01-monster-steering-behavior": {
+        "name": "2017-09-01-monster-steering-behavior",
+        "stamp": "2017-9-1",
+        "link": "../publish/2017-09-01-monster-steering-behavior.html",
+        "summary": "<a href=\"publish/2017-09-01-monster-steering-behavior.html\"><h1>怪物包围算法</h1>\n</a><ul>\n<li><a href=\"#算法思路\">算法思路</a></li>\n<li><a href=\"#具体实现\">具体实现</a></li>\n</ul>\n<p>ARPG游戏中经常出现多个怪物追着玩家跑的情况，如果怪物始终瞄着玩家的位置移动，那么很容易就出现怪物扎堆的情况。\n本文探讨并实现了一个位置管理算法，来解决这个问题。</p>\n<h2><a name=\"算法思路\" class=\"anchor\" href=\"#算法思路\"><span class=\"header-link\"></span></a>算法思路</h2>\n<p>我们的思路是：如果玩家已经在攻击范围内，直接攻击。否则怪物向玩家移动，形成一个以攻击距离为半径，玩家为圆心的包围圈。\n在移动过程中，怪物优先选择怪物所在位置与玩家连线跟圆的交点。 如果交点被占据，则向两边搜索新的位置，直到找到一个位置为止。</p>\n",
+        "title": "怪物包围算法"
     }
 }

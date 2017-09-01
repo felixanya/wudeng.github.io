@@ -36,7 +36,31 @@
         </div>
 
         <!-- auto complete by template replacement -->
-        <div class="summary-list"><div class="summary" id="2017-08-26-erlang-memory-management" style="background-color: #ECECEC;">
+        <div class="summary-list"><div class="summary" id="2017-09-01-monster-steering-behavior" style="background-color: #ECECEC;">
+    <div class="markdown-body content">
+        <a href="publish/2017-09-01-monster-steering-behavior.html"><h1>怪物包围算法</h1>
+</a><ul>
+<li><a href="#算法思路">算法思路</a></li>
+<li><a href="#具体实现">具体实现</a></li>
+</ul>
+<p>ARPG游戏中经常出现多个怪物追着玩家跑的情况，如果怪物始终瞄着玩家的位置移动，那么很容易就出现怪物扎堆的情况。
+本文探讨并实现了一个位置管理算法，来解决这个问题。</p>
+<h2><a name="算法思路" class="anchor" href="#算法思路"><span class="header-link"></span></a>算法思路</h2>
+<p>我们的思路是：如果玩家已经在攻击范围内，直接攻击。否则怪物向玩家移动，形成一个以攻击距离为半径，玩家为圆心的包围圈。
+在移动过程中，怪物优先选择怪物所在位置与玩家连线跟圆的交点。 如果交点被占据，则向两边搜索新的位置，直到找到一个位置为止。</p>
+
+    </div>
+    <div class="toolbar">
+        <div class="markdown-body">
+            <a href="publish/2017-09-01-monster-steering-behavior.html">阅读全文 >> </a>
+        </div>
+        <hr>
+        <time datetime="2017-9-1">2017-9-1</time>
+    </div>
+</div>
+
+
+<div class="summary" id="2017-08-26-erlang-memory-management" style="background-color: #F9EDED;">
     <div class="markdown-body content">
         <a href="publish/2017-08-26-erlang-memory-management.html"><h1>Erlang Memory Management</h1>
 </a><ul>
@@ -69,7 +93,7 @@
 </div>
 
 
-<div class="summary" id="2017-07-15-erlang-code-loading" style="background-color: #F9EDED;">
+<div class="summary" id="2017-07-15-erlang-code-loading" style="background-color: #ECECEC;">
     <div class="markdown-body content">
         <a href="publish/2017-07-15-erlang-code-loading.html"><h1>Erlang代码加载模式</h1>
 </a><ul>
@@ -96,7 +120,7 @@
 </div>
 
 
-<div class="summary" id="2017-07-11-database-transaction" style="background-color: #ECECEC;">
+<div class="summary" id="2017-07-11-database-transaction" style="background-color: #F9EDED;">
     <div class="markdown-body content">
         <a href="publish/2017-07-11-database-transaction.html"><h1>数据库事务</h1>
 </a><ul>
@@ -123,7 +147,7 @@
 </div>
 
 
-<div class="summary" id="2017-07-05-beam-virtual-machine" style="background-color: #F9EDED;">
+<div class="summary" id="2017-07-05-beam-virtual-machine" style="background-color: #ECECEC;">
     <div class="markdown-body content">
         <a href="publish/2017-07-05-beam-virtual-machine.html"><h1>Beam虚拟机</h1>
 </a><ul>
@@ -150,7 +174,7 @@
 </div>
 
 
-<div class="summary" id="2017-06-21-selective-receive" style="background-color: #ECECEC;">
+<div class="summary" id="2017-06-21-selective-receive" style="background-color: #F9EDED;">
     <div class="markdown-body content">
         <a href="publish/2017-06-21-selective-receive.html"><h1>Erlang的Selective Receive机制</h1>
 </a><ul>
@@ -195,7 +219,7 @@ end
 </div>
 
 
-<div class="summary" id="2017-06-08-behavior-tree" style="background-color: #F9EDED;">
+<div class="summary" id="2017-06-08-behavior-tree" style="background-color: #ECECEC;">
     <div class="markdown-body content">
         <a href="publish/2017-06-08-behavior-tree.html"><h1>基于Erlang的行为树实现</h1>
 </a><ul>
