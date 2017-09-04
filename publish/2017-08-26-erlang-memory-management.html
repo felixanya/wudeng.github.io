@@ -39,7 +39,7 @@
         <div class="main-content markdown-body"><h1>Erlang Memory Management</h1><ul>
 <li><a href="#概念">概念</a></li>
 <li><a href="#各种分配器">各种分配器</a></li>
-<li><a href="#allocation-strategy">allocation strategy</a></li>
+<li><a href="#分配策略as">分配策略(as)</a></li>
 <li><a href="#统计">统计</a></li>
 <li><a href="#主要配置参数">主要配置参数</a></li>
 <li><a href="#实例">实例</a></li>
@@ -81,7 +81,100 @@
 </ul>
 </li>
 </ul>
-<h2><a name="各种分配器" class="anchor" href="#各种分配器"><span class="header-link"></span></a>各种分配器</h2><p>文件erl_alloc.types中列举了所有的分配器类型以及不同数据对应的分配器类型。</p>
+<h2><a name="各种分配器" class="anchor" href="#各种分配器"><span class="header-link"></span></a>各种分配器</h2><p><img src="../data/2017-08-26-erlang-memory-management/memory_allocators.png" alt="memory_allocators"></p>
+<p>文件erl_alloc.types中列举了所有的分配器类型以及不同数据对应的分配器类型。
+ERTS中一共定义了11中不同的分配器，包括最基本的sys_alloc以及mseg_alloc。
+详情见下表。Flag是启动ERTS时修改分配器配置参数的标志。</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+<th>C-name</th>
+<th>Type-name</th>
+<th>Flag</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Basic allocator</td>
+<td>malloc interface</td>
+<td>sys_alloc</td>
+<td>SYSTEM</td>
+<td>Y</td>
+</tr>
+<tr>
+<td>Memory segment allocator</td>
+<td>mmap interface</td>
+<td>mseg_alloc</td>
+<td>-</td>
+<td>M</td>
+</tr>
+<tr>
+<td>Temporary allocator</td>
+<td>Temporary allocations</td>
+<td>temp_alloc</td>
+<td>TEMPORARY</td>
+<td>T</td>
+</tr>
+<tr>
+<td>Heap allocator</td>
+<td>Erlang heap data</td>
+<td>eheap_alloc</td>
+<td>EHEAP</td>
+<td>H</td>
+</tr>
+<tr>
+<td>Binary allocator</td>
+<td>Binary data</td>
+<td>binary_alloc</td>
+<td>BINARY</td>
+<td>B</td>
+</tr>
+<tr>
+<td>ETS allocator</td>
+<td>ETS data</td>
+<td>ets_alloc</td>
+<td>ETS</td>
+<td>E</td>
+</tr>
+<tr>
+<td>Driver allocator</td>
+<td>Driver data</td>
+<td>driver_alloc</td>
+<td>DRIVER</td>
+<td>R</td>
+</tr>
+<tr>
+<td>Short lived allocator</td>
+<td>Short lived memory</td>
+<td>sl_alloc</td>
+<td>SHORT_LIVED</td>
+<td>S</td>
+</tr>
+<tr>
+<td>Long lived allocator</td>
+<td>Long lived memory</td>
+<td>ll_alloc</td>
+<td>LONG_LIVED</td>
+<td>L</td>
+</tr>
+<tr>
+<td>Fiexed allocator</td>
+<td>Fiexed size data</td>
+<td>fix_alloc</td>
+<td>FIXED_SIZE</td>
+<td>F</td>
+</tr>
+<tr>
+<td>Standard allocator</td>
+<td>For most other data</td>
+<td>std_alloc</td>
+<td>STANDARD</td>
+<td>D</td>
+</tr>
+</tbody>
+</table>
 <ul>
 <li>eheap，binary, driver, ets</li>
 <li>temporary <ul>
@@ -112,8 +205,8 @@
 </ul>
 </li>
 </ul>
-<p>分配策略(as)</p>
-<h2><a name="allocation-strategy" class="anchor" href="#allocation-strategy"><span class="header-link"></span></a>allocation strategy</h2><ul>
+<h2><a name="分配策略(as)" class="anchor" href="#分配策略(as)"><span class="header-link"></span></a>分配策略(as)</h2><p>allocation strategy，从mbc中找到空闲block的策略。</p>
+<ul>
 <li>Block Oriented<ul>
 <li>best fit: 找到满足要求的最小block，二叉平衡树，logN</li>
 <li>address order best fit</li>
@@ -182,6 +275,7 @@
 <li>Memory Management Battle Stories by lukas larsson</li>
 <li><a href="http://erlang.org/doc/man/erts_alloc.html">http://erlang.org/doc/man/erts_alloc.html</a></li>
 <li><a href="https://blog.heroku.com/logplex-down-the-rabbit-hole">logplex down the rabbit hole</a></li>
+<li>The beam book</li>
 </ul>
 </div>
 

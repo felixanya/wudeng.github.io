@@ -10,6 +10,7 @@ Erlang Memory Management
 
 概念
 ----
+
 * Block: 虚拟机请求的一块内存区域。
 * Carrier: 包含一个或多个Block的内存区域，分为sbc，mbc。正常情况下大部分数据位于mbc。
     * Single Block Carrier sbc
@@ -29,7 +30,27 @@ Erlang Memory Management
 
 各种分配器
 ----
+
+![memory_allocators](../data/2017-08-26-erlang-memory-management/memory_allocators.png)
+
 文件erl_alloc.types中列举了所有的分配器类型以及不同数据对应的分配器类型。
+ERTS中一共定义了11中不同的分配器，包括最基本的sys_alloc以及mseg_alloc。
+详情见下表。Flag是启动ERTS时修改分配器配置参数的标志。
+
+| Name                     | Description           | C-name       | Type-name   | Flag |
+|--------------------------|-----------------------|--------------|-------------|------|
+| Basic allocator          | malloc interface      | sys_alloc    | SYSTEM      | Y    |
+| Memory segment allocator | mmap interface        | mseg_alloc   | -           | M    |
+| Temporary allocator      | Temporary allocations | temp_alloc   | TEMPORARY   | T    |
+| Heap allocator           | Erlang heap data      | eheap_alloc  | EHEAP       | H    |
+| Binary allocator         | Binary data           | binary_alloc | BINARY      | B    |
+| ETS allocator            | ETS data              | ets_alloc    | ETS         | E    |
+| Driver allocator         | Driver data           | driver_alloc | DRIVER      | R    |
+| Short lived allocator    | Short lived memory    | sl_alloc     | SHORT_LIVED | S    |
+| Long lived allocator     | Long lived memory     | ll_alloc     | LONG_LIVED  | L    |
+| Fiexed allocator         | Fiexed size data      | fix_alloc    | FIXED_SIZE  | F    |
+| Standard allocator       | For most other data   | std_alloc    | STANDARD    | D    |
+
 * eheap，binary, driver, ets
 * temporary 
     * c function scope
@@ -50,8 +71,8 @@ Erlang Memory Management
     * port control block
 
 分配策略(as)
-allocation strategy
 ----
+allocation strategy，从mbc中找到空闲block的策略。
 * Block Oriented
     * best fit: 找到满足要求的最小block，二叉平衡树，logN
     * address order best fit
@@ -115,3 +136,4 @@ erlang:system_info({allocator, Type})
 * Memory Management Battle Stories by lukas larsson
 * http://erlang.org/doc/man/erts_alloc.html
 * [logplex down the rabbit hole](https://blog.heroku.com/logplex-down-the-rabbit-hole)
+* The beam book
