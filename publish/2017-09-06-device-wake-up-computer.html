@@ -1,0 +1,70 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <!--
+                <a class="btn btn-default" href="mailto:wudeng256#qq.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+                -->
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h1>Windows自动唤醒问题</h1><ul>
+<li><a href="#参考文档">参考文档</a></li>
+</ul>
+<p>早上到公司发现电脑是开着的，记得下班的时候是休眠的，为什么自己开了呢。打开事件查看器，发现了问题所在。</p>
+<p><img src="../data/2017-09-06-device-wake-up-computer/event_wake_up.png" alt="event_wake_up"></p>
+<p>电脑只休眠了不到一个小时就自动唤醒了(好像暴露了加班狗的属性)。</p>
+<p>事件查看器显示唤醒电脑的是音频设备。估计跟电脑开着音乐有关系。</p>
+<p><img src="../data/2017-09-06-device-wake-up-computer/event_wake_up2.png" alt="event_wake_up"></p>
+<p>网上搜了下解决方案，有说从设备管理器就可以禁掉设备自动唤醒电脑，但是我从设备管理器并没有找到这个电源管理的选项。</p>
+<p>不过也有第二种方案，直接通过命令行来禁止。首先列出支持唤醒电脑的设备：</p>
+<pre><code>E:\playerground&gt;powercfg -devicequery wake_armed
+HID-compliant mouse (<span class="hljs-number">001</span>)
+Realtek PCIe GBE Family Controller
+HID <span class="hljs-built_in">Keyboard</span> Device
+</code></pre><p>果然发现了肇事者。果断禁掉：</p>
+<pre><code><span class="hljs-symbol">E:</span>\playerground&gt;powercfg -devicedisablewake <span class="hljs-string">"Realtek PCIe GBE Family Controller"</span>
+</code></pre><p>再列举一下：</p>
+<pre><code>E:\playerground&gt;powercfg -devicequery wake_armed
+HID-compliant mouse (<span class="hljs-number">001</span>)
+HID <span class="hljs-built_in">Keyboard</span> Device
+</code></pre><p>发现音频设备不见了，问题解决。要把它加回来也容易，把disable改成enable就可以了。</p>
+<pre><code><span class="hljs-symbol">E:</span>\playerground&gt;powercfg -deviceenablewake <span class="hljs-string">"Realtek PCIe GBE Family Controller"</span>
+</code></pre><h2><a name="参考文档" class="anchor" href="#参考文档"><span class="header-link"></span></a>参考文档</h2><ul>
+<li><a href="https://www.sevenforums.com/tutorials/122027-devices-allow-prevent-wake-up-computer.html">https://www.sevenforums.com/tutorials/122027-devices-allow-prevent-wake-up-computer.html</a></li>
+</ul>
+</div>
+
+    </div>
+
+</div>
+</body>
+</html>

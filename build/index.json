@@ -47,5 +47,12 @@
         "link": "../publish/2017-09-01-monster-steering-behavior.html",
         "summary": "<a href=\"publish/2017-09-01-monster-steering-behavior.html\"><h1>怪物包围算法</h1>\n</a><ul>\n<li><a href=\"#算法思路\">算法思路</a></li>\n<li><a href=\"#具体实现\">具体实现</a></li>\n</ul>\n<p>ARPG游戏中经常出现多个怪物追着玩家跑的情况，如果怪物始终瞄着玩家的位置移动，那么很容易就出现怪物扎堆的情况。\n本文探讨并实现了一个位置管理算法，来解决这个问题。</p>\n<h2><a name=\"算法思路\" class=\"anchor\" href=\"#算法思路\"><span class=\"header-link\"></span></a>算法思路</h2>\n<p>我们的思路是：如果玩家已经在攻击范围内，直接攻击。否则怪物向玩家移动，形成一个以攻击距离为半径，玩家为圆心的包围圈。\n在移动过程中，怪物优先选择怪物所在位置与玩家连线跟圆的交点。 如果交点被占据，则向两边搜索新的位置，直到找到一个位置为止。</p>\n",
         "title": "怪物包围算法"
+    },
+    "2017-09-06-device-wake-up-computer": {
+        "name": "2017-09-06-device-wake-up-computer",
+        "stamp": "2017-9-6",
+        "link": "../publish/2017-09-06-device-wake-up-computer.html",
+        "summary": "<a href=\"publish/2017-09-06-device-wake-up-computer.html\"><h1>Windows自动唤醒问题</h1>\n</a><ul>\n<li><a href=\"#参考文档\">参考文档</a></li>\n</ul>\n<p>早上到公司发现电脑是开着的，记得下班的时候是休眠的，为什么自己开了呢。打开事件查看器，发现了问题所在。</p>\n<p><img src=\"./data/2017-09-06-device-wake-up-computer/event_wake_up.png\" alt=\"event_wake_up\"></img></p>\n<p>电脑只休眠了不到一个小时就自动唤醒了(好像暴露了加班狗的属性)。</p>\n",
+        "title": "Windows自动唤醒问题"
     }
 }
