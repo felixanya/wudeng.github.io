@@ -34,7 +34,42 @@
         </div>
 
         <!-- auto complete by template replacement -->
-        <div class="summary-list"><div class="summary" id="2017-09-07-ranch" style="background-color: #ECECEC;">
+        <div class="summary-list"><div class="summary" id="2017-09-09-special-process" style="background-color: #ECECEC;">
+    <div class="markdown-body content">
+        <a href="publish/2017-09-09-special-process.html"><h1>Erlang特殊进程</h1>
+</a><ul>
+<li><a href="#为啥自己实现">为啥自己实现</a></li>
+<li><a href="#为啥不用普通进程">为啥不用普通进程</a></li>
+<li><a href="#如何实现">如何实现</a><ul>
+<li><a href="#proclib">proc_lib</a></li>
+<li><a href="#sys">sys</a></li>
+<li><a href="#异步启动">异步启动</a></li>
+<li><a href="#同步启动">同步启动</a></li>
+</ul>
+</li>
+<li><a href="#call">Call</a></li>
+<li><a href="#实例">实例</a></li>
+<li><a href="#参考文档">参考文档</a></li>
+</ul>
+<p>特殊进程是通过proc_lib来启动的进程，并实现了system消息处理进程。
+包括但不限于常用的gen_server, gen_statem, gen_event等标准Behavior。</p>
+<h2><a name="为啥自己实现" class="anchor" href="#为啥自己实现"><span class="header-link"></span></a>为啥自己实现</h2>
+<p>虽然Behavior很好很强大，可以满足绝大部分的需求，但是它们也存在缺点，那就是过于通用。为了达到通用的目的，
+标准Behavior包含了大量处理边界条件的逻辑，一般情况下不会成为问题，但是当你的进程成为瓶颈的时候，可能需要考虑自己实现一个。
+比方说：</p>
+
+    </div>
+    <div class="toolbar">
+        <div class="markdown-body">
+            <a href="publish/2017-09-09-special-process.html">阅读全文 >> </a>
+        </div>
+        <hr>
+        <time datetime="2017-9-9">2017-9-9</time>
+    </div>
+</div>
+
+
+<div class="summary" id="2017-09-07-ranch" style="background-color: #F9EDED;">
     <div class="markdown-body content">
         <a href="publish/2017-09-07-ranch.html"><h1>Ranch源码分析</h1>
 </a><ul>
@@ -68,7 +103,7 @@ socket处理模块以及参数，协议处理回调模块及参数。这个函�
 </div>
 
 
-<div class="summary" id="2017-09-06-device-wake-up-computer" style="background-color: #F9EDED;">
+<div class="summary" id="2017-09-06-device-wake-up-computer" style="background-color: #ECECEC;">
     <div class="markdown-body content">
         <a href="publish/2017-09-06-device-wake-up-computer.html"><h1>Windows自动唤醒问题</h1>
 </a><ul>
@@ -89,12 +124,13 @@ socket处理模块以及参数，协议处理回调模块及参数。这个函�
 </div>
 
 
-<div class="summary" id="2017-09-01-monster-steering-behavior" style="background-color: #ECECEC;">
+<div class="summary" id="2017-09-01-monster-steering-behavior" style="background-color: #F9EDED;">
     <div class="markdown-body content">
         <a href="publish/2017-09-01-monster-steering-behavior.html"><h1>怪物包围算法</h1>
 </a><ul>
 <li><a href="#算法思路">算法思路</a></li>
 <li><a href="#具体实现">具体实现</a></li>
+<li><a href="#效果图">效果图</a></li>
 </ul>
 <p>ARPG游戏中经常出现多个怪物追着玩家跑的情况，如果怪物始终瞄着玩家的位置移动，那么很容易就出现怪物扎堆的情况。
 本文探讨并实现了一个位置管理算法，来解决这个问题。</p>
@@ -113,7 +149,7 @@ socket处理模块以及参数，协议处理回调模块及参数。这个函�
 </div>
 
 
-<div class="summary" id="2017-08-26-erlang-memory-management" style="background-color: #F9EDED;">
+<div class="summary" id="2017-08-26-erlang-memory-management" style="background-color: #ECECEC;">
     <div class="markdown-body content">
         <a href="publish/2017-08-26-erlang-memory-management.html"><h1>Erlang Memory Management</h1>
 </a><ul>
@@ -146,7 +182,7 @@ socket处理模块以及参数，协议处理回调模块及参数。这个函�
 </div>
 
 
-<div class="summary" id="2017-07-15-erlang-code-loading" style="background-color: #ECECEC;">
+<div class="summary" id="2017-07-15-erlang-code-loading" style="background-color: #F9EDED;">
     <div class="markdown-body content">
         <a href="publish/2017-07-15-erlang-code-loading.html"><h1>Erlang代码加载模式</h1>
 </a><ul>
@@ -173,7 +209,7 @@ socket处理模块以及参数，协议处理回调模块及参数。这个函�
 </div>
 
 
-<div class="summary" id="2017-07-11-database-transaction" style="background-color: #F9EDED;">
+<div class="summary" id="2017-07-11-database-transaction" style="background-color: #ECECEC;">
     <div class="markdown-body content">
         <a href="publish/2017-07-11-database-transaction.html"><h1>数据库事务</h1>
 </a><ul>
@@ -200,7 +236,7 @@ socket处理模块以及参数，协议处理回调模块及参数。这个函�
 </div>
 
 
-<div class="summary" id="2017-07-05-beam-virtual-machine" style="background-color: #ECECEC;">
+<div class="summary" id="2017-07-05-beam-virtual-machine" style="background-color: #F9EDED;">
     <div class="markdown-body content">
         <a href="publish/2017-07-05-beam-virtual-machine.html"><h1>Beam虚拟机</h1>
 </a><ul>
@@ -227,7 +263,7 @@ socket处理模块以及参数，协议处理回调模块及参数。这个函�
 </div>
 
 
-<div class="summary" id="2017-06-21-selective-receive" style="background-color: #F9EDED;">
+<div class="summary" id="2017-06-21-selective-receive" style="background-color: #ECECEC;">
     <div class="markdown-body content">
         <a href="publish/2017-06-21-selective-receive.html"><h1>Erlang的Selective Receive机制</h1>
 </a><ul>
@@ -272,7 +308,7 @@ end
 </div>
 
 
-<div class="summary" id="2017-06-08-behavior-tree" style="background-color: #ECECEC;">
+<div class="summary" id="2017-06-08-behavior-tree" style="background-color: #F9EDED;">
     <div class="markdown-body content">
         <a href="publish/2017-06-08-behavior-tree.html"><h1>基于Erlang的行为树实现</h1>
 </a><ul>

@@ -37,6 +37,7 @@
         <div class="main-content markdown-body"><h1>怪物包围算法</h1><ul>
 <li><a href="#算法思路">算法思路</a></li>
 <li><a href="#具体实现">具体实现</a></li>
+<li><a href="#效果图">效果图</a></li>
 </ul>
 <p>ARPG游戏中经常出现多个怪物追着玩家跑的情况，如果怪物始终瞄着玩家的位置移动，那么很容易就出现怪物扎堆的情况。
 本文探讨并实现了一个位置管理算法，来解决这个问题。</p>
@@ -110,6 +111,7 @@
 <span class="hljs-keyword">end</span>
 </code></pre><p>TP是老的怪物目标点，如果我们发现怪物的目标点无法攻击到玩家，则更新目标点。这里比较距离的时候还有个坑，
 浮点数的精度有限，所以我们需要加入一个误差，<code>EPSILON2</code>。否则计算出来的目标点有可能会无法满足不等式而导致怪物在玩家周围做小步调整来切换目标点。</p>
+<h2><a name="效果图" class="anchor" href="#效果图"><span class="header-link"></span></a>效果图</h2><p><img src="../data/2017-09-01-monster-steering-behavior/monster_around.png" alt="monster_around"></p>
 </div>
 
     </div>
