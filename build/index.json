@@ -68,5 +68,12 @@
         "link": "../publish/2017-09-09-special-process.html",
         "summary": "<a href=\"publish/2017-09-09-special-process.html\"><h1>Erlang特殊进程</h1>\n</a><ul>\n<li><a href=\"#为啥自己实现\">为啥自己实现</a></li>\n<li><a href=\"#为啥不用普通进程\">为啥不用普通进程</a></li>\n<li><a href=\"#如何实现\">如何实现</a><ul>\n<li><a href=\"#proclib\">proc_lib</a></li>\n<li><a href=\"#sys\">sys</a></li>\n<li><a href=\"#异步启动\">异步启动</a></li>\n<li><a href=\"#同步启动\">同步启动</a></li>\n</ul>\n</li>\n<li><a href=\"#call\">Call</a></li>\n<li><a href=\"#实例\">实例</a></li>\n<li><a href=\"#参考文档\">参考文档</a></li>\n</ul>\n<p>特殊进程是通过proc_lib来启动的进程，并实现了system消息处理进程。\n包括但不限于常用的gen_server, gen_statem, gen_event等标准Behavior。</p>\n<h2><a name=\"为啥自己实现\" class=\"anchor\" href=\"#为啥自己实现\"><span class=\"header-link\"></span></a>为啥自己实现</h2>\n<p>虽然Behavior很好很强大，可以满足绝大部分的需求，但是它们也存在缺点，那就是过于通用。为了达到通用的目的，\n标准Behavior包含了大量处理边界条件的逻辑，一般情况下不会成为问题，但是当你的进程成为瓶颈的时候，可能需要考虑自己实现一个。\n比方说：</p>\n",
         "title": "Erlang特殊进程"
+    },
+    "2017-09-25-bresenham": {
+        "name": "2017-09-25-bresenham",
+        "stamp": "2017-9-25",
+        "link": "../publish/2017-09-25-bresenham.html",
+        "summary": "<a href=\"publish/2017-09-25-bresenham.html\"><h1>bresemham</h1>\n</a><ul>\n<li><a href=\"#推导过程\">推导过程</a></li>\n<li><a href=\"#优化\">优化</a></li>\n<li><a href=\"#实现\">实现</a></li>\n<li><a href=\"#参考文档\">参考文档</a></li>\n</ul>\n<p>布雷森汉姆光栅直线算法，用于计算光栅图中两点间的直线经过的点，因为其简单高效，被广泛使用。\n在网格图中，怪物从A点移动到B点，如果允许怪物走对角线，那么最简单的移动方式就是从x，y方向上同时向目标点靠近，\n直到其中方向距离为0，接下来从另一个方向上向目标点移动，那么表现上就是先走对角然后走直线。BTW，<code>A*</code>算法中的启发函数h，\n在允许对角线移动的网格图中就可以用这种方法计算，称为octile算法，相比曼哈顿距离更精确，比欧氏距离更简单。</p>\n<pre><code>h = max(<span class=\"hljs-name\">dx</span>, dy) + (<span class=\"hljs-name\">sqrt2</span> - <span class=\"hljs-number\">1</span>) * min(<span class=\"hljs-name\">dx</span>, dy)\n</code></pre>\n<p>本文简单介绍了该算法的推导过程，并用Erlang实现了该算法。</p>\n",
+        "title": "bresemham"
     }
 }

@@ -7,6 +7,31 @@
 
     <!-- auto complete by template replacement -->
     <item>
+    <title>bresemham</title>
+    <link>http://wudeng.github.io/publish/2017-09-25-bresenham.html</link>
+    <description>
+<a href="publish/2017-09-25-bresenham.html"><h1>bresemham</h1>
+</a><ul>
+<li><a href="#推导过程">推导过程</a></li>
+<li><a href="#优化">优化</a></li>
+<li><a href="#实现">实现</a></li>
+<li><a href="#参考文档">参考文档</a></li>
+</ul>
+<p>布雷森汉姆光栅直线算法，用于计算光栅图中两点间的直线经过的点，因为其简单高效，被广泛使用。
+在网格图中，怪物从A点移动到B点，如果允许怪物走对角线，那么最简单的移动方式就是从x，y方向上同时向目标点靠近，
+直到其中方向距离为0，接下来从另一个方向上向目标点移动，那么表现上就是先走对角然后走直线。BTW，<code>A*</code>算法中的启发函数h，
+在允许对角线移动的网格图中就可以用这种方法计算，称为octile算法，相比曼哈顿距离更精确，比欧氏距离更简单。</p>
+<pre><code>h = max(<span class="hljs-name">dx</span>, dy) + (<span class="hljs-name">sqrt2</span> - <span class="hljs-number">1</span>) * min(<span class="hljs-name">dx</span>, dy)
+</code></pre>
+<p>本文简单介绍了该算法的推导过程，并用Erlang实现了该算法。</p>
+
+        <a href="http://wudeng.github.io/publish/2017-09-25-bresenham.html">阅读全文 >> </a>
+    </description>
+    <pubDate>2017-9-25</pubDate>
+</item>
+
+
+<item>
     <title>Erlang特殊进程</title>
     <link>http://wudeng.github.io/publish/2017-09-09-special-process.html</link>
     <description>
