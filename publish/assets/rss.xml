@@ -7,10 +7,38 @@
 
     <!-- auto complete by template replacement -->
     <item>
-    <title>bresemham</title>
+    <title>ssh key auth</title>
+    <link>http://wudeng.github.io/publish/2017-09-30-ssh-key-auth.html</link>
+    <description>
+<a href="publish/2017-09-30-ssh-key-auth.html"><h1>ssh key auth</h1>
+</a><ul>
+<li><a href="#server-side">server side</a></li>
+<li><a href="#client-side">client side</a></li>
+<li><a href="#config">config</a></li>
+<li><a href="#more-about-config">more about config</a></li>
+<li><a href="#debug">debug</a></li>
+<li><a href="#reference">reference</a></li>
+</ul>
+<p>the work flow:</p>
+<ul>
+<li>use ssh-keygen to generate a pair of private and public keys.</li>
+<li>use ssh-copy-id or scp to copy files across local and remote server</li>
+<li>add public key to authorized_keys</li>
+<li>use private key to login</li>
+</ul>
+<p><img src="./data/2017-09-30-ssh-key-auth/ssh-key-auth-flow.png" alt="ssh-key-auth"></img></p>
+
+        <a href="http://wudeng.github.io/publish/2017-09-30-ssh-key-auth.html">阅读全文 >> </a>
+    </description>
+    <pubDate>2017-9-30</pubDate>
+</item>
+
+
+<item>
+    <title>bresemham直线算法</title>
     <link>http://wudeng.github.io/publish/2017-09-25-bresenham.html</link>
     <description>
-<a href="publish/2017-09-25-bresenham.html"><h1>bresemham</h1>
+<a href="publish/2017-09-25-bresenham.html"><h1>bresemham直线算法</h1>
 </a><ul>
 <li><a href="#推导过程">推导过程</a></li>
 <li><a href="#优化">优化</a></li>

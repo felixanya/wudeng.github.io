@@ -1,0 +1,159 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h1>ssh key auth</h1><ul>
+<li><a href="#server-side">server side</a></li>
+<li><a href="#client-side">client side</a></li>
+<li><a href="#config">config</a></li>
+<li><a href="#more-about-config">more about config</a></li>
+<li><a href="#debug">debug</a></li>
+<li><a href="#reference">reference</a></li>
+</ul>
+<p>the work flow:</p>
+<ul>
+<li>use ssh-keygen to generate a pair of private and public keys.</li>
+<li>use ssh-copy-id or scp to copy files across local and remote server</li>
+<li>add public key to authorized_keys</li>
+<li>use private key to login</li>
+</ul>
+<p><img src="../data/2017-09-30-ssh-key-auth/ssh-key-auth-flow.png" alt="ssh-key-auth"></p>
+<h2><a name="server-side" class="anchor" href="#server-side"><span class="header-link"></span></a>server side</h2><pre><code>cd ~
+mkdir <span class="hljs-selector-class">.ssh</span>
+chmod <span class="hljs-number">700</span> <span class="hljs-selector-class">.ssh</span>
+
+cat id_rsa<span class="hljs-selector-class">.pub</span> &gt;&gt; authorized_keys
+
+chmod <span class="hljs-number">600</span> authorized_keys
+chmod <span class="hljs-number">600</span> id_rsa
+</code></pre><p>optional:</p>
+<pre><code><span class="hljs-selector-tag">chmod</span> 622 <span class="hljs-selector-tag">id_rsa</span><span class="hljs-selector-class">.pub</span>
+</code></pre><h2><a name="client-side" class="anchor" href="#client-side"><span class="header-link"></span></a>client side</h2><p>add hostname to hosts file, so we don&#39;t have to remember the ip address every time we try to login the server.
+although it&#39;s not required to do so, we will introduce another way to specify hostname and login user for servers later.</p>
+<pre><code>cd ~
+mkdir .ssh
+scp user<span class="hljs-variable">@remotehost</span><span class="hljs-symbol">:/home/user/</span>.ssh/id_rsa ./ssh
+</code></pre><p>note: copy paste may not working, here we use scp to get the private key, and ssh-copy-id is recommended.</p>
+<p>try:</p>
+<pre><code><span class="hljs-attribute">ssh</span> user<span class="hljs-variable">@remotehost</span>
+</code></pre><h2><a name="config" class="anchor" href="#config"><span class="header-link"></span></a>config</h2><p>add these lines to file <code>~/.ssh/config</code>, as before, <code>chmod 600 ~/.ssh/config</code>.</p>
+<pre><code>host shortname1
+    hostname server_ip_1
+   <span class="hljs-built_in"> user </span>user1
+   <span class="hljs-built_in"> port </span>22
+    ##IdentityFile somefile
+
+host shortname2
+    hostname server_ip_2
+   <span class="hljs-built_in"> user </span>user2
+   <span class="hljs-built_in"> port </span>22
+</code></pre><p>then you can type </p>
+<pre><code>ssh short<span class="hljs-symbol">name1</span>
+</code></pre><p>or </p>
+<pre><code>ssh short<span class="hljs-symbol">name2</span>
+</code></pre><p>to login.</p>
+<h2><a name="more-about-config" class="anchor" href="#more-about-config"><span class="header-link"></span></a>more about config</h2><p>some enties:</p>
+<ul>
+<li>Host: Defines for which host or hosts the configuration section applies. The section ends with a new Host section or the end of the file. A single * as a pattern can be used to provide global defaults for all hosts.</li>
+<li>HostName : Specifies the real host name to log into. Numeric IP addresses are also permitted.</li>
+<li>User : Defines the username for the SSH connection.</li>
+<li>IdentityFile : Specifies a file from which the user’s DSA, ECDSA or DSA authentication identity is read. The default is ~/.ssh/identity for protocol version 1, and ~/.ssh/id_dsa, ~/.ssh/id_ecdsa and ~/.ssh/id_rsa for protocol version 2.</li>
+<li>ProxyCommand : Specifies the command to use to connect to the server. The command string extends to the end of the line, and is executed with the user’s shell. In the command string, any occurrence of %h will be substituted by the host name to connect, %p by the port, and %r by the remote user name. The command can be basically anything, and should read from its standard input and write to its standard output. This directive is useful in conjunction with nc(1) and its proxy support. For example, the following directive would connect via an HTTP proxy at 192.1.0.253: <code>ProxyCommand /usr/bin/nc -X connect -x 192.1.0.253:3128 %h %p</code></li>
+<li>LocalForward : Specifies that a TCP port on the local machine be forwarded over the secure channel to the specified host and port from the remote machine. The first argument must be [bind_address:]port and the second argument must be host:hostport.</li>
+<li>Port : Specifies the port number to connect on the remote host.</li>
+<li>Protocol : Specifies the protocol versions ssh(1) should support in order of preference. The possible values are 1 and 2.</li>
+<li>ServerAliveInterval : Sets a timeout interval in seconds after which if no data has been received from the server, ssh(1) will send a message through the encrypted channel to request a response from the server. </li>
+<li>ServerAliveCountMax : Sets the number of server alive messages which may be sent without ssh(1) receiving any messages back from the server. If this threshold is reached while server alive messages are being sent, ssh will disconnect from the server, terminating the session.</li>
+</ul>
+<p>a more detailed example:</p>
+<pre><code><span class="hljs-comment">### default for all ##</span>
+Host *
+     ForwardAgent <span class="hljs-literal">no</span>
+     ForwardX11 <span class="hljs-literal">no</span>
+     ForwardX11Trusted <span class="hljs-literal">yes</span>
+    <span class="hljs-built_in"> User </span>nixcraft
+    <span class="hljs-built_in"> Port </span>22
+     Protocol 2
+     ServerAliveInterval 60
+     ServerAliveCountMax 30
+
+<span class="hljs-comment">## override as per host ##</span>
+Host server1
+     HostName server1.cyberciti.biz
+    <span class="hljs-built_in"> User </span>nixcraft
+    <span class="hljs-built_in"> Port </span>4242
+     IdentityFile /nfs/shared/users/nixcraft/keys/server1/id_rsa
+
+<span class="hljs-comment">## Home nas server ##</span>
+Host nas01
+     HostName 192.168.1.100
+    <span class="hljs-built_in"> User </span>root
+     IdentityFile ~/.ssh/nas01.key
+
+<span class="hljs-comment">## Login AWS Cloud ##</span>
+Host aws.apache
+     HostName 1.2.3.4
+    <span class="hljs-built_in"> User </span>wwwdata
+     IdentityFile ~/.ssh/aws.apache.key
+
+<span class="hljs-comment">## Login to internal lan server at 192.168.0.251 via our public uk office ssh based gateway using ##</span>
+<span class="hljs-comment">## $ ssh uk.gw.lan ##</span>
+Host uk.gw.lan uk.lan
+     HostName 192.168.0.251
+    <span class="hljs-built_in"> User </span>nixcraft
+     ProxyCommand  ssh nixcraft@gateway.uk.cyberciti.biz nc %h %p 2&gt; /dev/<span class="hljs-literal">null</span>
+
+<span class="hljs-comment">## Our Us Proxy Server ##</span>
+<span class="hljs-comment">## Forward all local port 3128 traffic to port 3128 on the remote vps1.cyberciti.biz server ## </span>
+<span class="hljs-comment">## $ ssh -f -N  proxyus ##</span>
+Host proxyus
+    HostName vps1.cyberciti.biz
+   <span class="hljs-built_in"> User </span>breakfree
+    IdentityFile ~/.ssh/vps1.cyberciti.biz.key
+    LocalForward 3128 127.0.0.1:3128
+</code></pre><h2><a name="debug" class="anchor" href="#debug"><span class="header-link"></span></a>debug</h2><p>when unexpected happened, use option <code>-vvv</code> to output debug message.</p>
+<h2><a name="reference" class="anchor" href="#reference"><span class="header-link"></span></a>reference</h2><ul>
+<li><a href="https://www.digitalocean.com/community/tutorials/how-to-configure-ssh-key-based-authentication-on-a-linux-server">https://www.digitalocean.com/community/tutorials/how-to-configure-ssh-key-based-authentication-on-a-linux-server</a></li>
+<li><a href="https://www.cyberciti.biz/faq/create-ssh-config-file-on-linux-unix/">https://www.cyberciti.biz/faq/create-ssh-config-file-on-linux-unix/</a></li>
+<li><a href="http://nerderati.com/2011/03/17/simplify-your-life-with-an-ssh-config-file/">http://nerderati.com/2011/03/17/simplify-your-life-with-an-ssh-config-file/</a></li>
+<li><a href="https://linux.die.net/man/5/ssh_config">https://linux.die.net/man/5/ssh_config</a></li>
+</ul>
+</div>
+
+    </div>
+
+</div>
+</body>
+</html>
