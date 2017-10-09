@@ -34,7 +34,46 @@
         </div>
 
         <!-- auto complete by template replacement -->
-        <div class="summary-list"><div class="summary" id="2017-09-30-ssh-key-auth" style="background-color: #ECECEC;">
+        <div class="summary-list"><div class="summary" id="2017-10-09-tcp" style="background-color: #ECECEC;">
+    <div class="markdown-body content">
+        <a href="publish/2017-10-09-tcp.html"><h1>TCP PROTOCOL</h1>
+</a><ul>
+<li><a href="#tcp-header">TCP HEADER</a><ul>
+<li><a href="#sack">sack</a></li>
+</ul>
+</li>
+<li><a href="#tcp-状态转移">TCP 状态转移</a><ul>
+<li><a href="#timewait">TIME_WAIT</a></li>
+</ul>
+</li>
+<li><a href="#tcp-流控">TCP 流控</a><ul>
+<li><a href="#超时重传rtoretransmission-timeout">超时重传RTO（Retransmission timeout）</a></li>
+<li><a href="#tcp-拥塞控制算法-congestion-control-algorithm">tcp 拥塞控制算法 congestion control algorithm</a></li>
+</ul>
+</li>
+<li><a href="#随机早期检测red">随机早期检测RED</a></li>
+<li><a href="#参考文献">参考文献</a></li>
+</ul>
+<p>特点，</p>
+<ul>
+<li>面向连接，一对一，所以基于广播和多播的应用程序不能使用TCP服务。而无连接的UDP则非常适合广播和多播。</li>
+<li>字节流，TCP 字节流，send()写recv()读次数没有固定关系，UDP 数据报，sendto()写recvfrom()读次数相同。</li>
+<li>可靠传输。</li>
+</ul>
+<h2><a name="tcp-header" class="anchor" href="#tcp-header"><span class="header-link"></span></a>TCP HEADER</h2>
+
+    </div>
+    <div class="toolbar">
+        <div class="markdown-body">
+            <a href="publish/2017-10-09-tcp.html">阅读全文 >> </a>
+        </div>
+        <hr>
+        <time datetime="2017-10-9">2017-10-9</time>
+    </div>
+</div>
+
+
+<div class="summary" id="2017-09-30-ssh-key-auth" style="background-color: #F9EDED;">
     <div class="markdown-body content">
         <a href="publish/2017-09-30-ssh-key-auth.html"><h1>ssh key auth</h1>
 </a><ul>
@@ -65,7 +104,7 @@
 </div>
 
 
-<div class="summary" id="2017-09-25-bresenham" style="background-color: #F9EDED;">
+<div class="summary" id="2017-09-25-bresenham" style="background-color: #ECECEC;">
     <div class="markdown-body content">
         <a href="publish/2017-09-25-bresenham.html"><h1>bresemham直线算法</h1>
 </a><ul>
@@ -93,7 +132,7 @@
 </div>
 
 
-<div class="summary" id="2017-09-09-special-process" style="background-color: #ECECEC;">
+<div class="summary" id="2017-09-09-special-process" style="background-color: #F9EDED;">
     <div class="markdown-body content">
         <a href="publish/2017-09-09-special-process.html"><h1>Erlang特殊进程</h1>
 </a><ul>
@@ -128,7 +167,7 @@
 </div>
 
 
-<div class="summary" id="2017-09-07-ranch" style="background-color: #F9EDED;">
+<div class="summary" id="2017-09-07-ranch" style="background-color: #ECECEC;">
     <div class="markdown-body content">
         <a href="publish/2017-09-07-ranch.html"><h1>Ranch源码分析</h1>
 </a><ul>
@@ -162,7 +201,7 @@ socket处理模块以及参数，协议处理回调模块及参数。这个函�
 </div>
 
 
-<div class="summary" id="2017-09-06-device-wake-up-computer" style="background-color: #ECECEC;">
+<div class="summary" id="2017-09-06-device-wake-up-computer" style="background-color: #F9EDED;">
     <div class="markdown-body content">
         <a href="publish/2017-09-06-device-wake-up-computer.html"><h1>Windows自动唤醒问题</h1>
 </a><ul>
@@ -183,7 +222,7 @@ socket处理模块以及参数，协议处理回调模块及参数。这个函�
 </div>
 
 
-<div class="summary" id="2017-09-01-monster-steering-behavior" style="background-color: #F9EDED;">
+<div class="summary" id="2017-09-01-monster-steering-behavior" style="background-color: #ECECEC;">
     <div class="markdown-body content">
         <a href="publish/2017-09-01-monster-steering-behavior.html"><h1>怪物包围算法</h1>
 </a><ul>
@@ -208,7 +247,7 @@ socket处理模块以及参数，协议处理回调模块及参数。这个函�
 </div>
 
 
-<div class="summary" id="2017-08-26-erlang-memory-management" style="background-color: #ECECEC;">
+<div class="summary" id="2017-08-26-erlang-memory-management" style="background-color: #F9EDED;">
     <div class="markdown-body content">
         <a href="publish/2017-08-26-erlang-memory-management.html"><h1>Erlang Memory Management</h1>
 </a><ul>
@@ -241,7 +280,7 @@ socket处理模块以及参数，协议处理回调模块及参数。这个函�
 </div>
 
 
-<div class="summary" id="2017-07-15-erlang-code-loading" style="background-color: #F9EDED;">
+<div class="summary" id="2017-07-15-erlang-code-loading" style="background-color: #ECECEC;">
     <div class="markdown-body content">
         <a href="publish/2017-07-15-erlang-code-loading.html"><h1>Erlang代码加载模式</h1>
 </a><ul>
@@ -268,7 +307,7 @@ socket处理模块以及参数，协议处理回调模块及参数。这个函�
 </div>
 
 
-<div class="summary" id="2017-07-11-database-transaction" style="background-color: #ECECEC;">
+<div class="summary" id="2017-07-11-database-transaction" style="background-color: #F9EDED;">
     <div class="markdown-body content">
         <a href="publish/2017-07-11-database-transaction.html"><h1>数据库事务</h1>
 </a><ul>
@@ -295,7 +334,7 @@ socket处理模块以及参数，协议处理回调模块及参数。这个函�
 </div>
 
 
-<div class="summary" id="2017-07-05-beam-virtual-machine" style="background-color: #F9EDED;">
+<div class="summary" id="2017-07-05-beam-virtual-machine" style="background-color: #ECECEC;">
     <div class="markdown-body content">
         <a href="publish/2017-07-05-beam-virtual-machine.html"><h1>Beam虚拟机</h1>
 </a><ul>
@@ -322,7 +361,7 @@ socket处理模块以及参数，协议处理回调模块及参数。这个函�
 </div>
 
 
-<div class="summary" id="2017-06-21-selective-receive" style="background-color: #ECECEC;">
+<div class="summary" id="2017-06-21-selective-receive" style="background-color: #F9EDED;">
     <div class="markdown-body content">
         <a href="publish/2017-06-21-selective-receive.html"><h1>Erlang的Selective Receive机制</h1>
 </a><ul>
@@ -367,7 +406,7 @@ end
 </div>
 
 
-<div class="summary" id="2017-06-08-behavior-tree" style="background-color: #F9EDED;">
+<div class="summary" id="2017-06-08-behavior-tree" style="background-color: #ECECEC;">
     <div class="markdown-body content">
         <a href="publish/2017-06-08-behavior-tree.html"><h1>基于Erlang的行为树实现</h1>
 </a><ul>

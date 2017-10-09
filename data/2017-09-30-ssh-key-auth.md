@@ -147,3 +147,4 @@ when unexpected happened, use option `-vvv` to output debug message.
 * https://www.cyberciti.biz/faq/create-ssh-config-file-on-linux-unix/
 * http://nerderati.com/2011/03/17/simplify-your-life-with-an-ssh-config-file/
 * https://linux.die.net/man/5/ssh_config
+* man ssh_config
