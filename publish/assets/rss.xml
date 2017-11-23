@@ -7,6 +7,32 @@
 
     <!-- auto complete by template replacement -->
     <item>
+    <title>技能伤害区域计算</title>
+    <link>http://wudeng.github.io/publish/2017-11-23-skill-area.html</link>
+    <description>
+<a href="publish/2017-11-23-skill-area.html"><h1>技能伤害区域计算</h1>
+</a><ul>
+<li><a href="#圆形">圆形</a></li>
+<li><a href="#扇形">扇形</a></li>
+<li><a href="#矩形">矩形</a></li>
+<li><a href="#参考文献">参考文献</a></li>
+<li><a href="#附扇形的检验程序">附扇形的检验程序</a></li>
+</ul>
+<p>MMO游戏中经常需要实现各种技能的效果，不同技能拥有不同的伤害区域，
+一般情况下，我们需要对周围的目标进行遍历，检查目标是否落在伤害区域内。
+一般的伤害预期主要是三种：圆形，扇形，矩形。</p>
+<h2><a name="圆形" class="anchor" href="#圆形"><span class="header-link"></span></a>圆形</h2>
+<p>圆形伤害区域的计算非常简单，给点圆心C, 半径R, 计算P是否在圆内。
+只需要计算P到C的欧式距离|P - C|是否小于R即可。为了节省开方计算，
+我们可以直接用平方来比较。</p>
+
+        <a href="http://wudeng.github.io/publish/2017-11-23-skill-area.html">阅读全文 >> </a>
+    </description>
+    <pubDate>2017-11-23</pubDate>
+</item>
+
+
+<item>
     <title>TCP PROTOCOL</title>
     <link>http://wudeng.github.io/publish/2017-10-09-tcp.html</link>
     <description>
@@ -26,6 +52,14 @@
 </ul>
 </li>
 <li><a href="#随机早期检测red">随机早期检测RED</a></li>
+<li><a href="#bbr">BBR</a></li>
+<li><a href="#锐速">锐速</a><ul>
+<li><a href="#重启锐速">重启锐速</a></li>
+<li><a href="#启动锐速">启动锐速</a></li>
+<li><a href="#停止锐速">停止锐速</a></li>
+<li><a href="#查看锐速运行情况">查看锐速运行情况</a></li>
+</ul>
+</li>
 <li><a href="#参考文献">参考文献</a></li>
 </ul>
 <p>特点，</p>
@@ -147,10 +181,13 @@
 <li><a href="#源码">源码</a></li>
 </ul>
 <p>Ranch是一个TCP连接管理开源库，从著名的cowboy开源库中剥离出来的。
-本文对ranch的重要模块一一进行解读，来品味一下这个优雅小巧而又功能强大的TCP管理库。</p>
+本文对ranch的重要模块一一进行解读，来品味一下这个优雅小巧而又功能强大的TCP管理库。
+本文基于ranch的1.0版本。</p>
 <h2><a name="ranch" class="anchor" href="#ranch"><span class="header-link"></span></a>ranch</h2>
-<p>提供对外接口。最重要的接口是start_listener。需要指定一个唯一的名字，acceptor数量，
-socket处理模块以及参数，协议处理回调模块及参数。这个函数会将整个监控树启动起来。</p>
+<p>提供对外接口。最重要的接口是start_listener和stop_listener。需要指定一个唯一的名字Ref，
+socket处理模块以及参数，协议处理回调模块及参数。这个函数会将整个监控树启动起来。
+Ref是负责处理这个端口连接的监控树的名字，有了这个名字就可以对这颗监控树执行一些操作，
+比方说停止监听端口、设置连接上限等。</p>
 
         <a href="http://wudeng.github.io/publish/2017-09-07-ranch.html">阅读全文 >> </a>
     </description>
@@ -259,6 +296,15 @@ socket处理模块以及参数，协议处理回调模块及参数。这个函�
 <a href="publish/2017-07-11-database-transaction.html"><h1>数据库事务</h1>
 </a><ul>
 <li><a href="#隔离级别">隔离级别</a></li>
+<li><a href="#2pl-two-phase-locking">2PL: Two-Phase Locking</a></li>
+<li><a href="#行锁">行锁</a></li>
+<li><a href="#mvcc多版本并发控制">MVCC多版本并发控制</a><ul>
+<li><a href="#快照读-snapshot-read">快照读 snapshot read</a></li>
+<li><a href="#当前读-current-read">当前读 current read</a></li>
+<li><a href="#gap间隙锁">GAP间隙锁</a></li>
+</ul>
+</li>
+<li><a href="#serializable">Serializable</a></li>
 <li><a href="#参考文档">参考文档</a></li>
 </ul>
 <p>事务需要满足ACID特征。Mysql的innodb引擎支持事务。</p>

@@ -36,6 +36,15 @@
         <!-- auto complete by template replacement -->
         <div class="main-content markdown-body"><h1>数据库事务</h1><ul>
 <li><a href="#隔离级别">隔离级别</a></li>
+<li><a href="#2pl-two-phase-locking">2PL: Two-Phase Locking</a></li>
+<li><a href="#行锁">行锁</a></li>
+<li><a href="#mvcc多版本并发控制">MVCC多版本并发控制</a><ul>
+<li><a href="#快照读-snapshot-read">快照读 snapshot read</a></li>
+<li><a href="#当前读-current-read">当前读 current read</a></li>
+<li><a href="#gap间隙锁">GAP间隙锁</a></li>
+</ul>
+</li>
+<li><a href="#serializable">Serializable</a></li>
 <li><a href="#参考文档">参考文档</a></li>
 </ul>
 <p>事务需要满足ACID特征。Mysql的innodb引擎支持事务。</p>
@@ -48,15 +57,15 @@
 <p>四个性质最根本的是一致性，其他三个性质都是服务于一致性的。</p>
 <h2><a name="隔离级别" class="anchor" href="#隔离级别"><span class="header-link"></span></a>隔离级别</h2><p>当多个进程的事务同时读写数据时，就会出现一些问题。</p>
 <ul>
-<li>脏读，read uncommitted，一个事务可以读到其他事务尚未提交的修改。尚未提交意味着可能回滚，那么该事务读到的就是无效的数据。</li>
-<li>不可重复读，unrepeatable read，同一个事务范围内多次查询却返回了不同的数据，这是因为在查询间隙，数据被另外的事务修改了。</li>
-<li>虚读，幻读，phantom read，同一个事务范围内，相同的操作两次读取的记录数不一样，比如多出来一行。跟不可重复读的对象不一样，幻读针对的是一批数据，而后者指的是同一个数据。</li>
+<li>脏读，dirty read，一个事务可以读到其他事务尚未提交的修改。尚未提交意味着可能回滚，那么该事务读到的就是无效的数据。</li>
+<li>不可重复读，unrepeatable read，同一个事务范围内多次查询却返回了不同的数据，这是因为在查询间隙，数据被另外的事务修改了(update, delete)。</li>
+<li>虚读，幻读，phantom read，同一个事务范围内，相同的操作两次读取的记录数不一样，比如多出来一行(add)。跟不可重复读的对象不一样，幻读针对的是一批数据，而后者指的是同一个数据。</li>
 </ul>
-<p>隔离性是为解决上面的问题，innodb通过不同的锁策略支持四个级别的隔离性。</p>
+<p>innodb通过不同的锁策略支持四个级别的隔离性。</p>
 <ul>
 <li>Read uncommitted，最低级别，任何情况都无法保证。</li>
 <li>Read committed，可避免脏读。</li>
-<li>Repeatable read，可避免脏读，不可重复读，innodb的默认级别。</li>
+<li>Repeatable read，在Sql标准中，RR级别可避免脏读和不可重复读，但是还存在幻读。RR是innodb的默认级别，innodb的RR解决了幻读的问题。</li>
 <li>Serializable，最高级别，可避免脏读，不可重复读，幻读的发生，效率最低，一般通过锁表来实现。</li>
 </ul>
 <table>
@@ -76,16 +85,16 @@
 <td>Yes</td>
 </tr>
 <tr>
-<td>已提交读</td>
+<td>已提交读(RC)</td>
 <td>No</td>
 <td>Yes</td>
 <td>Yes</td>
 </tr>
 <tr>
-<td>可重复读</td>
+<td>可重复读(RR)</td>
 <td>No</td>
 <td>No</td>
-<td>Yes</td>
+<td>Yes(注：Innodb的RR级别通过gap锁解决了幻读)</td>
 </tr>
 <tr>
 <td>可串行化</td>
@@ -124,10 +133,56 @@ Query OK, 0 rows affected (0.00 sec)
 <span class="hljs-keyword">set</span> tx_isolation <span class="hljs-comment">=</span> <span class="hljs-comment">'read-committed'</span>;
 <span class="hljs-keyword">set</span> tx_isolation <span class="hljs-comment">=</span> <span class="hljs-comment">'repeatable-read'</span>;
 <span class="hljs-keyword">set</span> tx_isolation <span class="hljs-comment">=</span> <span class="hljs-comment">'serializable'</span>;
-</code></pre><h2><a name="参考文档" class="anchor" href="#参考文档"><span class="header-link"></span></a>参考文档</h2><ul>
+</code></pre><h2><a name="2pl:-two-phase-locking" class="anchor" href="#2pl:-two-phase-locking"><span class="header-link"></span></a>2PL: Two-Phase Locking</h2><p>传统RDBMS加锁的一个原则，二阶段锁。锁操作分为两个阶段：加锁阶段和解锁阶段，并且保证加锁阶段和解锁阶段不相交。</p>
+<ul>
+<li>加锁阶段：只加锁，不放锁。</li>
+<li>解锁阶段：只放锁，不加锁。</li>
+</ul>
+<h2><a name="行锁" class="anchor" href="#行锁"><span class="header-link"></span></a>行锁</h2><p>如果一个条件无法通过索引快速过滤，存储引擎层面就会将所有记录加锁后返回，再由MySQL Server层进行过滤。
+但在实际使用过程当中，MySQL做了一些改进，在MySQL Server过滤条件，发现不满足后，会调用unlock_row方法，把不满足条件的记录释放锁 (违背了二段锁协议的约束)。
+这样做，保证了最后只会持有满足条件记录上的锁，但是每条记录的加锁操作还是不能省略的。可见即使是MySQL，为了效率也是会违反规范的。 </p>
+<p>这种情况同样适用于MySQL的默认隔离级别RR。所以对一个数据量很大的表做批量修改的时候，如果无法使用相应的索引，
+MySQL Server过滤数据的的时候特别慢，就会出现虽然没有修改某些行的数据，但是它们还是被锁住了的现象。</p>
+<h2><a name="mvcc多版本并发控制" class="anchor" href="#mvcc多版本并发控制"><span class="header-link"></span></a>MVCC多版本并发控制</h2><p>与MVCC相对的，是基于锁的并发控制，Lock-Based Concurrency Control，最大的好处是，读不加锁，读写不冲突。
+InnoDB中，每行数据后添加两个额外的隐藏的值来实现MVCC。一个记录这行数据何时被创建，另外一个记录这行数据何时过期（或者被删除）。
+在实际操作中，存储的并不是时间，而是事务的版本号。每开启一个新事务，事务的版本号就会递增。
+在RR事务隔离级别下：</p>
+<ul>
+<li>select时，读取创建版本号&lt;=当前事务版本号，删除版本号为空或者大于当前事务版本号的记录。</li>
+<li>insert时，保存当前事务版本号为行的创建版本号。</li>
+<li>delete时，保存当前事务版本号位行的删除版本号。</li>
+<li>update时，插入一条新记录，保存当前事务版本号为行创建版本号，同时保存当前事务版本号为原来行的删除版本号。</li>
+</ul>
+<p>通过MVCC，每行记录都需要额外的存储空间，更多的行检查工作和额外的维护工作，但是可以减少锁的使用。大多数操作都不用加锁。
+读数据操作很简单，性能很好，并且也能保证只会读取到符合标准的行，也只锁住必要行。</p>
+<p>Mysql的RR级别是解决了幻读的问题的。</p>
+<h3><a name="快照读-snapshot-read" class="anchor" href="#快照读-snapshot-read"><span class="header-link"></span></a>快照读 snapshot read</h3><p>简单的select操作，属于快照读，读取记录的可见版本，不用加锁。</p>
+<ul>
+<li>select * from table where ?;</li>
+</ul>
+<h3><a name="当前读-current-read" class="anchor" href="#当前读-current-read"><span class="header-link"></span></a>当前读 current read</h3><p>特殊的读操作，以及插入，更新，删除操作，属于当前读。</p>
+<ul>
+<li>select * from table where ? lock in share mode;</li>
+<li>select * from table where ? for update;</li>
+<li>insert into table values (...);</li>
+<li>update table set ? where ?;</li>
+<li>delete from table where ?;</li>
+</ul>
+<p>读取的是记录的最新版本，并且当前读返回的记录，都会加上锁，保证其他事务不会再并发修改这条记录。
+除了第一条语句对读取记录加S锁（共享锁）外，其他的操作都加的是X锁（排它锁）。</p>
+<h3><a name="gap间隙锁" class="anchor" href="#gap间隙锁"><span class="header-link"></span></a>GAP间隙锁</h3><p>幻读无法通过行锁来解决。
+行锁防止别的事务修改或删除，GAP锁防止别的事务新增，行锁和GAP锁结合形成的的Next-Key锁共同解决了RR级别在写数据时的幻读问题。</p>
+<p>有索引的时候，Gap锁很多时候会锁住不需要锁的区间。
+没有索引的时候，Gap锁会锁住所有记录，但是innodb不会主动升级表锁。</p>
+<h2><a name="serializable" class="anchor" href="#serializable"><span class="header-link"></span></a>Serializable</h2><p>不区分快照读与当前读，所有读操作均为当前读。
+读加共享锁(S锁)，写加排它锁(X锁)，读写互斥。使用悲观锁的理论，实现简单，数据更加安全，但是并发能力非常差。如果你的业务并发特别少或者没有并发，
+同时有要求数据及时可靠的话，可以使用这种模式。这个级别下select也是会加锁的。</p>
+<h2><a name="参考文档" class="anchor" href="#参考文档"><span class="header-link"></span></a>参考文档</h2><ul>
+<li><a href="https://tech.meituan.com/innodb-lock.html">Innodb中的事务隔离级别和锁的关系</a></li>
 <li><a href="http://www.cnblogs.com/fjdingsd/p/5273008.html">数据库事务的四大特性以及事务的隔离级别</a></li>
 <li><a href="https://dev.mysql.com/doc/refman/5.7/en/set-transaction.html">SET TRANSACTION Syntax</a></li>
 <li><a href="https://dev.mysql.com/doc/refman/5.7/en/innodb-transaction-isolation-levels.html">Transaction Isolation Levels</a></li>
+<li><a href="http://hedengcheng.com/?p=771">http://hedengcheng.com/?p=771</a></li>
 </ul>
 </div>
 

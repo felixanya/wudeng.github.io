@@ -49,6 +49,14 @@
 </ul>
 </li>
 <li><a href="#随机早期检测red">随机早期检测RED</a></li>
+<li><a href="#bbr">BBR</a></li>
+<li><a href="#锐速">锐速</a><ul>
+<li><a href="#重启锐速">重启锐速</a></li>
+<li><a href="#启动锐速">启动锐速</a></li>
+<li><a href="#停止锐速">停止锐速</a></li>
+<li><a href="#查看锐速运行情况">查看锐速运行情况</a></li>
+</ul>
+</li>
 <li><a href="#参考文献">参考文献</a></li>
 </ul>
 <p>特点，</p>
@@ -57,7 +65,7 @@
 <li>字节流，TCP 字节流，send()写recv()读次数没有固定关系，UDP 数据报，sendto()写recvfrom()读次数相同。</li>
 <li>可靠传输。</li>
 </ul>
-<h2><a name="tcp-header" class="anchor" href="#tcp-header"><span class="header-link"></span></a>TCP HEADER</h2><p>!<img src="../data/2017-10-09-tcp/tcp-header.png" alt="tcp-header"></p>
+<h2><a name="tcp-header" class="anchor" href="#tcp-header"><span class="header-link"></span></a>TCP HEADER</h2><p><img src="../data/2017-10-09-tcp/tcp-header.png" alt="tcp-header"></p>
 <p>32位序号sequence number, ISN + byte offset of the first byte in the packet
 ISN initial sequence number, random generated </p>
 <p>4 bit header length: unit 32bit, max = 4 * 15 = 60
@@ -73,7 +81,7 @@ ISN initial sequence number, random generated </p>
 <p>RWND receiver window
 checksum crc(header + data)</p>
 <p>options &lt;= 40 byte</p>
-<p>!<img src="../data/2017-10-09-tcp/tcp-options.png" alt="tcp-options"></p>
+<p><img src="../data/2017-10-09-tcp/tcp-options.png" alt="tcp-options"></p>
 <p>kind 1, length 1, info n
 kind:</p>
 <ul>
@@ -88,7 +96,7 @@ kind:</p>
 <h3><a name="sack" class="anchor" href="#sack"><span class="header-link"></span></a>sack</h3><p>tcp selective acknowledgments
 采用累积确认，发生丢包以后，发送端要么重传所有从丢包的包以后的所有包，要么发送丢失的包以后再等待一个RTT时间来发现下一个要传的包。
 选择确认机制就是为了解决这个问题。接收端可以告诉发送端哪些包收到了，发送端只需要发送未收到的包即可。提高了效率。</p>
-<h2><a name="tcp-状态转移" class="anchor" href="#tcp-状态转移"><span class="header-link"></span></a>TCP 状态转移</h2><p>!<img src="../data/2017-10-09-tcp/tcp_status.jpg" alt="tcp-status"></p>
+<h2><a name="tcp-状态转移" class="anchor" href="#tcp-状态转移"><span class="header-link"></span></a>TCP 状态转移</h2><p><img src="../data/2017-10-09-tcp/tcp_status.jpg" alt="tcp-status"></p>
 <h3><a name="time_wait" class="anchor" href="#time_wait"><span class="header-link"></span></a>TIME_WAIT</h3><p>2*MSL(Maximum Segment Life) 报文段最大生存时间，rfc1122建议2min</p>
 <p>存在的原因：</p>
 <ul>
@@ -130,18 +138,23 @@ SRTT = (1 - alpha) * SRTT + alpha * R&#39;;
 </code></pre></li>
 </ul>
 <p>不能用重传的包来计算rtt, 因为无法确定包是哪个时间点发出的，除非包本身有timestamp。</p>
-<h3><a name="tcp-拥塞控制算法-congestion-control-algorithm" class="anchor" href="#tcp-拥塞控制算法-congestion-control-algorithm"><span class="header-link"></span></a>tcp 拥塞控制算法 congestion control algorithm</h3><p>提高网络利用率，降低丢包率，保证公平性。RFC5681</p>
+<h3><a name="tcp-拥塞控制算法-congestion-control-algorithm" class="anchor" href="#tcp-拥塞控制算法-congestion-control-algorithm"><span class="header-link"></span></a>tcp 拥塞控制算法 congestion control algorithm</h3><p>最大化网络上瓶颈链路的带宽。
+提高网络利用率，降低丢包率，保证公平性。RFC5681</p>
 <ul>
 <li>慢启动和拥塞避免 slow start and congestion avoidance</li>
 <li>快速重传和快速恢复 fast retransmit / fast recovery</li>
 </ul>
 <p>SACK 选择性确认 selective acknowledgment 可选项</p>
 <p>/proc/sys/net/ipv4/tcp_sack</p>
-<p>Implementation</p>
+<p>Implementation:</p>
 <ul>
+<li>loss based congestion control (bufferbloat problem)<ul>
 <li>reno</li>
 <li>vegas</li>
 <li>cubic 看了下centos下都是cubic</li>
+</ul>
+</li>
+<li>bbr (Bottleneck Bandwidth and RTT)google最新推出的</li>
 </ul>
 <p>$ sysctl -a | grep congestion_control
 net.ipv4.tcp_congestion_control = cubic
@@ -172,7 +185,7 @@ rfc2525指出了Extra additive constant in congestion avoidance，带来的问�
 </ul>
 </li>
 </ul>
-<p>!<img src="../data/2017-10-09-tcp/slow-start-and-congestion-avoidance.png" alt="slow-start-and-congestion-avoidance"></p>
+<p><img src="../data/2017-10-09-tcp/slow-start-and-congestion-avoidance.png" alt="slow-start-and-congestion-avoidance"></p>
 <ul>
 <li>接收到重复的确认报文：快速重传，快速恢复<ul>
 <li>接收端收到失序报文立即发送重复确认，而不必等待自己发送数据时捎带确认 </li>
@@ -185,8 +198,8 @@ ssthresh=max(FlightSize/2, 2<em>MSS), CWND = ssthresh + 3</em>MSS，加3是因�
 </ul>
 </li>
 </ul>
-<p>!<img src="../data/2017-10-09-tcp/fast-retransmit.png" alt="fast-retransmit">
-!<img src="../data/2017-10-09-tcp/fast-recovery.png" alt="fast-recovery"></p>
+<p><img src="../data/2017-10-09-tcp/fast-retransmit.png" alt="fast-retransmit">
+<img src="../data/2017-10-09-tcp/fast-recovery.png" alt="fast-recovery"></p>
 <h2><a name="随机早期检测red" class="anchor" href="#随机早期检测red"><span class="header-link"></span></a>随机早期检测RED</h2><p>random early detection</p>
 <p>网络层的策略对拥塞控制算法影响最大的就是路由器的丢弃策略。在简单的情况下，路由器通常按照先进先出的策略处理到来的分组。
 当路由器的缓存装不下分组的时候就丢弃到来的分组，这就叫尾部丢弃策略。这样会导致分组丢失，发送方认为网络产生阻塞。
@@ -199,16 +212,46 @@ ssthresh=max(FlightSize/2, 2<em>MSS), CWND = ssthresh + 3</em>MSS，加3是因�
 <li>平均队列长度在min和max之间，按照概率丢弃分组。</li>
 <li>平均队列长度大于max，丢弃分组。
 以概率p随机丢弃分组，让拥塞控制只在个别的TCP连接上执行，因而避免全局性的拥塞控制。
-!<img src="../data/2017-10-09-tcp/red.png" alt="red"></li>
+<img src="../data/2017-10-09-tcp/red.png" alt="red"></li>
 </ul>
 <p>RED的关键就是选择三个参数：最小门限，最大门限，丢弃概率以及计算平均队列长度。
 平均队列长度采用加权的方法计算，跟计算RTT的策略一样。
-!<img src="../data/2017-10-09-tcp/red-la.png" alt="red-la"></p>
+<img src="../data/2017-10-09-tcp/red-la.png" alt="red-la"></p>
+<h2><a name="bbr" class="anchor" href="#bbr"><span class="header-link"></span></a>BBR</h2><p>传统的拥塞控制算法存在两个问题：</p>
+<ul>
+<li>无法区分丢包类型，错误丢包和拥塞丢包</li>
+<li>缓冲膨胀区问题<ul>
+<li>增加网络延时</li>
+<li>缓冲区被填满而丢包
+google新出的拥塞控制算法。</li>
+</ul>
+</li>
+<li>既然不容易区分拥塞丢包和错误丢包，TCP BBR 就干脆不考虑丢包。</li>
+<li><p>既然灌满水管的方式容易造成缓冲区膨胀，TCP BBR 就分别估计带宽和延迟，而不是直接估计水管的容积。</p>
+</li>
+<li><p>在有一定丢包率的网络链路上充分利用带宽。</p>
+</li>
+<li>降低网络链路上的buffer占用率，从而降低延迟。</li>
+</ul>
+<h2><a name="锐速" class="anchor" href="#锐速"><span class="header-link"></span></a>锐速</h2><p>一个TCP加速软件，被用来加速VPS。</p>
+<pre><code>wget -<span class="hljs-keyword">N</span> --<span class="hljs-keyword">no</span>-check-certificate http<span class="hljs-variable">s:</span>//raw.githubusercontent.<span class="hljs-keyword">com</span>/<span class="hljs-number">91</span>yun/serverspeeder/master/serverspeeder.<span class="hljs-keyword">sh</span> &amp;&amp; bash serverspeeder.<span class="hljs-keyword">sh</span>
+</code></pre><pre><code>chattr -i <span class="hljs-regexp">/serverspeeder/</span>etc<span class="hljs-regexp">/apx* &amp;&amp; /</span>serverspeeder<span class="hljs-regexp">/bin/</span>serverSpeeder.sh uninstall -f
+</code></pre><h1>重启锐速</h1><p>/serverspeeder/bin/serverSpeeder.sh restart</p>
+<h1>启动锐速</h1><p>/serverspeeder/bin/serverSpeeder.sh start</p>
+<h1>停止锐速</h1><p>/serverspeeder/bin/serverSpeeder.sh stop</p>
+<h1>查看锐速运行情况</h1><p>/serverspeeder/bin/serverSpeeder.sh status</p>
 <h2><a name="参考文献" class="anchor" href="#参考文献"><span class="header-link"></span></a>参考文献</h2><ul>
 <li><a href="https://stackoverflow.com/questions/1803566/what-is-the-cost-of-many-time-wait-on-the-server-side">https://stackoverflow.com/questions/1803566/what-is-the-cost-of-many-time-wait-on-the-server-side</a></li>
 <li><a href="https://tools.ietf.org/html/rfc5681">TCP Congestion Control</a></li>
+<li><a href="https://tools.ietf.org/html/rfc6817">Low Extra Delay Background Transport (LEDBAT)</a></li>
 <li><a href="https://tools.ietf.org/rfc/rfc6298.txt">Computing TCP&#39;s Retransmission Timer</a></li>
 <li>Linux高性能服务器编程</li>
+<li><a href="https://git.kernel.org/pub/scm/linux/kernel/git/davem/net-next.git/commit/?id=0f8782ea14974ce992618b55f0c041ef43ed0b78">https://git.kernel.org/pub/scm/linux/kernel/git/davem/net-next.git/commit/?id=0f8782ea14974ce992618b55f0c041ef43ed0b78</a></li>
+<li><a href="http://netdevconf.org/1.2/slides/oct5/04_Making_Linux_TCP_Fast_netdev_1.2_final.pdf">http://netdevconf.org/1.2/slides/oct5/04_Making_Linux_TCP_Fast_netdev_1.2_final.pdf</a></li>
+<li><a href="http://queue.acm.org/detail.cfm?id=3022184">http://queue.acm.org/detail.cfm?id=3022184</a></li>
+<li><a href="https://www.zhihu.com/question/53559433">https://www.zhihu.com/question/53559433</a></li>
+<li><a href="http://blog.csdn.net/dog250/article/details/52879298">http://blog.csdn.net/dog250/article/details/52879298</a></li>
+<li><a href="https://github.com/91yun/serverspeeder">https://github.com/91yun/serverspeeder</a></li>
 </ul>
 </div>
 

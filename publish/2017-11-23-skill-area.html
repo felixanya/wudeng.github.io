@@ -1,0 +1,225 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h1>技能伤害区域计算</h1><ul>
+<li><a href="#圆形">圆形</a></li>
+<li><a href="#扇形">扇形</a></li>
+<li><a href="#矩形">矩形</a></li>
+<li><a href="#参考文献">参考文献</a></li>
+<li><a href="#附扇形的检验程序">附扇形的检验程序</a></li>
+</ul>
+<p>MMO游戏中经常需要实现各种技能的效果，不同技能拥有不同的伤害区域，
+一般情况下，我们需要对周围的目标进行遍历，检查目标是否落在伤害区域内。
+一般的伤害预期主要是三种：圆形，扇形，矩形。</p>
+<h2><a name="圆形" class="anchor" href="#圆形"><span class="header-link"></span></a>圆形</h2><p>圆形伤害区域的计算非常简单，给点圆心C, 半径R, 计算P是否在圆内。
+只需要计算P到C的欧式距离|P - C|是否小于R即可。为了节省开方计算，
+我们可以直接用平方来比较。</p>
+<pre><code>is_in_circle(#pb_vector<span class="hljs-number">3</span>{x = <span class="hljs-keyword">X</span>, z = <span class="hljs-keyword">Z</span>} = <span class="hljs-keyword">P</span>, #pb_vector<span class="hljs-number">3</span>{x = <span class="hljs-keyword">X</span><span class="hljs-number">0</span>, z = <span class="hljs-keyword">Y</span><span class="hljs-number">0</span>}, <span class="hljs-keyword">R</span>) -&gt;
+    Dx = <span class="hljs-keyword">X</span> - <span class="hljs-keyword">X</span><span class="hljs-number">0</span>,
+    Dz = <span class="hljs-keyword">Z</span> - <span class="hljs-keyword">Z</span><span class="hljs-number">0</span>,
+    Dx * Dx + Dz * Dz &lt; <span class="hljs-keyword">R</span> * <span class="hljs-keyword">R</span>.
+</code></pre><h2><a name="扇形" class="anchor" href="#扇形"><span class="header-link"></span></a>扇形</h2><p>扇形伤害区域的计算相对于圆形要复杂一点，<a href="http://www.cnblogs.com/miloyip/archive/2013/04/19/3029852.html">Milo的文章</a>对扇形的处理有很好的阐述，可惜部分公式显示不出来了。 
+圆形相当于扇形的特殊形式。这里我们只考虑锐角扇形，即不超过180度的扇形。
+给点圆心C, 半径R, 施法者朝向V, 扇形角度Thelta，P是在扇形内需要满足两个条件：</p>
+<ul>
+<li>P到C的欧式距离不超过R，跟圆形的判断一致。</li>
+<li>P到V的夹角小于Thelta/2</li>
+</ul>
+<p>判断P到V的夹角有两种方式，一种是分别计算CP和V的与x轴的夹角，然后看这两个夹角检测这两个夹角的差值范围是否在Thelta/2范围内。
+这个夹角可以通过atan2函数求得，这里要特别小心角度的范围。考虑到V是常数，可以预先算出夹角，可是还是免不了要计算一个atan2.
+另一种办法是用点积。具体参考Milo的文章。</p>
+<p>这里我们采用另外一种方法，这个方法来自<a href="https://stackoverflow.com/questions/13652518/efficiently-find-points-inside-a-circle-sector">StackOverflow</a>, 这个方法需要算出扇形的起始向量，假设为StartVector，EndVector，
+然后我们只需要判断CP是否在StartVector的逆时针方向，并且在EndVector的顺时针方向。
+这里StartVector和EndVector都可以预先计算出来。而判断方向的方法异常简单:</p>
+<p>检测v2是否在v1的顺时针方向：</p>
+<ul>
+<li>找到v1的逆时针法向量，法向量相当于将v1逆时针旋转90度：(x1, y1) -&gt; (-y1, x1)</li>
+<li>找到v2在法向量上的投影，利用点积计算：p = v2.x <em> n1.x + v2.y </em> n1.y</li>
+<li>如果投影为正，那么v2在v1的逆时针方向，否则为顺时针方向。</li>
+</ul>
+<p>我们的输入不包括扇形的两个向量，所以先要计算出这两个向量，根据欧拉公式：</p>
+<p><strong>一定要注意sectorStart和sectorEnd都是相对于扇形圆心的坐标，而不是绝对坐标！！！！</strong></p>
+<pre><code>%% #pb_vector3{x = X0, z = Z0} 为施法者坐标指向施法目标的向量
+<span class="hljs-built_in">Sin</span> = math:<span class="hljs-built_in">sin</span>(Thelta/<span class="hljs-number">2</span>),
+<span class="hljs-built_in">Cos</span> = math:<span class="hljs-built_in">cos</span>(Thelta/<span class="hljs-number">2</span>),
+SectorStart = #pb_vector3{x = X0 * <span class="hljs-built_in">Cos</span> + Z0 * <span class="hljs-built_in">Sin</span>, y = <span class="hljs-number">0</span>, z = -X0 * <span class="hljs-built_in">Sin</span> + Z0 * <span class="hljs-built_in">Cos</span>},
+SectorEnd   = #pb_vector3{x = X0 * <span class="hljs-built_in">Cos</span> - Z0 * <span class="hljs-built_in">Sin</span>, y = <span class="hljs-number">0</span>, z = X0 * <span class="hljs-built_in">Sin</span> + Z0 * <span class="hljs-built_in">Cos</span>},
+</code></pre><p>给点起始和结束向量，求解坐标是否在扇形内：</p>
+<pre><code><span class="hljs-comment">%% 判断V2是否在V1的顺时针方向</span>
+<span class="hljs-function"><span class="hljs-title">are_clock_wise</span><span class="hljs-params">(#pb_vector3{x = X1, z = Z1}=V1, #pb_vector3{x = X2, z = Z2}=V2)</span> -&gt;</span>
+    -X1 * Z2 + Z1 * X2 &gt; <span class="hljs-number">0</span>.
+
+<span class="hljs-comment">%% 是否在圆内</span>
+<span class="hljs-function"><span class="hljs-title">is_within_radius</span><span class="hljs-params">(#pb_vector3{x = X1, z = Z1}, RadiusSquared)</span> -&gt;</span>
+    X1 * X1 + Z1 * Z1 =&lt; RadiusSquared.
+
+<span class="hljs-comment">%% 是否在扇形内</span>
+<span class="hljs-function"><span class="hljs-title">is_inside_sector</span><span class="hljs-params">(CheckPos, CastingPos, SectorStart, SectorEnd, RadiusSquared)</span> -&gt;</span>
+    RelPoint = lib_map_util:get_raw_vector(CastingPos, CheckPos),
+    (<span class="hljs-keyword">not</span> are_clock_wise(SectorStart, RelPoint)) <span class="hljs-keyword">andalso</span> 
+    are_clock_wise(SectorEnd, RelPoint) <span class="hljs-keyword">andalso</span> 
+    is_within_radius(RelPoint, RadiusSquared).
+</code></pre><h2><a name="矩形" class="anchor" href="#矩形"><span class="header-link"></span></a>矩形</h2><p>给点施法者的位置C，施法者前方的终点坐标F，技能决定施法的范围R，可以得到一个矩形区域。</p>
+<p>矩形的计算也有几种方法，比如先进行坐标系的转换，在相对坐标系中判断就很简单了。不过坐标的转换略复杂。</p>
+<p>这里采用的是另一种方法，通过求点到线段的距离来判断矩形区域。</p>
+<ul>
+<li>先判断点是否超出线段的起点和终点</li>
+<li>若没有，则求出点到直线的距离</li>
+</ul>
+<p>根据点积可以判断坐标是否落在线段的中部。点积大于0且小于线段长度的平方说明坐标落在线段的中间区间，没有超出两端的范围。
+如果没有超出两端，我们就可以算出点到直线的投影点，然后计算点到投影点的距离，从而得到点到直线的距离。</p>
+<p>坐标的投影所占的线段的比例为：R = Dot / LengthSquared, 则投影点为：C + R * (F - C)。</p>
+<pre><code><span class="hljs-function"><span class="hljs-title">is_in_rectangle</span><span class="hljs-params">(#pb_vector3{x = X, z = Z} = P, #pb_vector3{x = X1, z = Z1} = C, #pb_vector3{x = X2, z = Z2} = F, R)</span> -&gt;</span>
+    Dx = X2 - X1,
+    Dz = Z2 - Z1,
+    LengthSquared = Dx * Dx + Dz * Dz,
+    Dot = Dx * (X - X1) + Dz * (Z - Z1),
+    Dot &gt;= <span class="hljs-number">0</span> <span class="hljs-keyword">andalso</span> Dot &lt; LengthSquared <span class="hljs-keyword">andalso</span> <span class="hljs-keyword">begin</span>
+        R = Dot / LengthSquared,
+        Xp = X1 + Dx * R,
+        Zp = Z1 + Dz * R,
+        (X-Xp)*(X-Xp) + (Z-Zp)(Z-Zp) =&lt; LengthSquared
+    <span class="hljs-keyword">end</span>.
+</code></pre><h2><a name="参考文献" class="anchor" href="#参考文献"><span class="header-link"></span></a>参考文献</h2><ul>
+<li><a href="https://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment">https://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Rotation_matrix">https://en.wikipedia.org/wiki/Rotation_matrix</a></li>
+<li><a href="https://www.w3schools.com/graphics/tryit.asp?filename=trycanvas_circle">https://www.w3schools.com/graphics/tryit.asp?filename=trycanvas_circle</a></li>
+</ul>
+<h2><a name="附扇形的检验程序" class="anchor" href="#附扇形的检验程序"><span class="header-link"></span></a>附扇形的检验程序</h2><p>直接存到html文件在浏览器中执行即可，可以通过修改参数改变输出的图形。</p>
+<pre><code><span class="hljs-meta">&lt;!DOCTYPE html&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+
+<span class="hljs-tag">&lt;<span class="hljs-name">canvas</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"myCanvas"</span> <span class="hljs-attr">width</span>=<span class="hljs-string">"400"</span> <span class="hljs-attr">height</span>=<span class="hljs-string">"400"</span>
+<span class="hljs-attr">style</span>=<span class="hljs-string">"border:1px solid #d3d3d3;"</span>&gt;</span>
+Your browser does not support the canvas element.
+<span class="hljs-tag">&lt;/<span class="hljs-name">canvas</span>&gt;</span>
+
+<span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="javascript">
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isInsideSector</span>(<span class="hljs-params">point, center, sectorStart, sectorEnd, radiusSquared</span>) </span>{
+    <span class="hljs-keyword">var</span> relPoint = {
+        <span class="hljs-attr">x</span>: point.x - center.x,
+        <span class="hljs-attr">y</span>: point.y - center.y
+    };
+
+    <span class="hljs-keyword">return</span> !areClockwise(sectorStart, relPoint) &amp;&amp;
+         areClockwise(sectorEnd, relPoint) &amp;&amp;
+         isWithinRadius(relPoint, radiusSquared);
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">areClockwise</span>(<span class="hljs-params">v1, v2</span>) </span>{
+    <span class="hljs-keyword">return</span> -v1.x*v2.y + v1.y*v2.x &gt; <span class="hljs-number">0</span>;
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isWithinRadius</span>(<span class="hljs-params">v, radiusSquared</span>) </span>{
+    <span class="hljs-keyword">return</span> v.x*v.x + v.y*v.y &lt;= radiusSquared;
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isInsideSector2</span>(<span class="hljs-params">point,center, sectorStart, sectorEnd, radiusSquared</span>) </span>{
+    <span class="hljs-keyword">var</span> relPoint = {
+        <span class="hljs-attr">x</span>: point.x - center.x,
+        <span class="hljs-attr">y</span>: point.y - center.y
+    };
+    <span class="hljs-keyword">return</span> !areClockwise(sectorStart, relPoint) &amp;&amp; 
+        areClockwise(sectorEnd, relPoint) &amp;&amp; 
+        isWithinRadius(relPoint, radiusSquared);
+}
+
+<span class="hljs-keyword">var</span> canvasSize = <span class="hljs-number">400</span>;
+<span class="hljs-keyword">var</span> canvas = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">"myCanvas"</span>);
+<span class="hljs-keyword">var</span> ctx = canvas.getContext(<span class="hljs-string">"2d"</span>);
+<span class="hljs-comment">//ctx.beginPath();</span>
+<span class="hljs-comment">//ctx.arc(200,200,200,-Math.PI,0);</span>
+<span class="hljs-comment">//ctx.stroke();</span>
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">drawLine</span>(<span class="hljs-params">point</span>) </span>{
+    ctx.moveTo(<span class="hljs-number">200</span>,<span class="hljs-number">200</span>);
+    ctx.lineTo(point.x, point.y);
+    ctx.stroke();
+}
+
+<span class="hljs-keyword">var</span> center = { <span class="hljs-attr">x</span>: <span class="hljs-number">200</span>, <span class="hljs-attr">y</span>: <span class="hljs-number">200</span> };
+<span class="hljs-keyword">var</span> sectorStart = { <span class="hljs-attr">x</span>: <span class="hljs-number">400</span>, <span class="hljs-attr">y</span>: <span class="hljs-number">200</span> };
+<span class="hljs-keyword">var</span> sectorEnd = { <span class="hljs-attr">x</span>: <span class="hljs-number">200</span>, <span class="hljs-attr">y</span>: <span class="hljs-number">400</span> };
+drawLine(sectorStart);
+drawLine(sectorEnd);
+
+
+<span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">800</span>; ++i) {
+
+    <span class="hljs-comment">// generate a random point</span>
+    <span class="hljs-keyword">var</span> point = {
+      <span class="hljs-attr">x</span>: <span class="hljs-built_in">Math</span>.random() * canvasSize,
+      <span class="hljs-attr">y</span>: <span class="hljs-built_in">Math</span>.random() * canvasSize
+    };
+
+    <span class="hljs-keyword">var</span> sectorCenter = {<span class="hljs-attr">x</span>:<span class="hljs-number">0</span>,<span class="hljs-attr">y</span>:<span class="hljs-number">200</span>};
+    <span class="hljs-keyword">var</span> cx = sectorCenter.x - center.x;
+    <span class="hljs-keyword">var</span> cy = sectorCenter.y - center.y;
+    <span class="hljs-keyword">var</span> thelta = <span class="hljs-built_in">Math</span>.PI/<span class="hljs-number">4</span>;
+    <span class="hljs-keyword">var</span> sin = <span class="hljs-built_in">Math</span>.sin(thelta);
+    <span class="hljs-keyword">var</span> cos = <span class="hljs-built_in">Math</span>.cos(thelta);
+    <span class="hljs-keyword">var</span> sectorStart = {
+        <span class="hljs-attr">x</span>: cx*cos + cy*sin,
+        <span class="hljs-attr">y</span>: -cx*sin + cy*cos
+    };
+    <span class="hljs-keyword">var</span> sectorEnd = {
+        <span class="hljs-attr">x</span>: cx*cos - cy*sin,
+        <span class="hljs-attr">y</span>: cx*sin + cy*cos
+    };
+
+    <span class="hljs-comment">// test if the point is inside the sector</span>
+    <span class="hljs-keyword">var</span> isInside = isInsideSector2(point, center, sectorStart,sectorEnd, <span class="hljs-number">40000</span>);
+    <span class="hljs-comment">//var isInside = isInsideSector(point, center, {x:200,y:0}, {x:0,y:200}, 40000);</span>
+
+    <span class="hljs-comment">// draw the point</span>
+    <span class="hljs-keyword">if</span> (isInside) {
+        drawLine(point);
+    }
+
+}
+
+</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span> 
+
+<span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span>
+</code></pre></div>
+
+    </div>
+
+</div>
+</body>
+</html>
