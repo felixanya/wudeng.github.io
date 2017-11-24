@@ -211,12 +211,12 @@ ssthresh=max(FlightSize/2, 2<em>MSS), CWND = ssthresh + 3</em>MSS，加3是因�
 <li>平均队列长度小于最小门限，将新分组加入队列排队。</li>
 <li>平均队列长度在min和max之间，按照概率丢弃分组。</li>
 <li>平均队列长度大于max，丢弃分组。
-以概率p随机丢弃分组，让拥塞控制只在个别的TCP连接上执行，因而避免全局性的拥塞控制。
-<img src="../data/2017-10-09-tcp/red.png" alt="red"></li>
+以概率p随机丢弃分组，让拥塞控制只在个别的TCP连接上执行，因而避免全局性的拥塞控制。</li>
 </ul>
+<p><img src="../data/2017-10-09-tcp/red.png" alt="red"></p>
 <p>RED的关键就是选择三个参数：最小门限，最大门限，丢弃概率以及计算平均队列长度。
-平均队列长度采用加权的方法计算，跟计算RTT的策略一样。
-<img src="../data/2017-10-09-tcp/red-la.png" alt="red-la"></p>
+平均队列长度采用加权的方法计算，跟计算RTT的策略一样。</p>
+<p><img src="../data/2017-10-09-tcp/red-la.png" alt="red-la"></p>
 <h2><a name="bbr" class="anchor" href="#bbr"><span class="header-link"></span></a>BBR</h2><p>传统的拥塞控制算法存在两个问题：</p>
 <ul>
 <li>无法区分丢包类型，错误丢包和拥塞丢包</li>
