@@ -1,0 +1,337 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h1>kcp源码解析</h1><ul>
+<li><a href="#相关变量">相关变量</a></li>
+<li><a href="#rto计算retransmission-timeout">RTO计算（Retransmission timeout）</a></li>
+<li><a href="#segment头部">Segment头部</a></li>
+<li><a href="#int-ickpinputikcpcb-kcp-const-char-data-long-size"><code>int ickp_input(ikcpcb *kcp, const char *data, long size)</code></a></li>
+<li><a href="#int-ikcprecvikcpcb-kcp-char-buffer-int-len"><code>int ikcp_recv(ikcpcb *kcp, char *buffer, int len)</code></a></li>
+<li><a href="#int-ikcppeeksizeconst-ikcpcb-kcp"><code>int ikcp_peeksize(const ikcpcb *kcp)</code></a></li>
+<li><a href="#int-ickpsendikcpcb-kcp-const-char-buffer-int-len"><code>int ickp_send(ikcpcb *kcp, const char *buffer, int len)</code></a></li>
+<li><a href="#void-ikcpflushikcp-kcp"><code>void ikcp_flush(ikcp *kcp)</code></a></li>
+<li><a href="#参考文献">参考文献</a></li>
+</ul>
+<p><a href="https://github.com/skywind3000/kcp">kcp</a>是一个实现了类似tcp的重传、流控、拥塞控制等机制的传输协议，它没有指定传输协议，但是一般情况下都会用udp来传输，
+相当于用udp实现的tcp协议。它在不稳定的网络环境中采用更激进的方法来获得比tcp更快的传输速度，代价就是会消耗更多的流量。
+跟tcp一样，kcp采用滑动窗口机制来实现流控，通过重传机制保证了可靠性，通过慢启动，拥塞避免，快速重传和快速恢复来实现拥塞控制。</p>
+<p>kcp支持两种模式：流模式和消息模式。</p>
+<p><img src="../data/2018-01-15-kcp/kcp_stream_mode.png" alt=""></p>
+<p>流模式具有更高网络利用率，更大的传输速度，但是解析数据相对更复杂。</p>
+<p><img src="../data/2018-01-15-kcp/kcp_message_mode.png" alt=""></p>
+<p>消息模式具有更小的网络利用率，更小的传输速度，但解析数据更简单。</p>
+<h2><a name="相关变量" class="anchor" href="#相关变量"><span class="header-link"></span></a>相关变量</h2><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>含义</th>
+<th>注释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>rcv_wnd</td>
+<td>receive window</td>
+<td>接收窗口大小</td>
+</tr>
+<tr>
+<td>rmt_wnd</td>
+<td>remote window</td>
+<td>远端可接收窗口</td>
+</tr>
+<tr>
+<td>snd_wnd</td>
+<td>send window</td>
+<td>发送窗口大小</td>
+</tr>
+<tr>
+<td>cwnd</td>
+<td>congestion window</td>
+<td>拥塞窗口大小</td>
+</tr>
+<tr>
+<td>rcv_buf</td>
+<td>receive buffer</td>
+<td>接收缓冲区，缓冲底层接收的数据，组装连续以后拷贝到接收队列</td>
+</tr>
+<tr>
+<td>rcv_queue</td>
+<td>receive queue</td>
+<td>接收队列，接收的连续数据包，上层应用可以直接使用，不能超过接收窗口大小</td>
+</tr>
+<tr>
+<td>snd_queue</td>
+<td>send queue</td>
+<td>发送队列，上层应用数据分片后加入发送队列</td>
+</tr>
+<tr>
+<td>snd_buf</td>
+<td>send buffer</td>
+<td>发送缓冲区，已发送尚未确认的包</td>
+</tr>
+<tr>
+<td>buffer</td>
+<td></td>
+<td>调用output发送的数据</td>
+</tr>
+<tr>
+<td>probe</td>
+<td></td>
+<td>ICKP_CMD_WASK  IKCP_CMD_WINS</td>
+</tr>
+<tr>
+<td>acklist</td>
+<td>sn,ts</td>
+<td>待发送的ack列表</td>
+</tr>
+<tr>
+<td>fastresend</td>
+<td></td>
+<td>快速重传门限，无须等待超时，如果n没收到ack但是收到了n+1,n+2,...n+fastresend那么立即重传n</td>
+</tr>
+<tr>
+<td>ssthresh</td>
+<td>slow start thresh</td>
+<td>拥塞窗口阈值</td>
+</tr>
+<tr>
+<td>incr</td>
+<td></td>
+<td>可发送的最大数据量</td>
+</tr>
+<tr>
+<td>stream</td>
+<td>stream mode</td>
+<td>是否使用流模式</td>
+</tr>
+</tbody>
+</table>
+<h2><a name="rto计算（retransmission-timeout）" class="anchor" href="#rto计算（retransmission-timeout）"><span class="header-link"></span></a>RTO计算（Retransmission timeout）</h2><p>kcp的重传超时计算方法参考了tcp的实现<a href="https://tools.ietf.org/rfc/rfc6298.txt">Computing TCP&#39;s Retransmission Timer</a>，不过在参数设置上更加激进。
+计算过程主要维护两个变量：</p>
+<ul>
+<li>SRTT: smoothed round-trip time</li>
+<li>RTTVAR: round-trip time variation</li>
+</ul>
+<p>接收端收到确认包以后根据rtt更新这两个变量，并重新计算rto值。报文超时以后tcp的rto会翻倍，
+kcp中声称采用的是1.5倍，然而代码中实际上是线性增加，不知道是作者有意为之还是实现bug。</p>
+<h2><a name="segment头部" class="anchor" href="#segment头部"><span class="header-link"></span></a>Segment头部</h2><table>
+<thead>
+<tr>
+<th>含义</th>
+<th>会话id</th>
+<th>包类型</th>
+<th>是否分片</th>
+<th>发送端接收窗口</th>
+<th>时间戳</th>
+<th>包序列号</th>
+<th>未确认包序号</th>
+<th>数据长度</th>
+<th>数据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>字节数</td>
+<td>4</td>
+<td>1</td>
+<td>1</td>
+<td>2</td>
+<td>4</td>
+<td>4</td>
+<td>4</td>
+<td>4</td>
+<td>len</td>
+</tr>
+<tr>
+<td>字段名</td>
+<td>conv</td>
+<td>cmd</td>
+<td>frg</td>
+<td>wnd</td>
+<td>ts</td>
+<td>sn</td>
+<td>una</td>
+<td>len</td>
+<td>data</td>
+</tr>
+<tr>
+<td>全名</td>
+<td>conversation id</td>
+<td>command</td>
+<td>fragment</td>
+<td>window</td>
+<td>timestamp</td>
+<td>segment number</td>
+<td>unacknowledge</td>
+<td>length</td>
+<td>data</td>
+</tr>
+</tbody>
+</table>
+<p>报文字段含义：</p>
+<table>
+<thead>
+<tr>
+<th>字段名</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>conv</td>
+<td>通信双方需要保证相同的会话id</td>
+</tr>
+<tr>
+<td>cmd</td>
+<td>ICKP_CMD_PUSH/IKCP_CMD_ACK/IKCP_CMD_WASK/ICKP_CMD_WINS</td>
+</tr>
+<tr>
+<td>wnd</td>
+<td>剩余接收窗口大小（接收窗口大小 - 接收队列大小）</td>
+</tr>
+<tr>
+<td>ts</td>
+<td>message发送时刻的时间戳</td>
+</tr>
+<tr>
+<td>sn</td>
+<td>分片segment序号</td>
+</tr>
+<tr>
+<td>una</td>
+<td>待接收消息序号（接收滑动窗口左端）</td>
+</tr>
+<tr>
+<td>frg</td>
+<td>分片ID，从大到小，0表示最后一个分片</td>
+</tr>
+<tr>
+<td>fastack</td>
+<td>收到ack时计算的该分片被跳过的累积次数</td>
+</tr>
+<tr>
+<td>xmit</td>
+<td>分片发送的次数，每发送一次加1,超出dead_link，说明目标不可达</td>
+</tr>
+<tr>
+<td>resendts</td>
+<td>下一次超时重传的时间戳</td>
+</tr>
+<tr>
+<td>rto</td>
+<td>该分片的超时重传等待时间</td>
+</tr>
+<tr>
+<td>len</td>
+<td>数据长度</td>
+</tr>
+<tr>
+<td>data</td>
+<td>数据</td>
+</tr>
+</tbody>
+</table>
+<h2><a name="<code>int-ickp_input(ikcpcb-*kcp,-const-char-*data,-long-size)</code>" class="anchor" href="#<code>int-ickp_input(ikcpcb-*kcp,-const-char-*data,-long-size)</code>"><span class="header-link"></span></a><code>int ickp_input(ikcpcb *kcp, const char *data, long size)</code></h2><p>底层收包后调用，再由上层通过recv获得处理后的数据。
+循环从data中取出kcp包。直到剩下的长度小于包头长度退出循环.</p>
+<p>拆包流程：</p>
+<ul>
+<li>长度小于包头长度24，退出循环。</li>
+<li>构造包头，分别检查会话id，数据长度，包体类型。</li>
+<li>设置远程剩余接收窗口大小。</li>
+<li>将对方已经确认收到的包从发送缓存snd_buf中删除，相当于发送窗口右移。</li>
+<li>计算本地真实snd_una，也就是下一个等待确认的发送包。<ul>
+<li>如果还有未确认的包，为发送窗口左端包序列号</li>
+<li>如果没有未确认包，即发送窗口为空，则为下一个发送包snd_nxt</li>
+</ul>
+</li>
+<li>根据包的不同类型分别处理<ul>
+<li>ACK包：<ul>
+<li>计算rtt，更新rto，更新算法参考rfc6298</li>
+<li>从发送窗口中删除对应的包，并更新此包之前未确认包的fastack信息</li>
+</ul>
+</li>
+<li>PUSH数据包：<ul>
+<li>判断收到的包的sn是不是位于区间：[rcv_nxt, rcv_nxt+rcv_wnd), 是则继续，否则丢弃</li>
+<li>在接收窗口内，将其加入acklist，下一次flush的时候确认</li>
+<li>构造一个kcp包，判断是否重复，如果不是重复包，插入接收缓存rcv_buf中对应位置</li>
+<li>将rcv_buf中的已经收到的连续包移到接收队列rcv_queue中，供上层应用读取，并从rcv_buf中移除</li>
+</ul>
+</li>
+<li>WASK包：<ul>
+<li>设置probe的TELL标记，flush的时候推送</li>
+</ul>
+</li>
+<li>WINS包：<ul>
+<li>无须处理，因为之前已经设置了对方的剩余接收窗口大小</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>所有包处理完毕以后，根据对方确认包的信息，更新拥塞窗口大小。</p>
+<ul>
+<li>如果拥塞窗口小于对方剩余接收窗口，则需要更新</li>
+<li>如果拥塞窗口尚未达到ssthresh（慢启动门限），cwnd++</li>
+<li>如果大于ssthresh,</li>
+</ul>
+<h2><a name="<code>int-ikcp_recv(ikcpcb-*kcp,-char-*buffer,-int-len)</code>" class="anchor" href="#<code>int-ikcp_recv(ikcpcb-*kcp,-char-*buffer,-int-len)</code>"><span class="header-link"></span></a><code>int ikcp_recv(ikcpcb *kcp, char *buffer, int len)</code></h2><ul>
+<li>将接收队列中的消息传递给上层应用，因为消息会被拆分成kcp包，所以消息长度需小于接收队列长度*报文长度。</li>
+<li>将接收缓冲中的连续报文拷贝到接收队列。</li>
+<li>如果接收队列从满到不满，推送窗口通知消息给发送端，通知有接收窗口，可以继续发送新的报文。</li>
+</ul>
+<h2><a name="<code>int-ikcp_peeksize(const-ikcpcb-*kcp)</code>" class="anchor" href="#<code>int-ikcp_peeksize(const-ikcpcb-*kcp)</code>"><span class="header-link"></span></a><code>int ikcp_peeksize(const ikcpcb *kcp)</code></h2><p>检查接收队列中是否有一个完整的消息，并返回消息的长度。</p>
+<h2><a name="<code>int-ickp_send(ikcpcb-*kcp,-const-char-*buffer,-int-len)</code>" class="anchor" href="#<code>int-ickp_send(ikcpcb-*kcp,-const-char-*buffer,-int-len)</code>"><span class="header-link"></span></a><code>int ickp_send(ikcpcb *kcp, const char *buffer, int len)</code></h2><p>发送应用层的数据，会根据mtu大小分片，每个分片加上segment头部24字节，加入发送队列snd_queue。</p>
+<p>根据stream字段区分流模式和消息模式。不同模式组包的机制不一样。如果是消息模式，分片数据的frg字段从count-1到0,0表示分片结束。</p>
+<h2><a name="<code>void-ikcp_flush(ikcp-*kcp)</code>" class="anchor" href="#<code>void-ikcp_flush(ikcp-*kcp)</code>"><span class="header-link"></span></a><code>void ikcp_flush(ikcp *kcp)</code></h2><p>实际发送数据的接口。</p>
+<ul>
+<li>发送acklist中的ack消息</li>
+<li>如果对方接收窗口为0，需要发送IKCP_CMD_WASK消息，检查probe对方接收窗口是否ready</li>
+<li>发送自己的接收窗口大小</li>
+<li>发送数据</li>
+</ul>
+<h2><a name="参考文献" class="anchor" href="#参考文献"><span class="header-link"></span></a>参考文献</h2><ul>
+<li><a href="https://tools.ietf.org/html/rfc5681">TCP Congestion Control</a></li>
+<li><a href="https://tools.ietf.org/html/rfc2525">Known TCP Implementation Problems</a></li>
+<li><a href="https://github.com/skywind3000/kcp/wiki/Flow-Control-for-Users">https://github.com/skywind3000/kcp/wiki/Flow-Control-for-Users</a></li>
+<li><a href="http://www.cnblogs.com/yuanyifei1/p/6830352.html">kcp结构体字段含义</a></li>
+</ul>
+</div>
+
+    </div>
+
+</div>
+</body>
+</html>

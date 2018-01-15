@@ -7,6 +7,34 @@
 
     <!-- auto complete by template replacement -->
     <item>
+    <title>kcp源码解析</title>
+    <link>http://wudeng.github.io/publish/2018-01-15-kcp.html</link>
+    <description>
+<a href="publish/2018-01-15-kcp.html"><h1>kcp源码解析</h1>
+</a><ul>
+<li><a href="#相关变量">相关变量</a></li>
+<li><a href="#rto计算retransmission-timeout">RTO计算（Retransmission timeout）</a></li>
+<li><a href="#segment头部">Segment头部</a></li>
+<li><a href="#int-ickpinputikcpcb-kcp-const-char-data-long-size"><code>int ickp_input(ikcpcb *kcp, const char *data, long size)</code></a></li>
+<li><a href="#int-ikcprecvikcpcb-kcp-char-buffer-int-len"><code>int ikcp_recv(ikcpcb *kcp, char *buffer, int len)</code></a></li>
+<li><a href="#int-ikcppeeksizeconst-ikcpcb-kcp"><code>int ikcp_peeksize(const ikcpcb *kcp)</code></a></li>
+<li><a href="#int-ickpsendikcpcb-kcp-const-char-buffer-int-len"><code>int ickp_send(ikcpcb *kcp, const char *buffer, int len)</code></a></li>
+<li><a href="#void-ikcpflushikcp-kcp"><code>void ikcp_flush(ikcp *kcp)</code></a></li>
+<li><a href="#参考文献">参考文献</a></li>
+</ul>
+<p><a href="https://github.com/skywind3000/kcp">kcp</a>是一个实现了类似tcp的重传、流控、拥塞控制等机制的传输协议，它没有指定传输协议，但是一般情况下都会用udp来传输，
+相当于用udp实现的tcp协议。它在不稳定的网络环境中采用更激进的方法来获得比tcp更快的传输速度，代价就是会消耗更多的流量。
+跟tcp一样，kcp采用滑动窗口机制来实现流控，通过重传机制保证了可靠性，通过慢启动，拥塞避免，快速重传和快速恢复来实现拥塞控制。</p>
+<p>kcp支持两种模式：流模式和消息模式。</p>
+<p><img src="./data/2018-01-15-kcp/kcp_stream_mode.png" alt=""></img></p>
+
+        <a href="http://wudeng.github.io/publish/2018-01-15-kcp.html">阅读全文 >> </a>
+    </description>
+    <pubDate>2018-1-15</pubDate>
+</item>
+
+
+<item>
     <title>技能伤害区域计算</title>
     <link>http://wudeng.github.io/publish/2017-11-23-skill-area.html</link>
     <description>
