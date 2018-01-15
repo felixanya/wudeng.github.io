@@ -38,6 +38,7 @@
 <li><a href="#算法思路">算法思路</a></li>
 <li><a href="#具体实现">具体实现</a></li>
 <li><a href="#效果图">效果图</a></li>
+<li><a href="#todo">TODO</a></li>
 </ul>
 <p>ARPG游戏中经常出现多个怪物追着玩家跑的情况，如果怪物始终瞄着玩家的位置移动，那么很容易就出现怪物扎堆的情况。
 本文探讨并实现了一个位置管理算法，来解决这个问题。</p>
@@ -52,15 +53,15 @@
 
 <span class="hljs-function"><span class="hljs-title">find_angle</span><span class="hljs-params">(PlayerId, PlayerPos, Angle)</span> -&gt;</span>
     PlayerPos0 = get({player_pos, PlayerId}),
-    PlayerPos0 /= PlayerPos <span class="hljs-keyword">andalso</span> 
-    <span class="hljs-keyword">begin</span> 
+    PlayerPos0 /= PlayerPos <span class="hljs-keyword">andalso</span>
+    <span class="hljs-keyword">begin</span>
         erase({angle, PlayerId}),
         put({player_pos, PlayerId}, PlayerPos),
         ?INFO(<span class="hljs-string">"~p change pos ~p"</span>, [PlayerId, PlayerPos])
     <span class="hljs-keyword">end</span>,
     AdjustAngle = (Angle <span class="hljs-keyword">div</span> ?SLICE) * ?SLICE,
     Angles = occupied_angle(PlayerId),
-    TheAngle = 
+    TheAngle =
     <span class="hljs-keyword">case</span> lists:member(AdjustAngle, Angles) <span class="hljs-keyword">of</span>
         <span class="hljs-literal">true</span> -&gt;
             find_angle1(AdjustAngle, ?SLICE, Angles);
@@ -83,7 +84,7 @@
 <span class="hljs-function"><span class="hljs-title">find_angle1</span><span class="hljs-params">(AdjustAngle, Delta, Angles)</span> -&gt;</span>
     Angle1 = (AdjustAngle + Delta) <span class="hljs-keyword">rem</span> <span class="hljs-number">360</span>,
     <span class="hljs-keyword">case</span> lists:member(Angle1, Angles) <span class="hljs-keyword">of</span>
-        <span class="hljs-literal">true</span> -&gt; 
+        <span class="hljs-literal">true</span> -&gt;
             Angle2 = (AdjustAngle - Delta + <span class="hljs-number">360</span>) <span class="hljs-keyword">rem</span> <span class="hljs-number">360</span>,
             <span class="hljs-keyword">case</span> lists:member(Angle2, Angles) <span class="hljs-keyword">of</span>
                 <span class="hljs-literal">true</span> -&gt;
@@ -98,20 +99,24 @@
 如果每次玩家移动了以后，都清除掉老的区间，重新计算新的区间。代价会比较大，而且也不是很有必要。
 所以我们只会在玩家离开一段距离导致目标点无法攻击玩家的时候，才更新圆心的位置，所以实际上圆心的位置跟玩家的位置可能存在一定的偏移，
 这一点我们是可以容忍的。</p>
-<pre><code><span class="hljs-type">TargetPos</span> = <span class="hljs-keyword">if</span> 
-    <span class="hljs-type">TP</span> =:= undefined -&gt; 
+<pre><code><span class="hljs-type">TargetPos</span> = <span class="hljs-keyword">if</span>
+    <span class="hljs-type">TP</span> =:= undefined -&gt;
         get_target_pos(<span class="hljs-type">PlayerId</span>, <span class="hljs-type">MonsterId</span>, <span class="hljs-type">PlayerPos</span>, <span class="hljs-type">Distance</span>);
-    <span class="hljs-literal">true</span> -&gt; 
+    <span class="hljs-literal">true</span> -&gt;
         %% 玩家离开一段距离了，导致目标点无法攻击玩家，则更新目标点
         <span class="hljs-type">Dis2</span> = lib_map_util:calc_dis2(<span class="hljs-type">TP</span>, <span class="hljs-type">PlayerPos</span>),
-        <span class="hljs-keyword">if</span> 
+        <span class="hljs-keyword">if</span>
             <span class="hljs-type">Dis2</span> =&lt; <span class="hljs-type">Distance</span> * <span class="hljs-type">Distance</span> + ?<span class="hljs-type">EPSILON2</span> -&gt; <span class="hljs-type">TP</span>;
-            <span class="hljs-literal">true</span> -&gt; get_target_pos(<span class="hljs-type">PlayerId</span>, <span class="hljs-type">MonsterId</span>, <span class="hljs-type">PlayerPos</span>, <span class="hljs-type">Distance</span>) 
+            <span class="hljs-literal">true</span> -&gt; get_target_pos(<span class="hljs-type">PlayerId</span>, <span class="hljs-type">MonsterId</span>, <span class="hljs-type">PlayerPos</span>, <span class="hljs-type">Distance</span>)
         <span class="hljs-keyword">end</span>
 <span class="hljs-keyword">end</span>
 </code></pre><p>TP是老的怪物目标点，如果我们发现怪物的目标点无法攻击到玩家，则更新目标点。这里比较距离的时候还有个坑，
 浮点数的精度有限，所以我们需要加入一个误差，<code>EPSILON2</code>。否则计算出来的目标点有可能会无法满足不等式而导致怪物在玩家周围做小步调整来切换目标点。</p>
 <h2><a name="效果图" class="anchor" href="#效果图"><span class="header-link"></span></a>效果图</h2><p><img src="../data/2017-09-01-monster-steering-behavior/monster_around.png" alt="monster_around"></p>
+<h2><a name="todo" class="anchor" href="#todo"><span class="header-link"></span></a>TODO</h2><p>streering behaviour
+RVO2
+    ORCA: Optimal Reciprocal Collision Avoidance
+    <a href="https://github.com/snape/RVO2">https://github.com/snape/RVO2</a></p>
 </div>
 
     </div>

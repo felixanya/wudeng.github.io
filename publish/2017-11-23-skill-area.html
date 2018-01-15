@@ -92,7 +92,7 @@ SectorEnd   = #pb_vector3{x = X0 * <span class="hljs-built_in">Cos</span> - Z0 *
     (<span class="hljs-keyword">not</span> are_clock_wise(SectorStart, RelPoint)) <span class="hljs-keyword">andalso</span> 
     are_clock_wise(SectorEnd, RelPoint) <span class="hljs-keyword">andalso</span> 
     is_within_radius(RelPoint, RadiusSquared).
-</code></pre><h2><a name="矩形" class="anchor" href="#矩形"><span class="header-link"></span></a>矩形</h2><p>给点施法者的位置C，施法者前方的终点坐标F，技能决定施法的范围R，可以得到一个矩形区域。</p>
+</code></pre><h2><a name="矩形" class="anchor" href="#矩形"><span class="header-link"></span></a>矩形</h2><p>给点施法者的位置C，施法者前方的终点坐标F，技能决定施法的范围Range，可以得到一个矩形区域。</p>
 <p>矩形的计算也有几种方法，比如先进行坐标系的转换，在相对坐标系中判断就很简单了。不过坐标的转换略复杂。</p>
 <p>这里采用的是另一种方法，通过求点到线段的距离来判断矩形区域。</p>
 <ul>
@@ -102,7 +102,7 @@ SectorEnd   = #pb_vector3{x = X0 * <span class="hljs-built_in">Cos</span> - Z0 *
 <p>根据点积可以判断坐标是否落在线段的中部。点积大于0且小于线段长度的平方说明坐标落在线段的中间区间，没有超出两端的范围。
 如果没有超出两端，我们就可以算出点到直线的投影点，然后计算点到投影点的距离，从而得到点到直线的距离。</p>
 <p>坐标的投影所占的线段的比例为：R = Dot / LengthSquared, 则投影点为：C + R * (F - C)。</p>
-<pre><code><span class="hljs-function"><span class="hljs-title">is_in_rectangle</span><span class="hljs-params">(#pb_vector3{x = X, z = Z} = P, #pb_vector3{x = X1, z = Z1} = C, #pb_vector3{x = X2, z = Z2} = F, R)</span> -&gt;</span>
+<pre><code><span class="hljs-function"><span class="hljs-title">is_in_rectangle</span><span class="hljs-params">(#pb_vector3{x = X, z = Z} = P, #pb_vector3{x = X1, z = Z1} = C, #pb_vector3{x = X2, z = Z2} = F, RangeSquared)</span> -&gt;</span>
     Dx = X2 - X1,
     Dz = Z2 - Z1,
     LengthSquared = Dx * Dx + Dz * Dz,
@@ -111,7 +111,7 @@ SectorEnd   = #pb_vector3{x = X0 * <span class="hljs-built_in">Cos</span> - Z0 *
         R = Dot / LengthSquared,
         Xp = X1 + Dx * R,
         Zp = Z1 + Dz * R,
-        (X-Xp)*(X-Xp) + (Z-Zp)(Z-Zp) =&lt; LengthSquared
+        (X-Xp)*(X-Xp) + (Z-Zp)*(Z-Zp) =&lt; RangeSquared
     <span class="hljs-keyword">end</span>.
 </code></pre><h2><a name="参考文献" class="anchor" href="#参考文献"><span class="header-link"></span></a>参考文献</h2><ul>
 <li><a href="https://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment">https://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment</a></li>

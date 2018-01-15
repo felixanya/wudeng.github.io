@@ -59,11 +59,21 @@
 <li>条件节点，叶子节点，返回成功，失败这两种状态。</li>
 <li>装饰节点，非叶子节点，实现一些附加的逻辑。如取反。</li>
 </ul>
-<p>黑板（blackboard）是行为树实现中用来存储变量，感知环境的一个概念，节点可以访问黑板来存取变量。</p>
+<p>每个执行AI的实体拥有一个Tick实例，这个实例保存了这个执行实体的状态参数，以及一个可读写的黑板。
+黑板（blackboard）是行为树实现中用来存储变量，感知环境的一个概念，节点可以访问黑板来存取变量。
+执行实体的数据可以直接写入黑板，而行为树节点的执行数据需要加上节点id写入黑板。</p>
 <p>行为树一般以一定的频率周期性的执行tick函数，每次tick都从根节点开始执行。有一些行为树会直接从返回运行的节点开始执行，这样的话如果有低优先级的节点一直返回运行状态，
 遇到高优先级的节点时则无法打断低优先级的节点。比如怪物在巡逻的时候返回运行，这时候如果有玩家攻击它，合理的反应是进行反击或者逃跑，但是如果每次tick都从巡逻节点开始执行，
 则根本不会处理到反击或逃跑的逻辑。</p>
-<h2><a name="具体实现" class="anchor" href="#具体实现"><span class="header-link"></span></a>具体实现</h2><p>Erlang版行为树的具体实现参考了Behavior3的版本。每个节点的执行逻辑:</p>
+<h2><a name="具体实现" class="anchor" href="#具体实现"><span class="header-link"></span></a>具体实现</h2><p>Erlang版行为树的具体实现参考了Behavior3的版本。每个节点的有5个回调函数。</p>
+<ul>
+<li>enter_cb 每次tick都会执行</li>
+<li>open_cb  只有未打开的节点会执行，如果节点有running状态，意味着节点处于running状态会跨越多个tick，然而只有打开节点的那个tick会执行该函数。
+  主要用来执行节点的初始化。比如移动节点设置目标点。等待节点用来设置开始时间等。</li>
+<li>tick_cb  节点的主逻辑。每个tick都会执行。</li>
+<li>close_cb 跟open_cb对应，只有结束节点的时候执行。意味着跨越多个tick的runing节点这个函数只会执行一次。一般用来关闭节点。</li>
+<li>exit_cb 每个tick都会执行。</li>
+</ul>
 <pre><code class="lang--erlang">execute(<span class="hljs-comment">#node{id = Id} = Node, #tick{blackboard = Blackboard} = Tick) -&gt;</span>
     Tick1 = enter_cb(<span class="hljs-keyword">Node</span><span class="hljs-title">, Tick</span>),
     Tick2 = case get_key({is_open, Id}, Blackboard, <span class="hljs-literal">false</span>) of 

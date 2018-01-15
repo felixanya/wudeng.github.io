@@ -45,6 +45,15 @@ try:
 ssh user@remotehost
 ```
 
+if the key pair is generated on the client side, then:
+```
+centos6: ssh-copy-id -i ~/.ssh/id_rsa.pub "zsy@10.1.0.3 -p 22222" 
+centos7: ssh-copy-id -i ~/.ssh/id_rsa.pub zsy@10.1.0.3 -p 22222
+or 
+cat ~/.ssh/id_rsa.pub | ssh -p 22 zsy@10.1.0.3 "umask 077;mkdir -p ~/.ssh;cat - >> ~/.ssh/authorized_keys"
+```
+
+
 ## config
 
 add these lines to file `~/.ssh/config`, as before, `chmod 600 ~/.ssh/config`.
@@ -147,4 +156,5 @@ when unexpected happened, use option `-vvv` to output debug message.
 * https://www.cyberciti.biz/faq/create-ssh-config-file-on-linux-unix/
 * http://nerderati.com/2011/03/17/simplify-your-life-with-an-ssh-config-file/
 * https://linux.die.net/man/5/ssh_config
+* http://www.zsythink.net/archives/2375
 * man ssh_config

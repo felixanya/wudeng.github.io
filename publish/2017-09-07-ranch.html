@@ -64,10 +64,10 @@ stop_listener<span class="hljs-function"><span class="hljs-params">(Ref)</span> 
 进程重启的时候也会ets表中恢复出进程状态。所以这个ets表的宿主进程并不是这个进程本身，而是ranch_sup。
 即使这个进程崩溃，也不会丢失ets表的数据。</p>
 <ul>
-<li><code>{{max_conns, Ref}, MaxConns}</code></li>
-<li><code>{{opts, Ref}, Opts}</code></li>
-<li><code>{{conns_sup, Ref}, Pid}</code></li>
-<li><code>{{addr, Ref}, Addr}</code></li>
+<li>{max_conns, Ref}: MaxConns</li>
+<li>{opts, Ref}: Opts</li>
+<li>{conns_sup, Ref}: Pid</li>
+<li>{addr, Ref}: Addr</li>
 </ul>
 <h2><a name="ranch_listener_sup" class="anchor" href="#ranch_listener_sup"><span class="header-link"></span></a>ranch_listener_sup</h2><p>监控进程，负责启动ranch_conns_sup以及ranch_acceptors_sup两个监控树。
 因为没有注册名字，ranch_listener_sup监控树可以启动多个实例，一般来说，每一个监听的端口对应一个监控树。

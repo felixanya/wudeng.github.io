@@ -33,42 +33,34 @@
 
 
 <item>
-    <title>TCP PROTOCOL</title>
+    <title>TCP那些事儿</title>
     <link>http://wudeng.github.io/publish/2017-10-09-tcp.html</link>
     <description>
-<a href="publish/2017-10-09-tcp.html"><h1>TCP PROTOCOL</h1>
+<a href="publish/2017-10-09-tcp.html"><h1>TCP那些事儿</h1>
 </a><ul>
 <li><a href="#tcp-header">TCP HEADER</a><ul>
-<li><a href="#sack">sack</a></li>
+<li><a href="#sack-tcp-selective-acknowledgments">sack （tcp selective acknowledgments）</a></li>
 </ul>
 </li>
-<li><a href="#tcp-状态转移">TCP 状态转移</a><ul>
-<li><a href="#timewait">TIME_WAIT</a></li>
-</ul>
-</li>
-<li><a href="#tcp-流控">TCP 流控</a><ul>
+<li><a href="#tcp-状态转移">TCP 状态转移</a></li>
+<li><a href="#tcp-流控">TCP 流控</a></li>
 <li><a href="#超时重传rtoretransmission-timeout">超时重传RTO（Retransmission timeout）</a></li>
-<li><a href="#tcp-拥塞控制算法-congestion-control-algorithm">tcp 拥塞控制算法 congestion control algorithm</a></li>
+<li><a href="#拥塞控制算法-congestion-control-algorithm">拥塞控制算法 congestion control algorithm</a><ul>
+<li><a href="#bbr">BBR</a></li>
 </ul>
 </li>
 <li><a href="#随机早期检测red">随机早期检测RED</a></li>
-<li><a href="#bbr">BBR</a></li>
-<li><a href="#锐速">锐速</a><ul>
-<li><a href="#重启锐速">重启锐速</a></li>
-<li><a href="#启动锐速">启动锐速</a></li>
-<li><a href="#停止锐速">停止锐速</a></li>
-<li><a href="#查看锐速运行情况">查看锐速运行情况</a></li>
-</ul>
+<li><a href="#锐速">锐速</a></li>
+<li><p><a href="#参考文献">参考文献</a></p>
 </li>
-<li><a href="#参考文献">参考文献</a></li>
-</ul>
-<p>特点，</p>
-<ul>
-<li>面向连接，一对一，所以基于广播和多播的应用程序不能使用TCP服务。而无连接的UDP则非常适合广播和多播。</li>
+<li><p>面向连接，一对一，所以基于广播和多播的应用程序不能使用TCP服务。而无连接的UDP则非常适合广播和多播。</p>
+</li>
 <li>字节流，TCP 字节流，send()写recv()读次数没有固定关系，UDP 数据报，sendto()写recvfrom()读次数相同。</li>
 <li>可靠传输。</li>
 </ul>
+<p>传输层-Segment, 网络层-Packet, 链路层-Frame</p>
 <h2><a name="tcp-header" class="anchor" href="#tcp-header"><span class="header-link"></span></a>TCP HEADER</h2>
+<p><img src="./data/2017-10-09-tcp/tcp-header.png" alt="tcp-header"></img></p>
 
         <a href="http://wudeng.github.io/publish/2017-10-09-tcp.html">阅读全文 >> </a>
     </description>
@@ -222,6 +214,7 @@ Ref是负责处理这个端口连接的监控树的名字，有了这个名字�
 <li><a href="#算法思路">算法思路</a></li>
 <li><a href="#具体实现">具体实现</a></li>
 <li><a href="#效果图">效果图</a></li>
+<li><a href="#todo">TODO</a></li>
 </ul>
 <p>ARPG游戏中经常出现多个怪物追着玩家跑的情况，如果怪物始终瞄着玩家的位置移动，那么很容易就出现怪物扎堆的情况。
 本文探讨并实现了一个位置管理算法，来解决这个问题。</p>

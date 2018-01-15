@@ -71,7 +71,7 @@ is_inside_sector(CheckPos, CastingPos, SectorStart, SectorEnd, RadiusSquared) ->
     
 ## 矩形
 
-给点施法者的位置C，施法者前方的终点坐标F，技能决定施法的范围R，可以得到一个矩形区域。
+给点施法者的位置C，施法者前方的终点坐标F，技能决定施法的范围Range，可以得到一个矩形区域。
 
 矩形的计算也有几种方法，比如先进行坐标系的转换，在相对坐标系中判断就很简单了。不过坐标的转换略复杂。
 
@@ -85,7 +85,7 @@ is_inside_sector(CheckPos, CastingPos, SectorStart, SectorEnd, RadiusSquared) ->
 坐标的投影所占的线段的比例为：R = Dot / LengthSquared, 则投影点为：C + R * (F - C)。
 
 ```
-is_in_rectangle(#pb_vector3{x = X, z = Z} = P, #pb_vector3{x = X1, z = Z1} = C, #pb_vector3{x = X2, z = Z2} = F, R) ->
+is_in_rectangle(#pb_vector3{x = X, z = Z} = P, #pb_vector3{x = X1, z = Z1} = C, #pb_vector3{x = X2, z = Z2} = F, RangeSquared) ->
     Dx = X2 - X1,
     Dz = Z2 - Z1,
     LengthSquared = Dx * Dx + Dz * Dz,
@@ -94,7 +94,7 @@ is_in_rectangle(#pb_vector3{x = X, z = Z} = P, #pb_vector3{x = X1, z = Z1} = C, 
         R = Dot / LengthSquared,
         Xp = X1 + Dx * R,
         Zp = Z1 + Dz * R,
-        (X-Xp)*(X-Xp) + (Z-Zp)(Z-Zp) =< LengthSquared
+        (X-Xp)*(X-Xp) + (Z-Zp)*(Z-Zp) =< RangeSquared
     end.
 
 ```

@@ -68,6 +68,11 @@ scp user<span class="hljs-variable">@remotehost</span><span class="hljs-symbol">
 </code></pre><p>note: copy paste may not working, here we use scp to get the private key, and ssh-copy-id is recommended.</p>
 <p>try:</p>
 <pre><code><span class="hljs-attribute">ssh</span> user<span class="hljs-variable">@remotehost</span>
+</code></pre><p>if the key pair is generated on the client side, then:</p>
+<pre><code><span class="hljs-attribute">centos6</span>: ssh-copy-id -i ~/.ssh/id_rsa.pub <span class="hljs-string">"zsy@10.1.0.3 -p 22222"</span> 
+<span class="hljs-attribute">centos7</span>: ssh-copy-id -i ~/.ssh/id_rsa.pub zsy<span class="hljs-variable">@10</span>.<span class="hljs-number">1.0</span>.<span class="hljs-number">3</span> -p <span class="hljs-number">22222</span>
+or 
+cat ~/.ssh/id_rsa.pub | ssh -p <span class="hljs-number">22</span> zsy<span class="hljs-variable">@10</span>.<span class="hljs-number">1.0</span>.<span class="hljs-number">3</span> <span class="hljs-string">"umask 077;mkdir -p ~/.ssh;cat - &gt;&gt; ~/.ssh/authorized_keys"</span>
 </code></pre><h2><a name="config" class="anchor" href="#config"><span class="header-link"></span></a>config</h2><p>add these lines to file <code>~/.ssh/config</code>, as before, <code>chmod 600 ~/.ssh/config</code>.</p>
 <pre><code>host shortname1
     hostname server_ip_1
@@ -149,6 +154,7 @@ Host proxyus
 <li><a href="https://www.cyberciti.biz/faq/create-ssh-config-file-on-linux-unix/">https://www.cyberciti.biz/faq/create-ssh-config-file-on-linux-unix/</a></li>
 <li><a href="http://nerderati.com/2011/03/17/simplify-your-life-with-an-ssh-config-file/">http://nerderati.com/2011/03/17/simplify-your-life-with-an-ssh-config-file/</a></li>
 <li><a href="https://linux.die.net/man/5/ssh_config">https://linux.die.net/man/5/ssh_config</a></li>
+<li><a href="http://www.zsythink.net/archives/2375">http://www.zsythink.net/archives/2375</a></li>
 <li>man ssh_config</li>
 </ul>
 </div>

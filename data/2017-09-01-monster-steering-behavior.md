@@ -24,15 +24,15 @@ atan2求出的范围是弧度(-pi, pi]，我们需要将其转换为(0, 360]的�
 
 find_angle(PlayerId, PlayerPos, Angle) ->
     PlayerPos0 = get({player_pos, PlayerId}),
-    PlayerPos0 /= PlayerPos andalso 
-    begin 
+    PlayerPos0 /= PlayerPos andalso
+    begin
         erase({angle, PlayerId}),
         put({player_pos, PlayerId}, PlayerPos),
         ?INFO("~p change pos ~p", [PlayerId, PlayerPos])
     end,
     AdjustAngle = (Angle div ?SLICE) * ?SLICE,
     Angles = occupied_angle(PlayerId),
-    TheAngle = 
+    TheAngle =
     case lists:member(AdjustAngle, Angles) of
         true ->
             find_angle1(AdjustAngle, ?SLICE, Angles);
@@ -41,7 +41,7 @@ find_angle(PlayerId, PlayerPos, Angle) ->
     end,
     put({angle, PlayerId}, [TheAngle|Angles]),
     lib_common:random_n(TheAngle, TheAngle + ?SLICE - 1) rem 360.
-    
+
 occupied_angle(PlayerId) ->
     case get({angle, PlayerId}) of
         undefined -> [];
@@ -60,7 +60,7 @@ find_angle1(AdjustAngle, Delta, _Angles) when Delta > 100 ->
 find_angle1(AdjustAngle, Delta, Angles) ->
     Angle1 = (AdjustAngle + Delta) rem 360,
     case lists:member(Angle1, Angles) of
-        true -> 
+        true ->
             Angle2 = (AdjustAngle - Delta + 360) rem 360,
             case lists:member(Angle2, Angles) of
                 true ->
@@ -79,15 +79,15 @@ find_angle1(AdjustAngle, Delta, Angles) ->
 这一点我们是可以容忍的。
 
 ```
-TargetPos = if 
-    TP =:= undefined -> 
+TargetPos = if
+    TP =:= undefined ->
         get_target_pos(PlayerId, MonsterId, PlayerPos, Distance);
-    true -> 
+    true ->
         %% 玩家离开一段距离了，导致目标点无法攻击玩家，则更新目标点
         Dis2 = lib_map_util:calc_dis2(TP, PlayerPos),
-        if 
+        if
             Dis2 =< Distance * Distance + ?EPSILON2 -> TP;
-            true -> get_target_pos(PlayerId, MonsterId, PlayerPos, Distance) 
+            true -> get_target_pos(PlayerId, MonsterId, PlayerPos, Distance)
         end
 end
 ```
@@ -98,3 +98,10 @@ TP是老的怪物目标点，如果我们发现怪物的目标点无法攻击到
 ## 效果图
 
 ![monster_around](../data/2017-09-01-monster-steering-behavior/monster_around.png)
+
+
+## TODO
+streering behaviour
+RVO2
+    ORCA: Optimal Reciprocal Collision Avoidance
+    https://github.com/snape/RVO2

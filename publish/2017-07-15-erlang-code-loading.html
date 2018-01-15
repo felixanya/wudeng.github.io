@@ -51,21 +51,52 @@
  prim_file,prim_inet,prim_eval,init,otp_ring0]
 </code></pre><p>ERTS系统中，一个模块可以存在两个版本。新版本(current)和老版本(old)，两个版本都是有效的。
 代码第一次加载进来的时候是新版本，当有新的代码加载的时候，新的代码变成新版本，原来的新版本变成老版本。当有第三个版本加载进来的时候，之前的老版本就需要被移除掉(purge)，
-这样如果有进程还在执行老版本的代码，这些进程就会被无条件杀死。所以一般第一次热更新的时候是安全的，因为系统只有一个新版本的代码。第二次热更新如果使用强制更新就可能杀死
-一些进程，要避免这种情况，一方面是在调用代码的时候使用全名函数，一方面在热更新的时候使用软更新(soft purge)。这样如果还有进程在执行老代码，就不会执行热更新。
+这样如果有进程还在执行老版本的代码，需要将这些还在执行老代码的进程杀死才能进行热更。杀死运行老代码然后purge老代码，然后加载最新代码，这是系统默认的热更方式。
+所以一般情况下，第一次热更新模块的时候是安全的，因为系统只有一个新版本的代码。第二次热更新如果使用强制更新就可能杀死一些进程，引发一些意想不到的后果。
+要避免这种情况，一方面是在调用代码的时候使用全名函数，一方面在热更新的时候使用软更新(soft purge)。这样如果还有进程在执行老代码，就不会执行热更新。
 OTP框架下的模板都是支持热更新的。</p>
 <h2><a name="purge" class="anchor" href="#purge"><span class="header-link"></span></a>purge</h2><p>purge：是指将老版本的代码从系统中移除掉，如果仍有进程在执行老版本代码，则将这些进程杀掉。
 soft_purge：尝试将老代码移除掉，如果仍有进程在执行老版本代码，则返回失败。</p>
-<p>erlang:check_old_code(Mod) -&gt; true | false. 检查模块是否有老代码。</p>
-<p>要找出仍在执行老代码的进程仍然需要遍历进程列表processes()，对进程执行erlang:check_process_code(Pid, Mod) -&gt; boolean()
-返回进程时候仍在执行该模块的老代码。有三种情况下返回true：</p>
+<p>erlang模块提供的接口：</p>
+<ul>
+<li><p>erlang:check_old_code(Mod) -&gt; boolean(). 检查系统中是否存在该模块的老代码。当系统中有老代码的时候，要清除老代码（执行purge）才能加载新的代码。
+为了清除老代码要先找到仍在执行老代码的进程，将其kill掉。</p>
+</li>
+<li><p>erlang:check_process_code(Pid, Mod) -&gt; boolean(). 检查进程是否在执行Mod的老代码。
+为了找出仍在执行老代码的进程，需要遍历进程列表processes()，依次进行检查。</p>
+</li>
+</ul>
+<p>进程仍在执行模块的老代码，有三种情况：</p>
 <ul>
 <li>进程正在执行老代码。这种情况下是不管进程调用的全名函数短名函数。对于全名函数，当前这次执行完了下次就会切换到新代码，所以一开始返回true，后面就false了。对于短名函数则始终为true。</li>
 <li>进程包含短名函数的引用。</li>
 <li>进程包含引用短名函数的fun对象。比如其他模块发送了一个fun给进程执行，这个fun对象包含了模块的短名对象，那么执行fun对象期间返回true。</li>
 </ul>
+<p>如果一个常驻内存的进程拿到了一个模块构造的匿名函数，那么这个模块要热更的时候就比较麻烦了。可能必须得杀死这个常驻进程才能purge模块的老代码。
+在实际工作过程中如果对热更机制缺乏了解就会犯这样的错误。在实现战斗技能的时候，前端要求如果技能杀死对象要统一结算。所以一开始实现的时候会
+被杀死的对象的处理函数写成匿名函数然后存到地图进程的进程字典。结果发现有时候战斗的逻辑无法热更（因为我们热更线上的代码都是采用soft_purge，不会强制杀死进程）。</p>
+<p>还有一个例子就是实现玩法活动的时候，管理进程会创建一些回调函数到场景进程，这些回调函数的参数一部分由管理进程提供，一部分由地图进程提供，写成匿名函数的话非常方便。
+但是这样的话导致活动期间活动的逻辑代码无法热更。因为要热更就必须杀死场景进程。因此这种做法应该是尽量避免的。</p>
+<p>检查系统中的老代码：</p>
+<pre><code>f(OldMods),OldMods = <span class="hljs-symbol">lists:</span>filtermap(
+    <span class="hljs-function"><span class="hljs-keyword">fun</span>({<span class="hljs-title">Module</span></span>, Filename}) -&gt;
+        is_list(Filename) andalso
+        <span class="hljs-symbol">erlang:</span>check_old_code(Module) andalso
+        {<span class="hljs-literal">true</span>, Module}
+    <span class="hljs-keyword">end</span>,
+    <span class="hljs-symbol">code:</span>all_loaded()
+).
+</code></pre><p>检查系统中老代码无法被purge的模块：</p>
+<pre><code><span class="hljs-symbol">lists:</span>filtermap(
+    <span class="hljs-function"><span class="hljs-keyword">fun</span>(<span class="hljs-title">Module</span></span>) -&gt;
+        not <span class="hljs-symbol">code:</span>soft_purge(Module)
+    <span class="hljs-keyword">end</span>,
+    OldMods
+).
+</code></pre><p>找出还在执行老代码Mod的进程信息：
+<code>[process_info(Pid)||Pid&lt;-processes(),erlang:check_process_code(Pid, Mod)].</code></p>
 <p>杀进程。一般先monitor，再kill，等待接收moniter消息，确认当前进程杀死。因为被杀死的进程可能需要进行一些清理的行为，如果不等待它确认死亡就将执行后续操作如移除代码，可能会导致清理过程出现找不到代码的问题。</p>
-<p>杀死进程的过程：</p>
+<p>code_server中杀死进程的过程：</p>
 <pre><code>%% do_purge(Module)
 %%  Kill all processes running code <span class="hljs-keyword">from</span> *old* Module, <span class="hljs-keyword">and</span> <span class="hljs-keyword">then</span> purge the
 %%  <span class="hljs-built_in">module</span>. Return <span class="hljs-literal">true</span> <span class="hljs-keyword">if</span> any processes killed, <span class="hljs-keyword">else</span> <span class="hljs-literal">false</span>.
@@ -161,14 +192,41 @@ reload(<span class="hljs-keyword">Module</span>) -&gt;
 <pre><code><span class="hljs-function"><span class="hljs-title">l</span><span class="hljs-params">(Mod)</span></span> -&gt;
     <span class="hljs-selector-tag">code</span>:purge(Mod),
     <span class="hljs-selector-tag">code</span>:load_file(Mod).
-</code></pre><p>直接load代码存在杀死进程的危险，所以一种安全的热更机制应该先尝试soft purge，如果成功，则加载代码，失败则放弃更新。</p>
+</code></pre><p>直接load代码存在杀死进程的危险，所以一种安全的热更机制应该先尝试soft purge，如果成功，则加载代码，失败则放弃更新。
+检查代码是否有改变：</p>
+<pre><code>%% @doc Return a list <span class="hljs-keyword">of</span> beam modules <span class="hljs-literal">that</span> have changed.
+all_changed<span class="hljs-function"><span class="hljs-params">()</span> -&gt;</span>
+    [M || {M, Fn} &lt;- code:all_loaded(), is_list(Fn), is_changed(M)].
+
+%% @spec is_changed<span class="hljs-function"><span class="hljs-params">(atom())</span> -&gt;</span> boolean()
+%% @doc <span class="hljs-literal">true</span> <span class="hljs-keyword">if</span> the loaded <span class="hljs-built_in">module</span> <span class="hljs-keyword">is</span> a beam <span class="hljs-keyword">with</span> a vsn attribute
+%%      <span class="hljs-keyword">and</span> does <span class="hljs-keyword">not</span> match the <span class="hljs-literal">on</span>-disk beam file, returns <span class="hljs-literal">false</span> <span class="hljs-keyword">otherwise</span>.
+is_changed<span class="hljs-function"><span class="hljs-params">(M)</span> -&gt;</span>
+    <span class="hljs-keyword">try</span>
+        module_vsn(M:module_info()) =/= module_vsn(code:get_object_code(M))
+    <span class="hljs-keyword">catch</span> _:_<span class="hljs-function"> -&gt;</span>
+            <span class="hljs-literal">false</span>
+    end.
+
+%% Internal API
+
+module_vsn<span class="hljs-function"><span class="hljs-params">({M, Beam, _Fn})</span> -&gt;</span>
+    {ok, {M, Vsn}} = beam_lib:version(Beam),
+    Vsn;
+module_vsn<span class="hljs-function"><span class="hljs-params">(L)</span> <span class="hljs-title">when</span> <span class="hljs-title">is_list</span><span class="hljs-params">(L)</span> -&gt;</span>
+    {_, Attrs} = lists:keyfind(attributes, <span class="hljs-number">1</span>, L),
+    {_, Vsn} = lists:keyfind(vsn, <span class="hljs-number">1</span>, Attrs),
+    Vsn.
+</code></pre><p>函数<code>code:get_object_code(Module)</code>在代码路径下查找模块 <code>Module</code> 的目标代码，如果找到，则返回 <code>{Module, Binary, Filename}</code>，否则返回 <code>error</code>。</p>
+<p>尝试更新代码：</p>
 <pre><code><span class="hljs-keyword">case</span> soft_purge(<span class="hljs-keyword">Mod</span>) <span class="hljs-keyword">of</span>
 <span class="hljs-literal">true</span> -&gt; code:load_file(<span class="hljs-keyword">Mod</span>);
-<span class="hljs-literal">false</span> -&gt; <span class="hljs-keyword">error</span> 
+<span class="hljs-literal">false</span> -&gt; <span class="hljs-keyword">error</span>
 <span class="hljs-keyword">end</span>
 </code></pre><h2><a name="参考文档" class="anchor" href="#参考文档"><span class="header-link"></span></a>参考文档</h2><ul>
 <li><a href="http://erlang.org/doc/reference_manual/code_loading.html">Compilation and Code Loading</a></li>
 <li><a href="https://github.com/rustyio/sync">sync</a></li>
+<li>reloder</li>
 </ul>
 </div>
 
