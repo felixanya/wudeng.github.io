@@ -103,5 +103,12 @@
         "link": "../publish/2018-01-15-kcp.html",
         "summary": "<a href=\"publish/2018-01-15-kcp.html\"><h1>kcp源码解析</h1>\n</a><ul>\n<li><a href=\"#相关变量\">相关变量</a></li>\n<li><a href=\"#rto计算retransmission-timeout\">RTO计算（Retransmission timeout）</a></li>\n<li><a href=\"#segment头部\">Segment头部</a></li>\n<li><a href=\"#int-ickpinputikcpcb-kcp-const-char-data-long-size\"><code>int ickp_input(ikcpcb *kcp, const char *data, long size)</code></a></li>\n<li><a href=\"#int-ikcprecvikcpcb-kcp-char-buffer-int-len\"><code>int ikcp_recv(ikcpcb *kcp, char *buffer, int len)</code></a></li>\n<li><a href=\"#int-ikcppeeksizeconst-ikcpcb-kcp\"><code>int ikcp_peeksize(const ikcpcb *kcp)</code></a></li>\n<li><a href=\"#int-ickpsendikcpcb-kcp-const-char-buffer-int-len\"><code>int ickp_send(ikcpcb *kcp, const char *buffer, int len)</code></a></li>\n<li><a href=\"#void-ikcpflushikcp-kcp\"><code>void ikcp_flush(ikcp *kcp)</code></a></li>\n<li><a href=\"#参考文献\">参考文献</a></li>\n</ul>\n<p><a href=\"https://github.com/skywind3000/kcp\">kcp</a>是一个实现了类似tcp的重传、流控、拥塞控制等机制的传输协议，它没有指定传输协议，但是一般情况下都会用udp来传输，\n相当于用udp实现的tcp协议。它在不稳定的网络环境中采用更激进的方法来获得比tcp更快的传输速度，代价就是会消耗更多的流量。\n跟tcp一样，kcp采用滑动窗口机制来实现流控，通过重传机制保证了可靠性，通过慢启动，拥塞避免，快速重传和快速恢复来实现拥塞控制。</p>\n<p>kcp支持两种模式：流模式和消息模式。</p>\n<p><img src=\"./data/2018-01-15-kcp/kcp_stream_mode.png\" alt=\"\"></img></p>\n",
         "title": "kcp源码解析"
+    },
+    "2018-02-27-docker-on-windows7": {
+        "name": "2018-02-27-docker-on-windows7",
+        "stamp": "2018-2-27",
+        "link": "../publish/2018-02-27-docker-on-windows7.html",
+        "summary": "<a href=\"publish/2018-02-27-docker-on-windows7.html\"><h1>docker on windows7</h1>\n</a><ul>\n<li><a href=\"#安装virtualbox\">安装VirtualBox</a></li>\n<li><a href=\"#docker-machine\">docker-machine</a></li>\n<li><a href=\"#文件夹挂载\">文件夹挂载</a></li>\n<li><a href=\"#端口映射\">端口映射</a></li>\n</ul>\n<p>windows 7以前的系统需要通过虚拟机软件运行boot2docker来支持docker,\n一般使用VirtualBox来运行boot2docker。boot2docker是一个支持docker的linux环境。</p>\n<h2><a name=\"安装virtualbox\" class=\"anchor\" href=\"#安装virtualbox\"><span class=\"header-link\"></span></a>安装VirtualBox</h2>\n<p>windows上安装虚拟机需要先开启cpu的虚拟化支持，否则会有报错：</p>\n",
+        "title": "docker on windows7"
     }
 }

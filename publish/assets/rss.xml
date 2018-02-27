@@ -7,6 +7,28 @@
 
     <!-- auto complete by template replacement -->
     <item>
+    <title>docker on windows7</title>
+    <link>http://wudeng.github.io/publish/2018-02-27-docker-on-windows7.html</link>
+    <description>
+<a href="publish/2018-02-27-docker-on-windows7.html"><h1>docker on windows7</h1>
+</a><ul>
+<li><a href="#安装virtualbox">安装VirtualBox</a></li>
+<li><a href="#docker-machine">docker-machine</a></li>
+<li><a href="#文件夹挂载">文件夹挂载</a></li>
+<li><a href="#端口映射">端口映射</a></li>
+</ul>
+<p>windows 7以前的系统需要通过虚拟机软件运行boot2docker来支持docker,
+一般使用VirtualBox来运行boot2docker。boot2docker是一个支持docker的linux环境。</p>
+<h2><a name="安装virtualbox" class="anchor" href="#安装virtualbox"><span class="header-link"></span></a>安装VirtualBox</h2>
+<p>windows上安装虚拟机需要先开启cpu的虚拟化支持，否则会有报错：</p>
+
+        <a href="http://wudeng.github.io/publish/2018-02-27-docker-on-windows7.html">阅读全文 >> </a>
+    </description>
+    <pubDate>2018-2-27</pubDate>
+</item>
+
+
+<item>
     <title>kcp源码解析</title>
     <link>http://wudeng.github.io/publish/2018-01-15-kcp.html</link>
     <description>
