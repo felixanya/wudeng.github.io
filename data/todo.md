@@ -1,5 +1,4 @@
-- Mysql 缓存设计
-  - 缓存架构
+
 
 open.itcast.cn
 

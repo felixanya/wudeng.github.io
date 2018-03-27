@@ -83,9 +83,15 @@ function convertHtml()
     };
     context.content = marked(md, {renderer: renderer});
 
+    var page_identifier = context.dest.split("..")[1];
+    var page_url = "https://wudeng.github.io/" + page_identifier;
+
     fs.writeFileSync(context.dest,
         html.replace(/\${content}/gi, "<div class=\"main-content markdown-body\">" + context.content + "</div>")
-            .replace(/\${assets}/gi, "./assets"));
+            .replace(/\${assets}/gi, "./assets")
+            .replace(/\${PAGE_URL}/gi, page_url)
+            .replace(/\${PAGE_IDENTIFIER}/gi, page_identifier)
+    );
     console.log('convert ' + program.source + ' -> ' + program.dest + ' success');
 
     return context;
