@@ -1,7 +1,14 @@
+# Mac 使用技巧
 
+## 搜狗输入法
 
 ## Finder
 
+### 快捷键
+* ⌘ + up 上一级目录
+* ⌘ + ⇧ + G 可以跳转到指定目录，包括隐藏目录 比如指定intelliJ Idea的sdk时需要用到。
+
+### 配置
 标题栏显示完整路径：
 ```
 defaults write com.apple.finder _FXShowPosixPathInTitle -bool true; killall Finder
@@ -12,7 +19,9 @@ defaults write com.apple.finder _FXShowPosixPathInTitle -bool true; killall Find
 defaults write com.apple.Finder AppleShowAllFiles YES
 ```
 
-Command + Shift + G 可以跳转到指定目录，包括隐藏目录 比如指定intelliJ Idea的sdk时需要用到。
 
 
 xcrun error: xcode-select --install
+
+## Chrome
+⌘ +
