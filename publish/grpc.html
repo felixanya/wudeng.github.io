@@ -1,0 +1,79 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><p>http2</p>
+<p>IDL, short for Interactive Data Language</p>
+<ul>
+<li>Unary RPCs
+  rpc SayHello(HelloRequest) returns (HelloResponse){}</li>
+<li>Server streaming RPCs
+  rpc LotsOfReplies(HelloRequest) returns (stream HelloResponse){}</li>
+<li>Client streaming RPCs
+  rpc LotsOfGreetings(stream HelloRequest) returns (HelloResponse) {}</li>
+<li>Bidirectional streaming RPCs
+  rpc BidiHello(stream HelloRequest) returns (stream HelloResponse){}</li>
+</ul>
+<p><a href="https://grpc.io/">https://grpc.io/</a></p>
+<p>需要protoc.exe以及protoc-gen-go.exe在path中。</p>
+<ul>
+<li><a href="https://github.com/google/protobuf/releases">protocol buffers v3</a> 解压，加入path</li>
+<li>protoc plugin<ul>
+<li>go get -u github.com/golang/protobuf/protoc-gen-go</li>
+</ul>
+</li>
+<li>protoc -I ../helloworld --go_out=plugins=grpc:../helloworld ../helloworld/helloworld.proto</li>
+<li>go run greeter_server/main.go</li>
+<li>go run greeter_client/main.go</li>
+</ul>
+<p>proto3
+    service ServiceName 
+        rpc RpcName (Request) returns (Reply) {}
+        NewServiceNameClient
+        NewServiceNameServer
+    message</p>
+<p>grpc 
+    Dial(address, grpc.WithInsecure())</p>
+<p>client gRPC Stub
+    grpc.Dial(address, grpc.WithInsecure())</p>
+<p>server gRPC Server
+    grpc.NewServer()</p>
+</div>
+
+    </div>
+
+</div>
+</body>
+</html>

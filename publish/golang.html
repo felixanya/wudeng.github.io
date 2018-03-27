@@ -1,0 +1,347 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h1>GO</h1><ul>
+<li><a href="#基本类型">基本类型</a><ul>
+<li><a href="#const">const</a></li>
+<li><a href="#for-循环">for 循环</a></li>
+<li><a href="#switch">switch</a></li>
+<li><a href="#deferhttpsbloggolangorgdefer-panic-and-recover"><a href="https://blog.golang.org/defer-panic-and-recover">defer</a></a></li>
+<li><a href="#panic-and-recover">panic and recover</a></li>
+<li><a href="#指针">指针</a></li>
+<li><a href="#结构体">结构体</a></li>
+<li><a href="#数组">数组</a></li>
+<li><a href="#slices">slices</a></li>
+<li><a href="#map">map</a></li>
+<li><a href="#struct">struct</a></li>
+<li><a href="#type-assertions">type assertions</a></li>
+<li><a href="#packages">packages</a></li>
+<li><a href="#container">Container</a></li>
+<li><a href="#mockgen">MockGen</a></li>
+<li><a href="#开源资源">开源资源</a></li>
+<li><a href="#热更新">热更新</a></li>
+<li><a href="#问题">问题</a><ul>
+<li><a href="#已解决">已解决</a></li>
+</ul>
+</li>
+<li><a href="#依赖管理">依赖管理</a></li>
+<li><a href="#web-框架">web 框架</a></li>
+<li><a href="#ide">IDE</a></li>
+<li><a href="#testing">testing</a><ul>
+<li><a href="#未解决">未解决</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>gopath
+    查看当前GOPATH：go env GOPATH
+    src: source code, import path
+    bin: compiled commands
+    pkg/GOOS_GOARCH: installed package objects</p>
+<pre><code>internal 
+    <span class="hljs-keyword">import</span> <span class="hljs-string">"foo/internal/baz"</span>
+vendor  
+    优先级更高
+    <span class="hljs-keyword">import</span> <span class="hljs-string">"baz"</span>
+</code></pre><p>目前版本：
+go version: go version go1.9.1 windows/amd64
+go help</p>
+<p>go run 
+go build</p>
+<p>go build -o main .</p>
+<p>导出函数或变量首字母大写</p>
+<p>fmt格式</p>
+<ul>
+<li>%v Value, %+v field names, %#v syntax representation</li>
+<li>%T Type</li>
+<li>%q quot string</li>
+<li>%g 浮点数</li>
+</ul>
+<h1>基本类型</h1><p>statically typed: every variable has a static type, that is, exactly one type known and fixed at compile time;</p>
+<p>bool
+string
+int int8 int16 int32 int64
+uint uint8 uint16 uint32 uint64 uintptr</p>
+<p>byte // uint8
+rune // int32, unicode
+float32 float64
+complex64 complex128</p>
+<h2><a name="const" class="anchor" href="#const"><span class="header-link"></span></a>const</h2><p>iota</p>
+<h2><a name="for-循环" class="anchor" href="#for-循环"><span class="header-link"></span></a>for 循环</h2><p>for i := 0; i &lt; 10; i++ {
+    sum += i
+}</p>
+<p>sum := 1
+for sum &lt; 1000 {
+    sum += sum
+}</p>
+<p>死循环
+for {
+}</p>
+<h2><a name="switch" class="anchor" href="#switch"><span class="header-link"></span></a>switch</h2><p>func do(i interface{}) {
+    switch v := i.(type) {
+        case int:
+    }
+}</p>
+<h2><a name="<a-href="https://blog.golang.org/defer-panic-and-recover">defer</a>" class="anchor" href="#<a-href="https://blog.golang.org/defer-panic-and-recover">defer</a>"><span class="header-link"></span></a><a href="https://blog.golang.org/defer-panic-and-recover">defer</a></h2><ul>
+<li>A deferred function&#39;s arguments are evaluated when the defer statement is evaluated.</li>
+<li>Deferred function calls are executed in Last In First Out order after the surrounding function returns.</li>
+<li>Deferred functions may read and assign to the returning function&#39;s named return values.</li>
+</ul>
+<p>当使用os.Exit结束函数时不会执行defer。</p>
+<h2><a name="panic-and-recover" class="anchor" href="#panic-and-recover"><span class="header-link"></span></a>panic and recover</h2><p>Panic is a built-in function that stops the ordinary flow of control and begins panicking. </p>
+<p>When the function F calls panic, execution of F stops, any deferred functions in F are executed normally, and then F returns to its caller. 
+To the caller, F then behaves like a call to panic. 
+The process continues up the stack until all functions in the current goroutine have returned, at which point the program crashes. </p>
+<p>Panics can be initiated by invoking panic directly. 
+They can also be caused by runtime errors, such as out-of-bounds array accesses.</p>
+<p>Recover is a built-in function that regains control of a panicking goroutine. 
+Recover is only useful inside deferred functions. 
+During normal execution, a call to recover will return nil and have no other effect. 
+If the current goroutine is panicking, a call to recover will capture the value given to panic and resume normal execution.</p>
+<h2><a name="指针" class="anchor" href="#指针"><span class="header-link"></span></a>指针</h2><p>nil</p>
+<h2><a name="结构体" class="anchor" href="#结构体"><span class="header-link"></span></a>结构体</h2><h2><a name="数组" class="anchor" href="#数组"><span class="header-link"></span></a>数组</h2><p>var a [5]int
+[...]string{&quot;hello&quot;, &quot;world&quot;}</p>
+<h2><a name="slices" class="anchor" href="#slices"><span class="header-link"></span></a>slices</h2><p>make([]int, 5)</p>
+<h2><a name="map" class="anchor" href="#map"><span class="header-link"></span></a>map</h2><p>map[KeyType]ValueType
+    KeyType: any type that is comparable
+    ValueType: any type at all, including another map</p>
+<p>使用之前必须用make来创建，值为nil的map是空的，并且不能对其赋值。
+var m map[string]int
+m = make(map[string]int)</p>
+<p>key equality operator is defined
+    integers
+    floating point
+    complex numbers
+    strings
+    pointers
+    interfaces as long as the dynamic type supports equality
+    structs
+    arrays
+slice can not be used as map keys, because equality is not defined on them.</p>
+<h2><a name="struct" class="anchor" href="#struct"><span class="header-link"></span></a>struct</h2><p>embedded field
+    promoted</p>
+<h2><a name="type-assertions" class="anchor" href="#type-assertions"><span class="header-link"></span></a>type assertions</h2><p>t := i.(T)
+This statement asserts that the interface value i holds the concrete type T and assigns the underlying T value to the variable t.</p>
+<h2><a name="packages" class="anchor" href="#packages"><span class="header-link"></span></a>packages</h2><ul>
+<li>io<ul>
+<li>Reader</li>
+<li>ReadFull</li>
+</ul>
+</li>
+<li>fmt</li>
+<li>strings<ul>
+<li>NewReader() </li>
+</ul>
+</li>
+<li>strconv<ul>
+<li>func ParseUint(s string, base int, bitSize int) (uint64, error)</li>
+</ul>
+</li>
+<li>math<ul>
+<li>math/rand</li>
+<li>math/cmplx</li>
+<li>MaxInt32</li>
+</ul>
+</li>
+<li>runtime<ul>
+<li>GOOS</li>
+</ul>
+</li>
+<li>time
+  Minute</li>
+<li>sync<ul>
+<li>sync/atomic</li>
+<li>type Mutex struct {}</li>
+<li>type RWMutex struct {}</li>
+<li>WaitGroup<ul>
+<li>Add </li>
+<li>Done</li>
+<li>Wait</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>os <ul>
+<li>os/signal<ul>
+<li>func Notify(c chan&lt;- os.Signal, sig ...os.Signal)</li>
+</ul>
+</li>
+<li>os/exec</li>
+<li>Args</li>
+<li>Exit</li>
+</ul>
+</li>
+<li>syscall</li>
+<li>reflect<ul>
+<li>Type</li>
+<li>Value</li>
+<li>ValueOf</li>
+<li>TypeOf </li>
+</ul>
+</li>
+<li>net <ul>
+<li>Conn</li>
+<li>Listener</li>
+<li>Listen </li>
+</ul>
+</li>
+<li>log<ul>
+<li>Fatalf</li>
+</ul>
+</li>
+<li>log &quot;github.com/Sirupsen/logrus&quot;<ul>
+<li>Panic</li>
+<li>Panicf</li>
+<li>Info</li>
+<li>Infof</li>
+<li>Error</li>
+</ul>
+</li>
+<li>context<ul>
+<li>Background</li>
+</ul>
+</li>
+</ul>
+<h2><a name="container" class="anchor" href="#container"><span class="header-link"></span></a>Container</h2><ul>
+<li>container/heap</li>
+</ul>
+<h2><a name="mockgen" class="anchor" href="#mockgen"><span class="header-link"></span></a>MockGen</h2><p>mocking is creating objects that simulate the behaviour of real objects</p>
+<p>mode</p>
+<pre><code>- source : generates mock<span class="hljs-built_in"> interface </span><span class="hljs-keyword">from</span> a source file
+    -source
+    -imports
+    -aux_files
+- reflect : generates mock interfaces by building a program that use reflection <span class="hljs-keyword">to</span> understand<span class="hljs-built_in"> interface
+</span>    import path
+    comma-seperated list of symbols
+</code></pre><p>-destination=mocks/mock_doer.go
+-package=mocks</p>
+<p>comment:
+//go:generate mockgen -destination=../mocks/mock_doer.go -package=mocks github.com/sgreben/testing-with-gomock/doer Doer
+from project root: <code>go generate ./...</code></p>
+<p>go get github.com/golang/mock/gomock
+go get github.com/golang/mock/mockgen
+    $GOPATH/bin/mockgen.exe
+go doc github.com/golang/mock/gomock</p>
+<p><a href="https://blog.codecentric.de/en/2017/08/gomock-tutorial/">https://blog.codecentric.de/en/2017/08/gomock-tutorial/</a>
+<a href="https://martinfowler.com/articles/mocksArentStubs.html">https://martinfowler.com/articles/mocksArentStubs.html</a></p>
+<h2><a name="开源资源" class="anchor" href="#开源资源"><span class="header-link"></span></a>开源资源</h2><ul>
+<li>github.com/boltdb/bolt            基于文件的kv数据库</li>
+<li>gopkg.in/vmihailenco/msgpack.v2   串行化</li>
+</ul>
+<h2><a name="热更新" class="anchor" href="#热更新"><span class="header-link"></span></a>热更新</h2><p><a href="http://www.cppblog.com/sunicdavy">http://www.cppblog.com/sunicdavy</a></p>
+<p>http无状态热更新，已有成熟方案。
+游戏服务器带状态的热更新。</p>
+<p>使用go1.8提供的plugin包机制实现，不支持windows。</p>
+<p>高并发
+Gorouting
+channel</p>
+<p>gofmt自动排版</p>
+<p>gofix
+govet</p>
+<p>Session</p>
+<p>export GOPATH=<code>pwd</code></p>
+<p>go get -u github.com/gorilla/sessions
+go run session.go</p>
+<h2><a name="问题" class="anchor" href="#问题"><span class="header-link"></span></a>问题</h2><pre><code>path_triangle = append(<span class="hljs-string">[]</span><span class="hljs-string">[3]</span>int32{triangles<span class="hljs-string">[cur_id]</span>}, path_triangle...)
+</code></pre><h3><a name="已解决" class="anchor" href="#已解决"><span class="header-link"></span></a>已解决</h3><p>import(
+    . &quot;game/types&quot;
+)
+是啥意思</p>
+<p>If an explicit period (.) appears instead of a name, all the package&#39;s exported identifiers will be declared in the current file&#39;s file block and can be accessed without a qualifier.</p>
+<p>Assume we have compiled a package containing the package clause package math, which exports function Sin, and installed the compiled package in the file identified by &quot;lib/math&quot;. 
+This table illustrates how Sin may be accessed in files that import the package after the various types of import declaration.</p>
+<p>Import declaration          Local name of Sin</p>
+<p>import   &quot;lib/math&quot;         math.Sin
+import M &quot;lib/math&quot;         M.Sin
+import . &quot;lib/math&quot;         Sin</p>
+<h2><a name="依赖管理" class="anchor" href="#依赖管理"><span class="header-link"></span></a>依赖管理</h2><p><a href="https://ieevee.com/tech/2017/07/10/go-import.html">https://ieevee.com/tech/2017/07/10/go-import.html</a>
+godep
+gvt - recursively retrive and vendor packages
+glide
+gb</p>
+<p>外部依赖
+    github.com 
+    k8s.io
+    golang.org</p>
+<p>go get需要翻墙时可以设置：
+set http_proxy=127.0.0.1:1080
+set https_proxy=127.0.0.1:1080</p>
+<p>go get -u github.com/labstack/gommon </p>
+<pre><code>* $GOPATH/src/github.com/labstack/gommon
+* import github.com/labstack/gommon
+-<span class="ruby">d : <span class="hljs-keyword">not</span> install 
+</span>-<span class="ruby">f : -u, <span class="hljs-keyword">not</span> to verify
+</span>-<span class="ruby">fix
+</span>-<span class="ruby">insecure
+</span>-<span class="ruby">t
+</span>-<span class="ruby">u</span>
+</code></pre><p>go help gopath
+go help packages
+go help importpath</p>
+<h2><a name="web-框架" class="anchor" href="#web-框架"><span class="header-link"></span></a>web 框架</h2><p><a href="https://echo.labstack.com/">https://echo.labstack.com/</a></p>
+<h2><a name="ide" class="anchor" href="#ide"><span class="header-link"></span></a>IDE</h2><p>IntelliJ IDEA Community 2017.2
+    添加GOPATH
+    File -&gt; Settings -&gt; Language &amp; Frameworks -&gt; GO -&gt; Go Libraries</p>
+<h2><a name="testing" class="anchor" href="#testing"><span class="header-link"></span></a>testing</h2><pre><code><span class="hljs-keyword">go</span> test -v <span class="hljs-keyword">package</span>
+<span class="hljs-keyword">go</span> help test
+<span class="hljs-keyword">go</span> help testflag
+    -v verbose output
+<span class="hljs-keyword">go</span> help testfunc
+xxx_test.<span class="hljs-keyword">go</span>
+    test
+        <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">TestXxx</span><span class="hljs-params">(t *testing.T)</span>
+    <span class="hljs-title">benchmark</span>
+        <span class="hljs-title">func</span> <span class="hljs-title">BenchmarkXxx</span><span class="hljs-params">(b *testing.B)</span>
+            <span class="hljs-title">b</span>.<span class="hljs-title">N</span>
+    <span class="hljs-title">example</span>
+*<span class="hljs-title">testing</span>.<span class="hljs-title">T</span>
+    <span class="hljs-title">t</span>.<span class="hljs-title">Log</span><span class="hljs-params">(args ...<span class="hljs-keyword">interface</span>{})</span>  <span class="hljs-title">fmt</span>.<span class="hljs-title">Sprintln</span><span class="hljs-params">(args...)</span>
+    <span class="hljs-title">t</span>.<span class="hljs-title">Fail</span>
+*<span class="hljs-title">testing</span>.<span class="hljs-title">B</span></span>
+</code></pre><h3><a name="未解决" class="anchor" href="#未解决"><span class="header-link"></span></a>未解决</h3><ul>
+<li><a href="https://tour.golang.org/">https://tour.golang.org/</a></li>
+<li><a href="https://gobyexample.com/">https://gobyexample.com/</a></li>
+<li><a href="https://play.golang.org/">https://play.golang.org/</a></li>
+</ul>
+</div>
+
+    </div>
+
+</div>
+</body>
+</html>

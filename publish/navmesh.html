@@ -1,0 +1,142 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><p>问题：</p>
+<ul>
+<li><a href="#recast-detour">recast &amp; detour</a></li>
+</ul>
+<p>客户端采用nvamesh寻路，服务器也需要寻路，怎么解决。</p>
+<p>平面点集P德劳内三角化，最大化此三角剖分中三角形的最小角。换句话说，此算法尽量避免出现极瘦的三角形。
+    DT(P)</p>
+<p>方案1：
+    客户端导出点，三角形。
+    服务器快速判断点是否在三角形内。
+        三角形区域，建立四个排序列表
+            xmin,xmax, ymin, ymax
+        给点x, 快速找到区间对应的三角形列表。
+        给点y，快速找到区间对应的三角形。
+        求交集，判断是否在三角形内。</p>
+<p>github.com/xtaci/navmesh/demo
+    add 64 bit gcc.exe to path
+    go run main.go</p>
+<pre><code>输入：mesh.json，点列表，三角形列表，遍历创建邻接表，计算相邻三角形中心的距离
+给定起点和终点，遍历三角形列表，找出对应的三角形<span class="hljs-built_in">id</span>。
+用Dijkstra计算起点到终点的最短路径即需要经过的三角形<span class="hljs-built_in">id</span>列表。
+用navmesh计算路径。
+    计算临边
+</code></pre><p>NavMesh.Triangulate(out Vector3[] veticles, out Int[] indices)</p>
+<p>从NavMesh导出grid的方法：
+    NavMesh.CalculateTriangulation计算得出顶点和边。
+        vertices
+        layers
+        indices
+    根据vertices计算得出x和z的最大最小值，以及y的最大值，取整。
+    对于每一层：</p>
+<p><a href="http://www.luzexi.com/unity3d/%E5%89%8D%E7%AB%AF%E6%8A%80%E6%9C%AF/2013/10/06/Unity3D%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1NavMesh%E5%AF%BB%E8%B7%AF.html">http://www.luzexi.com/unity3d/%E5%89%8D%E7%AB%AF%E6%8A%80%E6%9C%AF/2013/10/06/Unity3D%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1NavMesh%E5%AF%BB%E8%B7%AF.html</a>
+<a href="http://liweizhaolili.lofter.com/post/1cc70144_86a939e">http://liweizhaolili.lofter.com/post/1cc70144_86a939e</a> </p>
+<h2><a name="recast-&amp;-detour" class="anchor" href="#recast-&amp;-detour"><span class="header-link"></span></a>recast &amp; detour</h2><p>开源游戏寻路引擎，被Unity，UE4等游戏引擎采用。包含两部分：Recast和Detour。
+recast通过将输入的场景模型体素化生成相应的寻路网格，包含三个步骤：</p>
+<ul>
+<li>体素化模型</li>
+<li>分割联通区域</li>
+<li>将区域简化为多边形</li>
+</ul>
+<p>Detour通过使用Recast生成的Navmesh进行寻路。</p>
+<p>Recast: navigation mesh construction toolset for games
+    level geometry -&gt; voxel mold -&gt; mesh</p>
+<pre><code>    - building the voxel mold
+    - partitioning the mold into<span class="hljs-built_in"> simple </span>regions
+    - peeling off the regions as<span class="hljs-built_in"> simple </span>polygons
+    - navmesh + detail mesh
+
+open source navmesh <span class="hljs-keyword">and</span> navigation<span class="hljs-built_in"> system </span><span class="hljs-keyword">in</span> c++
+</code></pre><p>Detour: path-finding and spatial reasoning toolkit</p>
+<p><a href="http://www.critterai.org/">http://www.critterai.org/</a></p>
+<p><a href="http://www.cnblogs.com/yaukey/p/navmesh_data_export.html">http://www.cnblogs.com/yaukey/p/navmesh_data_export.html</a></p>
+<p><a href="http://www.voidcn.com/article/p-njcbdmxp-eo.html">http://www.voidcn.com/article/p-njcbdmxp-eo.html</a> Navmesh -&gt; bitmap</p>
+<p>Mikko Mononen在Recast &amp; Detour中生成NavMesh的基本流程收到GDC2006上演讲的启发：
+<a href="https://www.gdcvault.com/play/1013192/Crowds-In-A-Polygon-Soup">Crowds In A Polygon Soup: Next-Gen Path Planning</a>, by David Miles
+<a href="http://slideplayer.com/slide/3602002/">http://slideplayer.com/slide/3602002/</a></p>
+<p>中文介绍：
+<a href="https://wo1fsea.github.io/2016/08/21/A_Quick_Introduction_to_NavMesh/">https://wo1fsea.github.io/2016/08/21/A_Quick_Introduction_to_NavMesh/</a></p>
+<pre><code><span class="hljs-keyword">http</span>://www.cnblogs.com/tomren/p/<span class="hljs-number">6283295.</span>html
+
+代码：<span class="hljs-keyword">https</span>://github.com/recastnavigation/recastnavigation
+文档：<span class="hljs-keyword">http</span>://www.stevefsp.org/projects/rcndoc/prod/index.html
+
+fork：
+代码：<span class="hljs-keyword">https</span>://github.com/masagroup/recastdetour
+文档：<span class="hljs-keyword">http</span>://masagroup.github.io/recastdetour/index.html
+
+Overhead Obstacles
+changing world dynamic Obstacles
+
+boolean <span class="hljs-built_in">subtract</span>
+    find Obstacles-area intersections
+    find area vert outside Obstacles
+    loop CCW, extracting area: counterclockwise
+
+Dynamic Obstacles Summary
+    find areas affected <span class="hljs-keyword">by</span> dynamic Obstacles
+    record <span class="hljs-keyword">any</span> edges entering <span class="hljs-built_in">from</span> outside
+    boolean <span class="hljs-built_in">subtract</span>
+    partition <span class="hljs-keyword">any</span> non-convex dynamic areas
+    match up unconnected edges
+
+Fluid AI Navigation
+    what can i <span class="hljs-built_in">do</span> <span class="hljs-keyword">with</span> my convex area graph
+        very fast navigation ray-cast
+        distance <span class="hljs-built_in">to</span> edge queries
+        repulsive fields <span class="hljs-keyword">on</span> <span class="hljs-title">edges</span>
+        next corner determination
+
+
+Conclusions:
+    Automated build <span class="hljs-keyword">of</span> convex area graph
+        efficiently represents <span class="hljs-keyword">the</span> walkable free <span class="hljs-literal">space</span>
+        operates <span class="hljs-keyword">on</span> <span class="hljs-title">polygon</span> <span class="hljs-title">soup</span> <span class="hljs-title">mesh</span>
+        settable enemy size <span class="hljs-keyword">and</span> shape
+    Dynamic Obstacles update graph
+        no speed overhead once updated
+    Fluid AI navigation <span class="hljs-keyword">using</span> <span class="hljs-keyword">the</span> graph
+        many useful queries performed rapidly
+</code></pre></div>
+
+    </div>
+
+</div>
+</body>
+</html>

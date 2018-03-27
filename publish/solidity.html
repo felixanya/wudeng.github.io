@@ -1,0 +1,146 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h1>solidity</h1><ul>
+<li><a href="#状态变量存储结构">状态变量存储结构</a></li>
+<li><a href="#问题">问题：</a></li>
+</ul>
+<p>随机数：
+  oracles
+  keccak256</p>
+<p>smart contract
+EVM: stack machine, max 1024
+statically typed,</p>
+<p>magic global variables:
+  msg
+  tx
+  block</p>
+<p>  now: unix timestamp
+  days
+  seconds
+  hours</p>
+<p>事件都是大写开头
+函数和变量都是小写开头。
+合约名也是大写开头。</p>
+<p>contract
+  mapping
+  bytes32
+  uint8
+  uint</p>
+<p>使用状态变量时，使用小于32字节的数据可能可以减少gas，因为编译器会pack这些变量。但是函数参数以及内存变量是没必要使用小于32字节数据的。不会pack，反而增加了操作。
+mappimn
+  struct
+  address 160bit
+  msg.sender</p>
+<p>  storage: permanantly, outside of function
+  memory: temporary</p>
+<p>  public
+  private</p>
+<p>  internal:private, accessable by children contract
+  external: only be called by outside the contract</p>
+<p>/// natspec comment</p>
+<p>modifier</p>
+<p>keccak256</p>
+<p>  wei
+  gwei
+  finney
+  ether</p>
+<p>loomx.io
+loom network: slack for  dev</p>
+<p>cnpm install ganche-cli web3
+cnpm install solc</p>
+<p>0.4.20</p>
+<p>IDE:
+运行环境：remix <a href="https://remix.ethereum.org">https://remix.ethereum.org</a>
+<a href="http://ethereum.github.io/browser-solidity/">http://ethereum.github.io/browser-solidity/</a>
+通过remixd可以访问本地的文件夹。remixd是一个node模块。通过命令 npm install -g remixd全局安装。
+remixd -S &lt;absulote-path-to-the-shared-folder&gt;
+Environment:</p>
+<ul>
+<li>Javascript VM</li>
+<li>Injected provider: Mist or Metamask</li>
+<li>Web3 Provider: ethereum node, e.g.: geth, parity</li>
+</ul>
+<p>swarm</p>
+<p>OpenZeppelin library</p>
+<p>event</p>
+<p><a href="https://api.cryptokitties.co/kitties/1">https://api.cryptokitties.co/kitties/1</a></p>
+<p><a href="https://medium.com/loom-network/how-to-code-your-own-cryptokitties-style-game-on-ethereum-7c8ac86a4eb3">https://medium.com/loom-network/how-to-code-your-own-cryptokitties-style-game-on-ethereum-7c8ac86a4eb3</a>
+<a href="https://etherscan.io/address/0x06012c8cf97bead5deae237070f9587f8e7a266d#code">https://etherscan.io/address/0x06012c8cf97bead5deae237070f9587f8e7a266d#code</a>
+<a href="https://etherscan.io/address/0x06012c8cf97bead5deae237070f9587f8e7a266d#readContract">https://etherscan.io/address/0x06012c8cf97bead5deae237070f9587f8e7a266d#readContract</a></p>
+<p>geneScience: todo 尝试反编译
+<a href="https://etherscan.io/address/0xf97e0a5b616dffc913e72455fde9ea8bbe946a2b#code">https://etherscan.io/address/0xf97e0a5b616dffc913e72455fde9ea8bbe946a2b#code</a></p>
+<p><a href="https://cryptozombies.io/">https://cryptozombies.io/</a></p>
+<p>swarm:source
+bzzr://a6465fc1ce7ab1a92906ff7206b23d80a21bbd50b85b4bde6a91f8e6b2e3edde</p>
+<p>assert : should never happen checks
+revert : user input validation fails, user-generated errors
+require</p>
+<p>函数有四种作用域：external, public, internal, private，默认的是public。
+状态变量没有external作用域，默认是internal.</p>
+<p>external: 合约接口的一部分，可以被其他合约或者交易调用。不能被内部调用，也就是不能直接调用f()，但是可以通过this.f()调用（这是非常不合理的方式，CALL，非常昂贵）。
+当传递大数组时，这种方式更加高效。因为参数不需要分配内存空间。
+传递数组的时候，public比external要消耗更多的gas。这是因为在public函数中，Solidity会拷贝数组参数到内存中。而external函数可以直接读calldata. 内存分配是很昂贵的，而读取calldata很便宜。</p>
+<p>那么public为什么要把参数拷贝到内存呢？这是因为public函数可以被内部函数调用，这跟external函数完全不一样的过程。内部调用时通过jump来执行的，并且数组参数是通过指向内存的指针来传递的。
+所以编译器生成内部函数代码的时候，函数会去内存中读取参数。</p>
+<p>external函数不能被内部调用，所以参数可以直接从calldata中读取，省略了拷贝这一步。</p>
+<p>所以我们写代码的时候，如果函数只会被外部调用，应该用external, 如果需要被内部调用才考虑使用public。</p>
+<p>public: public函数是合约接口的一部分。可以被内部调用也可以被消息调用。对应的状态变量，会自动生成一个getter()函数。</p>
+<p>internal: internal函数和状态变量只能被内部访问：只能被当前合约或者继承当前合约的子合约调用，不需要this前缀。</p>
+<p>private: private函数和状态变量只能被当前合约访问。自合约也不能访问。</p>
+<p>view: 不会修改状态，没有副作用。
+pure: 不会读写状态。包括block,tx,msg(msg.sig, msg.data除外)</p>
+<p>Fallback函数。payable, 如果没有这个函数，合约无法通过普通交易接受Ether。&lt;2300gas</p>
+<p>coinbase transaction, aka miner block reward</p>
+<h2><a name="状态变量存储结构" class="anchor" href="#状态变量存储结构"><span class="header-link"></span></a>状态变量存储结构</h2><h2><a name="问题：" class="anchor" href="#问题："><span class="header-link"></span></a>问题：</h2><p>msg.data 如何设置的。比如部署一个合约，构造函数里面用到了msg.data，那么这个值从何而来。remix 貌似没有提供部署的参数选项。</p>
+<p>解决：实际上是有的。最上面的value可以指定多少wei。默认是0. 所有的transcation都需要提供三个值：account,gas limit, value.
+其中account对应msg.sender, value对应msg.value.</p>
+<p>etherscan
+hevm
+evmdis
+truffle
+testrpc
+myetherwallet
+solidity</p>
+<p><a href="http://solidity.readthedocs.io/en/latest/index.html">http://solidity.readthedocs.io/en/latest/index.html</a></p>
+<p><a href="https://cryptozombies.io/">https://cryptozombies.io/</a></p>
+</div>
+
+    </div>
+
+</div>
+</body>
+</html>

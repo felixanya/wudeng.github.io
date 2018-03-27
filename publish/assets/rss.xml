@@ -7,6 +7,31 @@
 
     <!-- auto complete by template replacement -->
     <item>
+    <title>docker on windows7</title>
+    <link>http://wudeng.github.io/publish/2018-02-27-docker-on-windows7.html</link>
+    <description>
+<a href="publish/2018-02-27-docker-on-windows7.html"><h1>docker on windows7</h1>
+</a><ul>
+<li><a href="#安装virtualbox">安装VirtualBox</a></li>
+<li><a href="#docker-machine">docker-machine</a></li>
+<li><a href="#文件夹挂载">文件夹挂载</a></li>
+<li><a href="#端口映射">端口映射</a><ul>
+<li><a href="#配置加速器">配置加速器</a></li>
+</ul>
+</li>
+</ul>
+<p>windows 7以前的系统需要通过虚拟机软件运行boot2docker来支持docker,
+一般使用VirtualBox来运行boot2docker。boot2docker是一个支持docker的linux环境。</p>
+<h2><a name="安装virtualbox" class="anchor" href="#安装virtualbox"><span class="header-link"></span></a>安装VirtualBox</h2>
+<p>windows上安装虚拟机需要先开启cpu的虚拟化支持，否则会有报错：</p>
+
+        <a href="http://wudeng.github.io/publish/2018-02-27-docker-on-windows7.html">阅读全文 >> </a>
+    </description>
+    <pubDate>2018-2-27</pubDate>
+</item>
+
+
+<item>
     <title>kcp源码解析</title>
     <link>http://wudeng.github.io/publish/2018-01-15-kcp.html</link>
     <description>
@@ -195,7 +220,7 @@
 <li><a href="#ranchtransport">ranch_transport</a></li>
 <li><a href="#ranchtcp">ranch_tcp</a></li>
 <li><a href="#ranchssl">ranch_ssl</a></li>
-<li><a href="#ranchaccept">ranch_accept</a></li>
+<li><a href="#ranchacceptor">ranch_acceptor</a></li>
 <li><a href="#ranchconnssup">ranch_conns_sup</a></li>
 <li><a href="#连接进程ranchprotocol的具体实现">连接进程(ranch_protocol的具体实现)</a></li>
 <li><a href="#源码">源码</a></li>
@@ -296,13 +321,14 @@ Ref是负责处理这个端口连接的监控树的名字，有了这个名字�
 <li><a href="#热更机制">热更机制</a></li>
 <li><a href="#参考文档">参考文档</a></li>
 </ul>
-<p>ERTS中有两种代码加载模式：</p>
+<p>Erlang自带三个Boot脚本：</p>
 <ul>
-<li>interactive：代码第一次被引用的时候会去代码路径中搜索并加载。</li>
-<li>embedded：一开始就根据boot script来加载。</li>
+<li>start_clean.boot 加载和启动Kernel和STDLIB</li>
+<li>start_sasl.boot 比上面多了一个SASL</li>
+<li>no_dot_erlang.boot 跟第一个一样，只是不加载<code>.erlang</code>
+安装otp的时候可以选择默认脚本是start_clean还是start_sasl，选择以后会拷贝一份start.boot.</li>
 </ul>
-<p>code模块对外提供接口，code_server模块处理实际的工作，注册为code_server。维护一个私有ets表code。
-预加载的10个模块，包括erlang_prim_loader，erlang，init，prim_inet，prim_file等模块，需要被code_server用到的模块都属于预加载。</p>
+<p>ERTS中有两种代码加载模式：</p>
 
         <a href="http://wudeng.github.io/publish/2017-07-15-erlang-code-loading.html">阅读全文 >> </a>
     </description>

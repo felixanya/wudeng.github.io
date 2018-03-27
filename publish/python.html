@@ -1,0 +1,79 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><ul>
+<li><a href="#python2-vs-python3">python2 vs python3</a></li>
+<li><a href="#pip">pip</a></li>
+</ul>
+<h2><a name="python2-vs-python3" class="anchor" href="#python2-vs-python3"><span class="header-link"></span></a>python2 vs python3</h2><p>2.7</p>
+<table>
+<thead>
+<tr>
+<th>python2</th>
+<th>python3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>urllib,urllib2</td>
+<td>urllib</td>
+</tr>
+<tr>
+<td>unicode</td>
+<td>str</td>
+</tr>
+<tr>
+<td>str</td>
+<td>bytes</td>
+</tr>
+</tbody>
+</table>
+<h2><a name="pip" class="anchor" href="#pip"><span class="header-link"></span></a>pip</h2><p>安装pip：</p>
+<pre><code><span class="hljs-string">wget </span><span class="hljs-string">https:</span>//<span class="hljs-string">bootstrap.</span><span class="hljs-string">pypa.</span><span class="hljs-string">io/</span><span class="hljs-built_in">get-pip.py</span> <span class="hljs-built_in">--no-check-certificate</span>
+<span class="hljs-string">python </span><span class="hljs-built_in">get-pip.py</span>
+</code></pre><p>使用pip安装包：
+pip install flask
+pip install -r requirements.txt</p>
+<p>pip默认使用http全局代理，也就是ie浏览器里面配置的代理，注意不要被坑了。</p>
+<p>ie不支持socks代理，shadowsocks同时提供了socks5代理和http代理，所以ie也能用shadowsocks的代理。</p>
+<p><a href="https://docs.python.org/dev/howto/pyporting.html">https://docs.python.org/dev/howto/pyporting.html</a></p>
+</div>
+
+    </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h1>lsof</h1><ul>
+<li><a href="#-i">-i</a></li>
+<li><a href="#-u">-u</a></li>
+<li><a href="#-c">-c</a></li>
+<li><a href="#-p">-p</a></li>
+<li><a href="#-t">-t</a></li>
+<li><a href="#-n">-n</a></li>
+<li><a href="#-p">-P</a></li>
+</ul>
+<p>列出当前系统打开的文件描述符。通过它我们可以了解感兴趣的进程打开了哪些文件描述符，
+或者我们感兴趣的文件描述符被哪些进程打开了。</p>
+<h2><a name="-i" class="anchor" href="#-i"><span class="header-link"></span></a>-i</h2><p>显示socket文件描述符，如果不接任何参数，则显示所有socket文件描述符。</p>
+<pre><code>lsof -i <span class="hljs-string">[46]</span> <span class="hljs-string">[protocol]</span> <span class="hljs-string">[@hostname|ipaddr]</span> <span class="hljs-string">[:service|port]</span>
+</code></pre><h2><a name="-u" class="anchor" href="#-u"><span class="header-link"></span></a>-u</h2><p>显示指定用户启动的所有进程打开的所有文件描述符。</p>
+<h2><a name="-c" class="anchor" href="#-c"><span class="header-link"></span></a>-c</h2><p>显示指定命令打开的所有文件描述符。</p>
+<h2><a name="-p" class="anchor" href="#-p"><span class="header-link"></span></a>-p</h2><p>显示指定进程打开的所有文件描述符。</p>
+<h2><a name="-t" class="anchor" href="#-t"><span class="header-link"></span></a>-t</h2><p>显示打开了目标文件描述符的进程PID。</p>
+<h2><a name="-n" class="anchor" href="#-n"><span class="header-link"></span></a>-n</h2><p>Host显示为数字</p>
+<h2><a name="-p" class="anchor" href="#-p"><span class="header-link"></span></a>-P</h2><p>端口显示为数字</p>
+</div>
+
+    </div>
+
+</div>
+</body>
+</html>

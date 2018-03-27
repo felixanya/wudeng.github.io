@@ -1,0 +1,70 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><ul>
+<li><a href="#go">GO</a></li>
+</ul>
+<p>.proto</p>
+<p>proto3 gRPC</p>
+<p>Base 128 Varints</p>
+<p>int32
+string
+bool</p>
+<p>Packed Repeated Fields version 2.1.0
+    primitive numeric type
+    repeated
+    [packed=true]</p>
+<h2><a name="go" class="anchor" href="#go"><span class="header-link"></span></a>GO</h2><p>安装插件：
+go get -u github.com/golang/protobuf/protoc-gen-go</p>
+<p>protoc -I helloworld/ helloworld/helloworld.proto --go_out=plugins=grpc:helloworld</p>
+<p>backwards-compatible:</p>
+<ul>
+<li>you must not change the tag numbers of any existing fields</li>
+<li>you may delete fields</li>
+<li>you may add new fields but you must use fresh tag number</li>
+</ul>
+<ul>
+<li><a href="https://developers.google.com/protocol-buffers/">https://developers.google.com/protocol-buffers/</a></li>
+<li><a href="https://github.com/google/protobuf/releases">https://github.com/google/protobuf/releases</a></li>
+<li><a href="https://github.com/tomas-abrahamsson/gpb">https://github.com/tomas-abrahamsson/gpb</a></li>
+</ul>
+</div>
+
+    </div>
+
+</div>
+</body>
+</html>

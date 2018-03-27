@@ -1,0 +1,170 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script> 
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><ul>
+<li><a href="#服务器中转">服务器中转</a></li>
+<li><a href="#jsonp-json-with-padding">jsonp: json with padding</a></li>
+<li><a href="#跨域资源共享-cors-cross-origin-resource-share">跨域资源共享 cors: cross origin resource share</a></li>
+<li><a href="#参考文档">参考文档</a></li>
+</ul>
+<p>同源策略cross-domain policy：无法向其他网站发起ajax请求。</p>
+<h2><a name="服务器中转" class="anchor" href="#服务器中转"><span class="header-link"></span></a>服务器中转</h2><h2><a name="jsonp:-json-with-padding" class="anchor" href="#jsonp:-json-with-padding"><span class="header-link"></span></a>jsonp: json with padding</h2><p>浏览器绕开同源策略，发起跨域请求的一种方式。
+因为同源策略限制，无法通过XMLHTTPRequest来向其他站点请求数据，
+因此，我们通过一个&lt;script&gt;标签来发起请求，标签的source指向目标站点。</p>
+<p>The following assumes a response object { &quot;bar&quot; : &quot;baz&quot; },</p>
+<p>json:</p>
+<pre><code><span class="hljs-keyword">var</span> xhr = <span class="hljs-keyword">new</span> XMLHttpRequest();
+
+xhr.onreadystatechange = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">if</span> (xhr.readyState == <span class="hljs-number">4</span> &amp;&amp; xhr.status == <span class="hljs-number">200</span>) {
+    <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">"output"</span>).innerHTML = <span class="hljs-built_in">eval</span>(<span class="hljs-string">'('</span> + <span class="hljs-keyword">this</span>.responseText + <span class="hljs-string">')'</span>).bar;
+  };
+};
+
+xhr.open(<span class="hljs-string">"GET"</span>, <span class="hljs-string">"somewhere.php"</span>, <span class="hljs-literal">true</span>);
+xhr.send();
+</code></pre><p>jsonp:</p>
+<pre><code><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">foo</span>(<span class="hljs-params">response</span>) </span>{
+  <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">"output"</span>).innerHTML = response.bar;
+};
+
+<span class="hljs-keyword">var</span> tag = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">"script"</span>);
+tag.src = <span class="hljs-string">'somewhere_else.php?callback=foo'</span>;
+
+<span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">"head"</span>)[<span class="hljs-number">0</span>].appendChild(tag);
+</code></pre><p>不使用script标签，直接使用jQuery来发起jsonp请求也是可以的：</p>
+<pre><code>$.ajax({
+  <span class="hljs-attr">url</span>: <span class="hljs-string">'http://otherdomain.com/datasource'</span>,
+  <span class="hljs-attr">dataType</span>: <span class="hljs-string">'jsonp'</span>,
+  <span class="hljs-attr">success</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">data</span>) </span>{
+    <span class="hljs-comment">// your code to handle data here</span>
+  }
+});
+</code></pre><p>这种方式jQuery会在请求后面加一个callback参数，便于后端返回。</p>
+<p>jsonp需要服务器获取callback函数以后，需要配合前端返回<code>callback(data)</code>这种形式，不能直接返回data。</p>
+<pre><code><span class="hljs-keyword">case</span> get_str(<span class="hljs-string">"callback"</span>, <span class="hljs-type">QueryString</span>, <span class="hljs-string">""</span>) <span class="hljs-keyword">of</span>
+    <span class="hljs-string">""</span> -&gt;
+        <span class="hljs-type">Req</span>:ok({
+            _ContentType = <span class="hljs-string">"application/json"</span>,
+            _Headers = <span class="hljs-literal">[]</span>,
+            <span class="hljs-type">Response</span>
+        });
+    <span class="hljs-type">Callback</span> -&gt;
+        <span class="hljs-type">Req</span>:ok({
+            _ContentType = <span class="hljs-string">"text/plain"</span>,
+            _Headers = <span class="hljs-literal">[]</span>,
+            [<span class="hljs-type">Callback</span>, <span class="hljs-string">"("</span>, <span class="hljs-type">Response</span>, <span class="hljs-string">")"</span>]
+        })
+<span class="hljs-keyword">end</span>;
+</code></pre><p>jsonp只支持GET方法，且存在潜在的安全问题，我们应该尽可能使用cors。</p>
+<h2><a name="跨域资源共享-cors:-cross-origin-resource-share" class="anchor" href="#跨域资源共享-cors:-cross-origin-resource-share"><span class="header-link"></span></a>跨域资源共享 cors: cross origin resource share</h2><p>需要浏览器和服务器同时支持，目前所有浏览器都支持该功能，IE浏览器不能低于IE10。</p>
+<p>浏览器发现是跨域请求就会带上Origin头，拿到服务器返回以后检查Response的 <code>Access-Control-Allow-Origin</code> 头部，
+如果没有设置这个头，或者不支持当前域，表明服务器不支持CORS，则终止处理。</p>
+<p>浏览器将请求分类两类，简单请求和非简单请求。</p>
+<p>简单请求：</p>
+<ul>
+<li>请求方法是以下三种之一：HEAD/GET/POST</li>
+<li>头信息不超出以下字段：<ul>
+<li>Accept</li>
+<li>Accept-Language</li>
+<li>Content-Language</li>
+<li>Last-Event-ID</li>
+<li>Content-Type只限三个值：<ul>
+<li>application/x-www-form-urlencoded</li>
+<li>multipart/form-data</li>
+<li>text/plain</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>凡是不满足上面两个条件，就属于非简单请求。浏览器对两个请求的处理是不一样的。
+对于简单请求，浏览器直接发出CORS请求，具体来说就是在头信息中增加一个Origin字段。
+服务器根据这个值，决定是否同意这次请求。如果Origin指定的源，不在许可范围内，服务器会返回
+一个正常的HTTP回应。浏览器发现这个回应的头信息没有包含Access-Control-Allow-Origin 字段，
+就知道出错了。从而抛出一个错误。被XMLHttpRequest的onerror回调函数捕获。注意这种错误无法通过
+状态码识别。因为HTTP回应的状态码可能是200.</p>
+<p>简单请求头部加Origin字段，服务器如果认可则会多出几个头部信息：</p>
+<ul>
+<li>Access-Control-Allow-Origin，必须的，要么是请求的Origin字段，要么是一个<code>*</code></li>
+<li>Access-Control-Allow-Credentials 布尔值，是否允许客户端发送cookie</li>
+<li>Access-Control-Expose-Headers CORS请求是时，XMLHttpRequest对象的getResponseHeader()
+方法只能拿到6个基本字段：Cache-Control, Content-Language, Content-Type, Expire, Last-Modified, Pragma.
+如果想拿到其他字段，就必须再这里指定。</li>
+</ul>
+<p>CORS请求默认不发送cookie和HTTP认证信息。如果要把Cookie发到服务器，一方面要服务器同意，另一方面开发者必须在
+AJAX请求中打开withCredentials属性。</p>
+<pre><code>xhr = <span class="hljs-keyword">new</span> <span class="hljs-type">XMLHttpRequest</span>();
+xhr.withCredentials = <span class="hljs-literal">true</span>
+</code></pre><p>如果要发送Cookie，Access-Control-Allow-Origin不能设为星号。必须指定明确的，与请求网页一致的域名。
+同时，Cookie依然遵循同源政策，只有服务器域名设置的Cookie才会上传，其他域名的Cookie不会上传。</p>
+<p>非简单请求，需要在正式通信前，增加一次HTTP查询请求，称为预检preflight。</p>
+<p>OPTIONS</p>
+<h2><a name="参考文档" class="anchor" href="#参考文档"><span class="header-link"></span></a>参考文档</h2><ul>
+<li><a href="https://www.w3schools.com/js/js_json_jsonp.asp">https://www.w3schools.com/js/js_json_jsonp.asp</a></li>
+<li><a href="https://stackoverflow.com/questions/613962/is-jsonp-safe-to-use">https://stackoverflow.com/questions/613962/is-jsonp-safe-to-use</a></li>
+<li><a href="http://www.ruanyifeng.com/blog/2016/04/cors.html">http://www.ruanyifeng.com/blog/2016/04/cors.html</a></li>
+</ul>
+</div>
+
+    </div>
+
+    <div id="disqus_thread"></div>
+    <script>
+    /**
+    *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+    *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+    var disqus_config = function () {
+        this.page.url = "https://wudeng.github.io//publish/cross-domain.html"; 
+        this.page.identifier = "/publish/cross-domain.html";
+    };
+    (function() { // DON'T EDIT BELOW THIS LINE
+    var d = document, s = d.createElement('script');
+    s.src = 'https://wudeng.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+</div>
+</body>
+    <span id="busuanzi_container_page_pv"><span id="busuanzi_value_page_pv"></span></span>,
+    <span id="busuanzi_container_site_uv"><span id="busuanzi_value_site_uv"></span></span>,
+    <span id="busuanzi_container_site_pv"><span id="busuanzi_value_site_pv"></span></span>
+</span>
+</html>

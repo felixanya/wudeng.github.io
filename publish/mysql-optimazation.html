@@ -1,0 +1,77 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h1>Mysql性能优化</h1><ul>
+<li><a href="#执行优化">执行优化</a></li>
+<li><a href="#聚集索引-clustered-index">聚集索引 clustered index</a></li>
+<li><a href="#运维优化">运维优化</a></li>
+<li><p><a href="#结构优化">结构优化</a></p>
+</li>
+<li><p>数据的存储格式：堆组织表 vs 聚集索引</p>
+</li>
+<li>并发控制协议：MVCC vs Lock-Based CC</li>
+<li>Two Phase Locking</li>
+<li>Isolation Level</li>
+<li>执行计划，主键扫描，唯一键扫描，范围扫描，全表扫描</li>
+<li>Index Condition Pushdown, Semi-Consistent Read</li>
+</ul>
+<h2><a name="执行优化" class="anchor" href="#执行优化"><span class="header-link"></span></a>执行优化</h2><h2><a name="聚集索引-clustered-index" class="anchor" href="#聚集索引-clustered-index"><span class="header-link"></span></a>聚集索引 clustered index</h2><p>Innodb数据存储方式，既存储索引，也存储行值，数据存储在索引的叶子页。每个表有且只有一个聚集索引。</p>
+<ul>
+<li>如果定义了主键，那么主键就作为聚集索引。</li>
+<li>如果没有主键，那么该表的第一个唯一非空索引作为聚集索引。</li>
+<li>如果没有主键也没有合适的唯一索引，那么innodb内部会生成一个隐藏的主键作为聚集索引。这个主键是一个6字节的列，随着数据的插入自增。</li>
+</ul>
+<p>innodb中，次级索引存储主键的值。次级索引的叶子节点并不存储行数据的物理地址，而是存储该行的主键值。主键扮演了行数据的指针。</p>
+<p>因为物理存储通过主键，索引主键数据查找效率很高。区间查找也很快速。</p>
+<ul>
+<li>Index Key</li>
+<li>Index Filter</li>
+<li>Table Filter</li>
+</ul>
+<h2><a name="运维优化" class="anchor" href="#运维优化"><span class="header-link"></span></a>运维优化</h2><p>show grants for username;</p>
+<p>show [global | session] variables [like pattern];</p>
+<p>max_connections
+    本地服务器上默认值100</p>
+<h2><a name="结构优化" class="anchor" href="#结构优化"><span class="header-link"></span></a>结构优化</h2><ul>
+<li><a href="https://dev.mysql.com/doc/refman/5.7/en/mysql-indexes.html">https://dev.mysql.com/doc/refman/5.7/en/mysql-indexes.html</a></li>
+</ul>
+</div>
+
+    </div>
+
+</div>
+</body>
+</html>

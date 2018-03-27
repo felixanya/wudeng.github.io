@@ -1,0 +1,270 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><ul>
+<li><a href="#release">release</a><ul>
+<li><a href="#systools">systools</a></li>
+</ul>
+</li>
+<li><a href="#reltool">reltool</a><ul>
+<li><a href="#relx">relx</a></li>
+</ul>
+</li>
+<li><a href="#relup">relup</a></li>
+<li><a href="#参考文献">参考文献</a></li>
+</ul>
+<p>exit(Reason)
+结束调用进程。
+exit(Pid, Reason)
+Pid可以是进程或者Port，向Pid发送一个Reason的exit信号。当Reason为kill时，信号无法被trap。否则，如果Pid的trap_exit为true，会将exit信号转化为普通消息。</p>
+<p>When trap_exit is set to true, exit signals arriving to a process are converted to {&#39;EXIT&#39;, From, Reason} messages, which can be received as ordinary messages.
+If trap_exit is set to false, the process exits if it receives an exit signal other than normal and the exit signal is propagated to its linked processes.
+Application processes should normally not trap exits.</p>
+<p>trap_exit为true的进程称为系统进程。系统进程异常(非normal)退出的时候，如果启用了sasl，那么会通过error_logger:format/2打印出错日志。
+而普通进程没有这个待遇。</p>
+<table>
+<thead>
+<tr>
+<th>parent</th>
+<th>trap_exit</th>
+<th>Reason</th>
+<th>die</th>
+<th>call terminte</th>
+<th>explain</th>
+<th>complain</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Y</td>
+<td>Y</td>
+<td>normal/shutdown/{shutdown,X}</td>
+<td>Y</td>
+<td>Y</td>
+<td>进程收到{&#39;EXIT&#39;, Parent, normal}，调用terminate, exit(Reason)退出，gen_server.erl:385</td>
+<td>N</td>
+</tr>
+<tr>
+<td>Y</td>
+<td>Y</td>
+<td>abnormal</td>
+<td>Y</td>
+<td>Y</td>
+<td>进程收到{&#39;EXIT&#39;, Parent, abnormal}，调用terminate, exit(Reason)退出，gen_server.erl:385</td>
+<td>Y</td>
+</tr>
+<tr>
+<td>Y/N</td>
+<td>Y/N</td>
+<td>kill</td>
+<td>Y</td>
+<td>N</td>
+<td>kill信号无法被trap，直接exit(killed)退出，不会调用terminate</td>
+<td>N</td>
+</tr>
+<tr>
+<td>Y/N</td>
+<td>N</td>
+<td>normal</td>
+<td>N</td>
+<td>N</td>
+<td>对于normal的exit信号无响应</td>
+<td></td>
+</tr>
+<tr>
+<td>Y/N</td>
+<td>N</td>
+<td>abnormal/shutdown</td>
+<td>Y</td>
+<td>N</td>
+<td>对于非normal的exit信号，直接退出，不会调用termiante</td>
+<td>N</td>
+</tr>
+</tbody>
+</table>
+<p>结论：
+总原则：</p>
+<ul>
+<li>如果导致进程退出的是非normal的exit信号，那么进程会直接退出，且不会调用terminate函数，并且还会将exit信号向link的进程扩散。进程对normal信号貌似无反应。</li>
+<li>如果导致进程退出的是普通消息如{&#39;EXIT&#39;,Parent,Reason}，那么会调用terminate函数然后退出。</li>
+<li>trap_exit能将非kill信号转化为消息。</li>
+</ul>
+<p>分情况讨论：</p>
+<ul>
+<li>如果trap_exit为true，那么进程会将收到的除kill外的所有exit信号转化为{&#39;EXIT&#39;, From, Reason}，
+然后按照正常的消息处理流程来处理。如果From是父进程，那么将会导致进程调用terminate并exit(Reason)，最终退出进程。
+而kill信号无法被trap，所以进程无条件退出，并且不会调用termiante。</li>
+<li>如果trap_exit为false，那么进程收到除normal外的所有exit信号都会直接退出进程，并且不会调用terminate。</li>
+</ul>
+<blockquote>
+<p>Shutdown defines how a child process should be terminated.
+brutal_kill means the child process will be unconditionally terminated using exit(Child,kill).
+An integer timeout value means that the supervisor will tell the child process to terminate by calling exit(Child,shutdown) and then wait for an exit signal with reason shutdown back from the child process.
+If no exit signal is received within the specified number of milliseconds, the child process is unconditionally terminated using exit(Child,kill).</p>
+</blockquote>
+<p>推论：</p>
+<ul>
+<li>trap_exit=false, 收到的非normal的exit信号不管来自哪里，都会退出。</li>
+<li>监控树下面的进程，如果需要调用terminate收尾的：<ul>
+<li>必须将trap_exit设为true，否则，监控树关闭的时候，向其发送shutdown信号，会直接退出而不会调用terminate。</li>
+<li>监控树不能是brutal_kill, 而应该是一个整数的超时时间</li>
+</ul>
+</li>
+<li>如果监控树采用了brutal_kill的退出策略，那么当子进程没有按时退出，就会发kill消息到子进程，导致子进程无条件退出，并且不会调用terminate，对于需要terminate来实现存档的进程是相当危险的。</li>
+</ul>
+<pre><code>Erlang R16B03 (erts-<span class="hljs-number">5.10</span>.<span class="hljs-number">4</span>) [smp:<span class="hljs-number">4</span>:<span class="hljs-number">4</span>] [async-threads:<span class="hljs-number">10</span>]
+
+Eshell V5.<span class="hljs-number">10.4</span>  (abort with ^G)
+<span class="hljs-meta">1&gt; </span>true or ok.
+** exception error: bad argument
+     in operator  or/<span class="hljs-number">2</span>
+        called as true or ok
+<span class="hljs-meta">2&gt; </span>true orelse ok.
+true
+<span class="hljs-meta">3&gt; </span>true andalso ok.
+ok
+<span class="hljs-meta">4&gt; </span>true andalso ok andalso false.
+** exception error: bad argument: ok
+<span class="hljs-meta">5&gt; </span>true andalso true andalso ok.
+ok
+<span class="hljs-meta">6&gt; </span><span class="hljs-number">1</span> / <span class="hljs-number">1</span>.
+<span class="hljs-number">1.0</span>
+<span class="hljs-meta">7&gt; </span><span class="hljs-number">1</span> div <span class="hljs-number">1</span>.
+<span class="hljs-number">1</span>
+<span class="hljs-meta">8&gt; </span><span class="hljs-number">11</span> xor <span class="hljs-number">10</span>.
+** exception error: bad argument
+     in operator  xor/<span class="hljs-number">2</span>
+        called as <span class="hljs-number">11</span> xor <span class="hljs-number">10</span>
+<span class="hljs-meta">9&gt; </span>bnot <span class="hljs-number">2#10</span>.
+-<span class="hljs-number">3</span>
+<span class="hljs-meta">10&gt; </span>(<span class="hljs-number">0</span> == <span class="hljs-number">0</span>) or (<span class="hljs-number">1</span>/<span class="hljs-number">0</span> &gt; <span class="hljs-number">2</span>).
+** exception error: an error occurred when evaluating an arithmetic expression
+     in operator  <span class="hljs-string">'/'</span>/<span class="hljs-number">2</span>
+        called as <span class="hljs-number">1</span> / <span class="hljs-number">0</span>
+<span class="hljs-meta">11&gt; </span>(<span class="hljs-number">0</span> == <span class="hljs-number">0</span>) orelse (<span class="hljs-number">1</span>/<span class="hljs-number">0</span> &gt; <span class="hljs-number">2</span>).
+true
+</code></pre><p>rebar3 shell</p>
+<p>windows 系统下建立文件 rebar.cmd，内容如下，那么可以就直接在命令中使用rebar了。</p>
+<pre><code>@<span class="hljs-built_in">echo</span> off
+<span class="hljs-built_in">setlocal</span>
+<span class="hljs-built_in">set</span> rebarscript=%~f0
+escript.exe "<span class="hljs-variable">%rebarscript:.cmd=%</span>" %*
+</code></pre><h2><a name="release" class="anchor" href="#release"><span class="header-link"></span></a>release</h2><p>rel文件描述，生成script文件和boot文件，boot文件是二进制模式，用来启动节点。
+目标系统：能够被其他机器启动的Erlang系统。</p>
+<p>systools =&gt; reltool =&gt; relx</p>
+<p>application的集合。</p>
+<h3><a name="systools" class="anchor" href="#systools"><span class="header-link"></span></a>systools</h3><p>依赖<code>erlcount-1.0.rel</code>文件，which applications are in the release, used to generate boot script and release packages.</p>
+<pre><code>{release, {<span class="hljs-string">"erlcount"</span>, <span class="hljs-string">"1.0.0"</span>},
+    {erts, <span class="hljs-string">"5.8.4"</span>},
+    [
+        {kernel, <span class="hljs-string">"2.14.4"</span>},
+        {stdlib, <span class="hljs-string">"1.17.4"</span>},
+        {ppool, <span class="hljs-string">"1.0.0"</span>, permanent},
+        {erlcount, <span class="hljs-string">"1.0.0"</span>, transient}
+    ]
+}.
+</code></pre><p>在erl中生成release相关的文件，如script文件，boot文件，tar包。</p>
+<p>systool:make_script(&quot;ch_rel-1&quot;, [local]).
+systool:make_tar
+systool:make_relup</p>
+<p>ch_rel-1.script
+ch_rel-1.boot</p>
+<p>erl -boot ch_rel-1</p>
+<p>.app
+.rel</p>
+<p>.appup  =&gt; .relup</p>
+<p>SASL</p>
+<p>rel
+systool
+script</p>
+<h2><a name="reltool" class="anchor" href="#reltool"><span class="header-link"></span></a>reltool</h2><p>erlcount-1.0.config</p>
+<pre><code>{sys, [
+    {lib_dirs, [<span class="hljs-string">"/home/ferd/code/learn-you-some-erlang/release/"</span>]},
+    %%{erts, [{vsn, <span class="hljs-string">"5.8.3"</span>}]},
+    {rel, <span class="hljs-string">"erlcount"</span>, <span class="hljs-string">"1.0.0"</span>, [
+        kernel,
+        stdlib,
+        {ppool, permanent},
+        {erlcount, transient}
+    ]},
+    {boot_rel, <span class="hljs-string">"erlcount"</span>},
+    {relocatable, true},
+    {profile, standalone},
+    {app, ppool, [{vsn, <span class="hljs-string">"1.0.0"</span>},
+        {app_file, all},
+        {debug_info, keep}]
+    },
+    {app, erlcount, [{vsn, <span class="hljs-string">"1.0.0"</span>},
+        {incl_cond, include},
+        {app_file, strip},
+        {debug_info, strip}]
+    }
+]}.
+</code></pre><p>{ok, Conf} = file:consult(&quot;erlcount-1.0.config&quot;).
+{ok, Spec} = reltool:get_target_spec(Conf).
+reltool:eval_target_spec(Spec, code:root_dir(), &quot;rel&quot;).</p>
+<h3><a name="relx" class="anchor" href="#relx"><span class="header-link"></span></a>relx</h3><p>relx.config</p>
+<ul>
+<li>lib_dirs</li>
+<li>paths: additional code path that points to erlang beam files</li>
+<li>release</li>
+<li>{dev_mode, true}</li>
+<li>{vm_args, &quot;config/vm.args&quot;}</li>
+<li>{sys_config, &quot;config/sys.config&quot;}</li>
+<li>RELX_REPLACE_OS_VARS=true</li>
+</ul>
+<pre><code><span class="hljs-meta">#!/bin/bash
+</span>
+<span class="hljs-built_in">export</span> RELX_REPLACE_OS_VARS=<span class="hljs-literal">true</span>
+
+<span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> `seq 1 10`;
+<span class="hljs-keyword">do</span>
+    NODE_NAME=node_<span class="hljs-variable">$i</span> PORT=808<span class="hljs-variable">$i</span> _build/default/rel/&lt;release&gt;/bin/&lt;release&gt; foreground &amp;
+    sleep 1
+<span class="hljs-keyword">done</span>
+</code></pre><h2><a name="relup" class="anchor" href="#relup"><span class="header-link"></span></a>relup</h2><p>appup
+relup</p>
+<h2><a name="参考文献" class="anchor" href="#参考文献"><span class="header-link"></span></a>参考文献</h2><ul>
+<li><a href="http://blog.csdn.net/zhongruixian">http://blog.csdn.net/zhongruixian</a></li>
+<li><a href="https://github.com/erlware/relx/wiki">https://github.com/erlware/relx/wiki</a></li>
+</ul>
+</div>
+
+    </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><ul>
+<li><a href="#anonymous-closure-functions-are-the-only-way-to-create-scope">anonymous closure: functions are the only way to create scope</a></li>
+<li><a href="#global-import">Global import</a></li>
+<li><a href="#object-interface">object interface</a></li>
+<li><a href="#revealing-module-pattern">revealing module pattern</a></li>
+<li><a href="#commonjs-ans-amd">CommonJS ans AMD</a></li>
+<li><a href="#canvas">canvas</a></li>
+<li><a href="#构建工具">构建工具</a></li>
+</ul>
+<p>我的理解：</p>
+<p>一个文件就是一个模块，每个模块有一个module.exports对象。其他文件reqire这个文件的时候，就获得了这个对象的引用。</p>
+<p>可以理解require为下面这个函数：
+var require = function(path) {
+    // ...
+    return module.exports;
+}</p>
+<h2><a name="anonymous-closure:-functions-are-the-only-way-to-create-scope" class="anchor" href="#anonymous-closure:-functions-are-the-only-way-to-create-scope"><span class="header-link"></span></a>anonymous closure: functions are the only way to create scope</h2><p>(function(){
+    ...
+}())
+注意最外层的括号是必须的。否则function开头的语句被认为是函数声明。</p>
+<h2><a name="global-import" class="anchor" href="#global-import"><span class="header-link"></span></a>Global import</h2><p>(function(globalVariable){
+    globalVariable.each = function(){};
+    ...
+}(globalVariable))</p>
+<h2><a name="object-interface" class="anchor" href="#object-interface"><span class="header-link"></span></a>object interface</h2><p>var myGradeCalculate = (function(){
+    return {
+        average : function() {
+        },
+        failing : function() {
+        }
+    }
+}());</p>
+<h2><a name="revealing-module-pattern" class="anchor" href="#revealing-module-pattern"><span class="header-link"></span></a>revealing module pattern</h2><p>var myGradeCalculate = (function(){
+    average = function() {
+    };
+    failing = function() {
+    };</p>
+<pre><code><span class="hljs-selector-tag">return</span> {
+    <span class="hljs-attribute">average </span>: average,
+    failing : failing
+}
+</code></pre><p>}());</p>
+<h2><a name="commonjs-ans-amd" class="anchor" href="#commonjs-ans-amd"><span class="header-link"></span></a>CommonJS ans AMD</h2><p>function myModule() {
+  this.hello = function() {
+    return &#39;hello!&#39;;
+  }</p>
+<p>  this.goodbye = function() {
+    return &#39;goodbye!&#39;;
+  }
+}</p>
+<p>module.exports = myModule;</p>
+<p>使用时：</p>
+<p>var myModule = require(&#39;myModule&#39;);</p>
+<p>var myModuleInstance = new myModule();
+myModuleInstance.hello(); // &#39;hello!&#39;
+myModuleInstance.goodbye(); // &#39;goodbye!&#39;</p>
+<p>相比上面几种方式有如下好处：</p>
+<ul>
+<li>avoiding global namespace pollution</li>
+<li>making our dependencies explicit</li>
+</ul>
+<p>AMD: Asynchronous Module Definition</p>
+<ul>
+<li>Backbone.js MVC框架</li>
+<li>Angular Google公司推出的MVVM前端框架</li>
+<li>Vue MVVM框架，基本思想跟Angular类似，但是用法更简单，而且引入了响应式编程的概念。</li>
+</ul>
+<h2><a name="canvas" class="anchor" href="#canvas"><span class="header-link"></span></a>canvas</h2><pre><code>&lt;canvas <span class="hljs-attribute">id</span>=<span class="hljs-string">"myCanvas"</span> <span class="hljs-attribute">width</span>=<span class="hljs-string">"200"</span> <span class="hljs-attribute">height</span>=<span class="hljs-string">"100"</span>&gt;&lt;/canvas&gt;
+</code></pre><p>canvas = document.getElementById(&quot;myCanvas&quot;);
+var ctx = canvas.getContext(&quot;2d&quot;);</p>
+<p>左上角为原点，x向右，y向下。</p>
+<p>画线：
+ctx.moveTo(x1, y1)
+ctx.lineTo(x2, y2)
+ctx.stroke()</p>
+<h2><a name="构建工具" class="anchor" href="#构建工具"><span class="header-link"></span></a>构建工具</h2><p>webpack1 Browserify
+webpack2 rollup</p>
+<p>某些网站禁止拷贝，可以执行这个函数来取消禁止。
+function allow() {return true};document.onselectstart=allow;document.ondragstart=allow;document.oncontextmenu=allow;</p>
+<ul>
+<li><a href="http://www.ruanyifeng.com/blog/2016/11/javascript.html">http://www.ruanyifeng.com/blog/2016/11/javascript.html</a></li>
+<li><a href="http://javascript.ruanyifeng.com/">http://javascript.ruanyifeng.com/</a></li>
+</ul>
+</div>
+
+    </div>
+
+</div>
+</body>
+</html>

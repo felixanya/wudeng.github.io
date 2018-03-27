@@ -1,0 +1,81 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h1>NAT</h1><ul>
+<li><a href="#p2p常用实现方式">P2P常用实现方式：</a><ul>
+<li><a href="#普通的直连p2p实现">普通的直连P2P实现</a></li>
+<li><a href="#stun方式的p2p实现">STUN方式的P2P实现</a></li>
+</ul>
+</li>
+<li><a href="#参考文档">参考文档</a></li>
+</ul>
+<p>网络地址转换。</p>
+<p>两大类：</p>
+<ul>
+<li>基本NAT,rfc1631,改ip不改端口，仅当Nat有一个公网ip池的时候有用，基本淘汰</li>
+<li>NAPT(Network Addrss/Port Translator)，改ip也改端口</li>
+</ul>
+<ul>
+<li><p>对称nat</p>
+<ul>
+<li>当目的地址ip和port有任何一个改变，nat都会重新分配一个port使用 </li>
+<li>无法使用p2p</li>
+</ul>
+</li>
+<li><p>cone nat分为3种：</p>
+<ul>
+<li>全圆锥full cone nat 很少，NAT把所有来自相同内部IP地址和端口的请求映射到相同的外部IP地址和端口。任何一个外部主机均可通过该映射发送IP包到该内部主机</li>
+<li>限制性圆锥restrict cone: 只要ip相同就允许udp包通过，NAT把所有来自相同内部IP地址和端口的请求映射到相同的外部IP地址和端口。但是,只有当内部主机先给IP地址为X的外部主机发送IP包,该外部主机才能向该内部主机发送IP包。 </li>
+<li>port restrict cone: 只有ip和端口都相同才能通过,端口限制性圆锥与限制性圆锥类似,只是多了端口号的限制,即只有内部主机先向IP地址为X,端口号为P的外部主机发送1个IP包,该外部主机才能够把源端口号为P的IP包发送给该内部主机。</li>
+</ul>
+</li>
+</ul>
+<p>好了，我们看到，通过NAT,子网内的计算机向外连结是很容易的（NAT相当于透明的，子网内的和外网的计算机不用知道NAT的情况）。
+但是如果外部的计算机想访问子网内的计算机就比较困难了（而这正是P2P所需要的）。
+那么我们如果想从外部发送一个数据报给内网的计算机有什么办法呢？首先，我们必须在内网的NAT上打上一个“洞”（也就是前面我们说的在NAT上建立一个Session），这个洞不能由外部来打，只能由内网内的主机来打。而且这个洞是有方向的，比如从内部某台主机（比如：192.168.0.10）向外部的某个IP(比如：219.237.60.1)发送一个UDP包，那么就在这个内网的NAT设备上打了一个方向为219.237.60.1的“洞”，（这就是称为UDP Hole Punching的技术）以后219.237.60.1就可以通过这个洞与内网的192.168.0.10联系了。（但是其他的IP不能利用这个洞）。</p>
+<h2><a name="p2p常用实现方式：" class="anchor" href="#p2p常用实现方式："><span class="header-link"></span></a>P2P常用实现方式：</h2><h3><a name="普通的直连p2p实现" class="anchor" href="#普通的直连p2p实现"><span class="header-link"></span></a>普通的直连P2P实现</h3><p>通过上面的理论，实现两个内网的主机通讯就差最后一步了：那就是鸡生蛋还是蛋生鸡的问题了，两边都无法主动发出连接请求，谁也不知道谁的公网地址，那我们如何来打这个洞呢？我们需要一个中间人来联系这两个内网主机。</p>
+<h3><a name="stun方式的p2p实现" class="anchor" href="#stun方式的p2p实现"><span class="header-link"></span></a>STUN方式的P2P实现</h3><p>RFC3489</p>
+<h2><a name="参考文档" class="anchor" href="#参考文档"><span class="header-link"></span></a>参考文档</h2><ul>
+<li><a href="http://midcom-p2p.sourceforge.net/draft-ford-midcom-p2p-01.txt">http://midcom-p2p.sourceforge.net/draft-ford-midcom-p2p-01.txt</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Network_address_translation">https://en.wikipedia.org/wiki/Network_address_translation</a></li>
+</ul>
+</div>
+
+    </div>
+
+</div>
+</body>
+</html>

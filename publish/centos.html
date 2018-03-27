@@ -1,0 +1,121 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h1>CentOS</h1><ul>
+<li><a href="#查看当前系统版本">查看当前系统版本</a></li>
+<li><a href="#yum">yum</a></li>
+<li><a href="#配置文件">配置文件</a></li>
+<li><a href="#更新时间">更新时间</a></li>
+<li><a href="#网络">网络</a></li>
+</ul>
+<h2><a name="查看当前系统版本" class="anchor" href="#查看当前系统版本"><span class="header-link"></span></a>查看当前系统版本</h2><ul>
+<li>cat /etc/*release</li>
+<li>rpm --query centos-release</li>
+</ul>
+<h2><a name="yum" class="anchor" href="#yum"><span class="header-link"></span></a>yum</h2><p>交互式的，基于rpm的包管理工具。类似的工具还有apt-get/smart等。</p>
+<ul>
+<li>yum clean all</li>
+<li>yum makecache</li>
+</ul>
+<h2><a name="配置文件" class="anchor" href="#配置文件"><span class="header-link"></span></a>配置文件</h2><p>/etc/yum.repo.d/</p>
+<p>配置开机启动
+/etc/rc.d/rc.local</p>
+<h2><a name="更新时间" class="anchor" href="#更新时间"><span class="header-link"></span></a>更新时间</h2><p>ntpdate time.apple.com
+ntpdate cn.pool.ntp.org</p>
+<p>查看硬件时间： hwclock
+硬件时间同步到系统时间：hwclock --hctosys
+系统时间同步到硬件时间：hwclock --systohc</p>
+<p>/etc/sysconfig/clock</p>
+<p>| Area          | HostName                   |
+| Worldwide     | pool.ntp.org               |
+| Asia          | asia.pool.ntp.org          |
+| Europe        | europe.pool.ntp.org        |
+| North America | north-america.pool.ntp.org |
+| Oceania       | oceania.pool.ntp.org       |
+| South America | south-america.pool.ntp.org |</p>
+<h2><a name="网络" class="anchor" href="#网络"><span class="header-link"></span></a>网络</h2><p>/etc/sysconfig/network-scripts/ifcfg-eth*</p>
+<p>service network start/stop/restart/status</p>
+<p>ifconfig eth0 up
+ifconfig eth0 down</p>
+<p>/etc/resolv.conf</p>
+<p>lsattr
+chattr 文件扩展属性
+  +i -i
+  +a -a</p>
+<p>rpm
+rpmfind.net
+rpm.pbone.net
+www.rpmseek.com</p>
+<p>  管理rpm包
+  mount /dev/cdrom /mnt
+  lrzsz
+  --help
+  -i install
+  -v verbose
+  -h hash 打印#
+  --nodeps
+  -ql 安装后产生的文件
+  -qf <code>which zsh</code> 是哪个文件安装的
+  -pql /mnt/Packeages/lrzsz..rpm 预先查看一个包会生成哪些文件
+  rpm -Uvh 升级
+  rpm -e 卸载
+  rpm -qpi 查看一个包的作用
+  rpm --import RPM-GPG-KEY-redhat-release</p>
+<p>  yum install zsh
+    -y 回答yes
+    <a href="http://mirros.sohu.com">http://mirros.sohu.com</a>
+    i686
+    x86_64
+  yum remove zsh
+安装一组软件包：
+  yum grouplist
+  yum groupinstall &quot;Development tools&quot;
+  yum list z*
+  yum search zsh</p>
+<p>  rpmbuild --rebuild <code>*.src.rpm</code>
+  uname -m</p>
+<p>tar --help</p>
+<ul>
+<li><a href="http://mirrors.163.com/.help/centos.html">http://mirrors.163.com/.help/centos.html</a></li>
+<li><a href="http://support.ntp.org/bin/view/Servers/NTPPoolServers">http://support.ntp.org/bin/view/Servers/NTPPoolServers</a></li>
+</ul>
+</div>
+
+    </div>
+
+</div>
+</body>
+</html>

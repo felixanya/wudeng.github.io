@@ -1,0 +1,204 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h1>rebar3</h1><pre><code>
+<span class="hljs-bullet">* </span>[<span class="hljs-string">release</span>](<span class="hljs-link">#release</span>)
+<span class="hljs-bullet">* </span>[<span class="hljs-string">rebar</span>](<span class="hljs-link">#rebar</span>)
+<span class="hljs-bullet">* </span>[<span class="hljs-string">参考文档</span>](<span class="hljs-link">#参考文档</span>)
+
+├── LICENSE
+├── README.md
+├── apps
+│   └── myapp
+│       └── src
+│           ├── myapp.app.src
+│           ├── myapp_app.erl
+│           └── myapp_sup.erl
+├── config
+│   ├── sys.config
+│   └── vm.args
+├── lib
+│   └── mylib
+│       ├── LICENSE
+│       ├── README.md
+│       ├── rebar.config
+│       └── src
+│           ├── mylib.app.src
+│           └── mylib.erl
+└── rebar.config
+</code></pre><pre><code>{erl_opts, [debug_info]}.
+{deps, []}.
+
+%% 定义默认发布环境(<span class="hljs-keyword">default</span>环境)
+{relx, [{release, { myapp, <span class="hljs-string">"0.1.0"</span> },
+        % 指定应用依赖 myapp会先于sasl被启动，辅助性的lib，无法被启动，默认为{mylib, permanent}
+         [myapp, {mylib, load},
+          sasl]},
+
+        {sys_config, <span class="hljs-string">"./config/sys.config"</span>},
+        {vm_args, <span class="hljs-string">"./config/vm.args"</span>},
+
+    %% 当dev_mode==true时 _build/default/rel/myapp/lib/目录下的库其实是_build/default/lib目录下对应lib的软链接，这样重新编译后，无需重新发布，重启或热加载代码即可
+        {dev_mode, true},
+        %% 是否在发布目录中包含虚拟机 即为一个独立的运行环境
+        {include_erts, false},
+
+        {extended_start_script, true}]
+}.
+
+%% 定义其它发布环境
+%% 参数使用覆盖(override)机制，即这里面没有定义的参数，将使用默认发布环境(<span class="hljs-keyword">default</span>)配置
+{profiles, [{prod, [{relx, [{dev_mode, false},
+                            {include_erts, true}]}]
+            }]
+}
+</code></pre><p>四种环境定义：</p>
+<ul>
+<li>default</li>
+<li>prod</li>
+<li>native</li>
+<li>test</li>
+</ul>
+<p>relx
+hex.pm</p>
+<ul>
+<li>update</li>
+<li>new<ul>
+<li>app: a stateful OTP application with a supervision tree, as a single application project</li>
+<li>lib: a library OTP application (without supervision trees), useful for grouping together various modules, as a single application project</li>
+<li>release: an umbrella project ready to be released</li>
+<li>escript: a special form of single application project that can be built as a runnable script</li>
+<li>plugin: structure for a rebar3 plugin</li>
+</ul>
+</li>
+<li>compile</li>
+<li>release</li>
+</ul>
+<h2><a name="release" class="anchor" href="#release"><span class="header-link"></span></a>release</h2><p>relx</p>
+<pre><code>rebar3 deps
+rebar3 <span class="hljs-keyword">new</span> <span class="hljs-built_in">release</span> myrel
+rebar3 <span class="hljs-built_in">release</span>
+rebar3 as prod tar
+</code></pre><p>profiles定义在rebar.config中。rebar3 as &lt;profile&gt; &lt;command&gt;
+rebar3 as prod</p>
+<pre><code>{profiles, [{prod, [{relx, [{dev_mode, false},
+                            {include_erts, true}]}]
+            }]
+}.
+</code></pre><p><code>.\_build\default\rel\myrel\bin\myrel.cmd console</code></p>
+<p>在当前文件新建一个脚本文件<code>rebar3.bat</code>，跟<code>rebar3</code>文件一起丢到<code>c:\windows\</code>目录下面，</p>
+<pre><code class="lang-rebar3.bat">@echo <span class="hljs-literal">off</span>
+escript c:<span class="hljs-string">\windows\rebar3</span> %*
+</code></pre>
+<p>这样就可以直接用rebar3命令。</p>
+<p>创建脚手架代码：<code>rebar3 new app the_name_of_app</code>，会在当前目录下生成the_name_of_app文件夹，里面有三个文件。
+进入这个文件夹运行<code>rebar3 compile</code></p>
+<p>rebar3 pkgs
+rebar3 update</p>
+<p>rebar3 shell
+  r3:do(compile)
+  r3:do(ct)
+  r3:do(dialyzer)</p>
+<p>how：
+实时编译更新代码。用reloader。</p>
+<p>windows下rebar出错了，可以通过
+set DEBUG=1
+来设置环境变量，打开输出。</p>
+<p>调试完毕，
+set DEBUG=
+就可以清除环境变量了，等号后面没有东西。=0也是没用的。应该不是检查环境变量的值，而是看环境变量是否存在。</p>
+<p>通过
+set DEBUG 就能查看环境变量。</p>
+<h2><a name="rebar" class="anchor" href="#rebar"><span class="header-link"></span></a>rebar</h2><p><a href="http://blog.csdn.net/agiknight/article/details/7248624">http://blog.csdn.net/agiknight/article/details/7248624</a> 测试有效。</p>
+<p>escript rebar get-deps
+escript rebar comile eunit</p>
+<p>{deps_dir, [&quot;deps&quot;]}.
+{cover_enabled, true}</p>
+<p>rebar的目录管理：当前目录下<code>ebin</code>，<code>deps/*/ebin</code>
+启动程序：
+可以用make来简化操作。
+<code>start werl -pa ebin deps/*/ebin  -env ERL_MAX_ETS_TABLES 10000 -setcookie abcdeft +A 8 +K true +P 120000   -name galaxy-empire@127.0.0.1 -s slg_model start</code></p>
+<p>src目录下有app.src文件，编译后会拷贝到ebin目录下。code:priv_dir(App)也是好的。问题在于打包的时候，各个分散的ebin目录。如何部署?
+rebar generate
+rebar3 release 能够打包。
+rebar3 as prod tar</p>
+<p>配置文件里面，sub_dirs：指定目录。</p>
+<p>rebar generate 需要读取 reltool.config, 生成一个文件夹。里面有bin/erts-version/lib/log/release等文件夹。将这个文件夹打包，就能放到任意机器目录下去执行了。
+reltool.config中的overlay是干啥的
+lib_dirs,
+app</p>
+<p>windows下用rebar3 release创建的bin文件夹里面只有windows的启动程序，怎么生成linux的启动程序？
+bin/mynode/ console</p>
+<p>rebar采用reltool, 而rebar3采用relx，</p>
+<p>windows环境下，</p>
+<ul>
+<li>rebar生成的release是linux环境的。也就是说rebar产生的release无法再windows下运行。只能自己写执行脚本。</li>
+<li>rebar3生成的是当前环境的release。那么如何在windows下生成release的发布反而成了难点。一个可能的方案是通过配置overlay来实现拷贝。</li>
+</ul>
+<p>推荐的方式是将linux下编译的erlang拷贝到windows下面。然后指定include_erts为目标erlang路径。
+要注意erlang的编译模式需要为：<code>--disable-dynamic-ssl-lib --without-termcap</code>
+<a href="http://erlang-questions.erlang.narkive.com/gDmRuUoW/releases-and-different-oss">http://erlang-questions.erlang.narkive.com/gDmRuUoW/releases-and-different-oss</a></p>
+<pre><code>wget https:<span class="hljs-string">//www.openssl.org/source/openssl-1.0.1j.tar.gz</span>
+tar -xvzf openssl-1.0.0j.tar.gz
+<span class="hljs-keyword">cd</span> openssl-1.0.0j/
+<span class="hljs-string">./config</span> <span class="hljs-params">--prefix=/usr</span> shared -fPIC
+sudo make
+sudo checkinstall
+
+then Erlang <span class="hljs-params">(R16B03-1)</span> is configured with
+
+<span class="hljs-string">./configure</span> <span class="hljs-params">--disable-dynamic-ssl-lib</span> <span class="hljs-params">--with-ssl=/usr/</span> <span class="hljs-params">--enable-smp-support</span> <span class="hljs-params">--without-termcap</span>
+</code></pre><p>还有一个思路是用docker file。</p>
+<p><a href="http://www.rebar3.org/docs/releases#cross-compiling">http://www.rebar3.org/docs/releases#cross-compiling</a></p>
+<p>cross compile
+--include-erts=$PATH_TO_EXTRACTED_LINUX_ERTS    {include_erts, $PATH_TO_EXTRACTED_LINUX_ERTS}</p>
+<p>docker run --rm -iv${PWD}:/host-volume erlang:19.3.3 sh -s &lt;&lt;EOF
+  cp -a /etc/shadow /tmp/shadow
+  chown $(id -u):$(id -g) /tmp/shadow
+  cp -a /tmp/shadow /host-volume
+EOF</p>
+<h2><a name="参考文档" class="anchor" href="#参考文档"><span class="header-link"></span></a>参考文档</h2><ul>
+<li><a href="https://www.rebar3.org">https://www.rebar3.org</a></li>
+<li><a href="https://hex.pm/">https://hex.pm/</a></li>
+<li><a href="http://wudaijun.com/2016/09/erlang-rebar3/">http://wudaijun.com/2016/09/erlang-rebar3/</a></li>
+</ul>
+</div>
+
+    </div>
+
+</div>
+</body>
+</html>

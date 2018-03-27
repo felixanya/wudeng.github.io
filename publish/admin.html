@@ -1,0 +1,267 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h1>管理后台</h1><ul>
+<li><a href="#agendar">agendar</a></li>
+<li><a href="#需要了解的库">需要了解的库</a></li>
+<li><a href="#贵州麻将管理后台httpsgithubcomdolotechadminsgit"><a href="https://github.com/dolotech/admins.git">贵州麻将管理后台</a></a><ul>
+<li><a href="#ssdbhttpssdbio"><a href="http://ssdb.io/">SSDB</a></a></li>
+<li><a href="#go">GO</a></li>
+<li><a href="#前端界面">前端界面</a></li>
+<li><a href="#userslist-post">/users/list POST</a></li>
+<li><a href="#grouplist-post">/group/list POST</a></li>
+<li><a href="#serverslist-post">/servers/list POST</a></li>
+</ul>
+</li>
+</ul>
+<h2><a name="agendar" class="anchor" href="#agendar"><span class="header-link"></span></a>agendar</h2><ul>
+<li>[x] 编译成功</li>
+<li>[x] 使用docker搭建数据库</li>
+<li>[x] 跑起来</li>
+<li>[x] IDE</li>
+<li>[ ] 二次开发<ul>
+<li>[x] 熟悉源码结构   </li>
+<li>[x] 了解数据库ssdb的用法
+  cd /playerground/ssdb/tools/
+  chmod +x ssdb-cli
+  ./ssdb-cli -h 127.0.0.1 -p 8888
+  hgetall admins_user_group</li>
+<li>[x] 查看数据库</li>
+<li>[ ] 熟悉VUE
+  admin-sidebar-list <pre><code>  <span class="hljs-built_in">name</span>
+  icon
+  <span class="hljs-built_in">items</span>
+      icon
+      path
+      <span class="hljs-built_in">name</span>
+</code></pre>  admin-head-list<pre><code>  icon
+  <span class="hljs-keyword">name</span> 
+      icon
+      path
+      <span class="hljs-keyword">action</span>
+      <span class="hljs-keyword">name</span>
+</code></pre></li>
+<li>[ ] 熟悉echo框架</li>
+<li>[ ] 页面渲染逻辑</li>
+<li>[ ] AmazeUI</li>
+<li>[ ] 通过rpc调用游戏服务器</li>
+<li>[x] 读取server_list<ul>
+<li>[x] 部署新的serverlist</li>
+<li>[x] json
+  用于接收decode的struct中的field首字母要大写
+  Unmarshal will only set exported fields of the struct.
+  encoding: Marshal</li>
+</ul>
+</li>
+<li>[ ] 添加服务器<ul>
+<li>[x] 页面</li>
+<li>[x] 服务器接口</li>
+<li>[ ] 添加到serverlist服务器</li>
+<li>[ ] 删除服务器没有刷新界面，为啥</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>bin/conf.json 配置文件 
+    db ssdb的ip，端口，线程池大小
+    log? 
+        ip port
+    callserver ip:port?
+    pprof?
+    ipay?
+    robotip?
+    robotport?
+    mode?
+    port web服务器的端口</p>
+<p>bin/csv 
+    策划配置文件，由excel生成
+bin/AmazeUI 
+    前端文件
+    am-icon-home
+    am-active</p>
+<p>run.sh
+    bash run.sh windows下运行网站</p>
+<p>build_linux.sh 
+    linux下编译</p>
+<p>src/admin.go
+    网站入口
+    admincall
+    basic/ssdb/gossdb ssdb客户端
+    data 
+    flag 解析命令行参数
+    net/http    监听
+    operation
+    role
+    statistics
+    user
+    _ scv
+    github.com/golang/glog 日志系统
+        glog.Info(&quot;&quot;)
+        glog.Fatalf(&quot;%s&quot;, err)
+        glog.V(2)
+    github.com/labstack/echo    http服务器框架
+    github.com/labstack/echo/middleware 中间件</p>
+<p>src/data
+    conf 读取配置，conf.json
+    data_admin 
+        用户管理model
+        定义超级用户
+        定义用户组
+    data_admin_record
+        管理员操作记录
+    data_ipay 充值情况</p>
+<h2><a name="需要了解的库" class="anchor" href="#需要了解的库"><span class="header-link"></span></a>需要了解的库</h2><ul>
+<li>encoding/json
+  json.Unmarshal(data, &amp;Conf)</li>
+<li>io/ioutil
+  ReadAll(f)</li>
+</ul>
+<h2><a name="<a-href="https://github.com/dolotech/admins.git">贵州麻将管理后台</a>" class="anchor" href="#<a-href="https://github.com/dolotech/admins.git">贵州麻将管理后台</a>"><span class="header-link"></span></a><a href="https://github.com/dolotech/admins.git">贵州麻将管理后台</a></h2><h3><a name="<a-href="http://ssdb.io/">ssdb</a>" class="anchor" href="#<a-href="http://ssdb.io/">ssdb</a>"><span class="header-link"></span></a><a href="http://ssdb.io/">SSDB</a></h3><p>使用docker搭建ssdb服务器
+    docker run -it --rm -p 8888:8888 -v /var/lib/ssdb:/var/lib/ssdb wendal/ssdb</p>
+<h3><a name="go" class="anchor" href="#go"><span class="header-link"></span></a>GO</h3><p>使用 go get -u github.com/name/package 获取依赖的包，需要提前设置gopath
+    go get</p>
+<h3><a name="前端界面" class="anchor" href="#前端界面"><span class="header-link"></span></a>前端界面</h3><pre><code><span class="hljs-selector-class">.tpl-content-wrapper</span> 正文内容
+    <span class="hljs-selector-class">.am-breadcrumb</span> 面包屑
+    <span class="hljs-selector-class">.tpl-portlet-components</span>
+        <span class="hljs-selector-class">.tpl-block</span>
+            .am-u-sm-<span class="hljs-number">12</span>
+</code></pre><h3><a name="/users/list-post" class="anchor" href="#/users/list-post"><span class="header-link"></span></a>/users/list POST</h3><p>{
+    &quot;data&quot;: [
+    {
+        &quot;Id&quot;: &quot;wudeng256@gmail.com&quot;,
+            &quot;Status&quot;: 0,
+            &quot;Passwd&quot;: &quot;91d5333336e53e62e1ac1e4c635f9ab7&quot;,
+            &quot;Name&quot;: &quot;吴登&quot;,
+            &quot;Description&quot;: &quot;&quot;,
+            &quot;Last_visit&quot;: 0,
+            &quot;Last_ip&quot;: 0,
+            &quot;Login_times&quot;: 0,
+            &quot;Group_id&quot;: 1,
+            &quot;Ip_limit&quot;: &quot;&quot;,
+            &quot;Error_ip&quot;: &quot;&quot;,
+            &quot;Error_time&quot;: 0,
+            &quot;Error_num&quot;: 0,
+            &quot;Members&quot;: &quot;&quot;,
+            &quot;Platforms&quot;: &quot;&quot;,
+            &quot;Create_time&quot;: 1512091795
+    }
+    ],
+    &quot;status&quot;: &quot;ok&quot;
+}</p>
+<h3><a name="/group/list-post" class="anchor" href="#/group/list-post"><span class="header-link"></span></a>/group/list POST</h3><p>{
+    &quot;data&quot;: {
+        &quot;count&quot;: 2,
+            &quot;list&quot;: [
+            {
+                &quot;Id&quot;: 1,
+                &quot;Name&quot;: &quot;超级管理员&quot;,
+                &quot;Desc&quot;: &quot;拥有最高级权限&quot;,
+                &quot;Power&quot;: 1
+            },
+            {
+                &quot;Id&quot;: 2,
+                &quot;Name&quot;: &quot;管理员&quot;,
+                &quot;Desc&quot;: &quot;拥有管理玩家权限&quot;,
+                &quot;Power&quot;: 2
+            }
+            ],
+    },
+        &quot;status&quot;: &quot;ok&quot;
+}</p>
+<h3><a name="/servers/list-post" class="anchor" href="#/servers/list-post"><span class="header-link"></span></a>/servers/list POST</h3><p>{
+    &quot;data&quot;: [
+    {
+        &quot;id&quot;: 1,
+            &quot;nm&quot;: &quot;开发服&quot;,
+            &quot;ip&quot;: &quot;192.168.4.168&quot;,
+            &quot;pt&quot;: 8822,
+            &quot;st&quot;: 3,
+            &quot;re&quot;: 1
+    },
+    {
+        &quot;id&quot;: 15,
+        &quot;nm&quot;: &quot;温易中&quot;,
+        &quot;ip&quot;: &quot;192.168.4.87&quot;,
+        &quot;pt&quot;: 8822,
+        &quot;st&quot;: 3,
+        &quot;re&quot;: 1
+    },
+    {
+        &quot;id&quot;: 16,
+        &quot;nm&quot;: &quot;张国华&quot;,
+        &quot;ip&quot;: &quot;192.168.4.133&quot;,
+        &quot;pt&quot;: 8825,
+        &quot;st&quot;: 3,
+        &quot;re&quot;: 1
+    },
+    {
+        &quot;id&quot;: 2,
+        &quot;nm&quot;: &quot;吴登&quot;,
+        &quot;ip&quot;: &quot;192.168.4.116&quot;,
+        &quot;pt&quot;: 8821,
+        &quot;st&quot;: 3,
+        &quot;re&quot;: 0
+    },
+    {
+        &quot;id&quot;: 3,
+        &quot;nm&quot;: &quot;童爱明&quot;,
+        &quot;ip&quot;: &quot;192.168.4.129&quot;,
+        &quot;pt&quot;: 8822,
+        &quot;st&quot;: 3,
+        &quot;re&quot;: 0
+    },
+    {
+        &quot;id&quot;: 999,
+        &quot;nm&quot;: &quot;外网服&quot;,
+        &quot;ip&quot;: &quot;120.92.43.188&quot;,
+        &quot;pt&quot;: 8822,
+        &quot;st&quot;: 3,
+        &quot;re&quot;: 1
+    }
+    ],
+    &quot;status&quot;: &quot;ok&quot;
+}</p>
+<ul>
+<li><a href="https://github.com/vue-bulma/vue-admin">https://github.com/vue-bulma/vue-admin</a></li>
+</ul>
+</div>
+
+    </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script> 
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h1>Threaded Code</h1><ul>
+<li><a href="#什么是threaded-code">什么是Threaded Code</a></li>
+<li><a href="#参考文档">参考文档</a></li>
+</ul>
+<h2><a name="什么是threaded-code" class="anchor" href="#什么是threaded-code"><span class="header-link"></span></a>什么是Threaded Code</h2><p>虚拟机解释器的实现技术。</p>
+<ul>
+<li>Direct threading
+基于栈的虚拟机执行<code>push A, push B, add</code>。<pre><code><span class="hljs-symbol">thread</span>:
+&amp;<span class="hljs-keyword">pushA
+</span>&amp;<span class="hljs-keyword">pushB
+</span>&amp;<span class="hljs-keyword">add
+</span><span class="hljs-symbol">...</span>
+<span class="hljs-keyword">pushA:
+</span>*<span class="hljs-built_in">sp</span>++ = A
+<span class="hljs-symbol">jump</span> *<span class="hljs-built_in">ip</span>++
+<span class="hljs-keyword">pushB:
+</span>*<span class="hljs-built_in">sp</span>++ = <span class="hljs-keyword">B
+</span><span class="hljs-symbol">jump</span> *<span class="hljs-built_in">ip</span>++
+<span class="hljs-keyword">add:
+</span><span class="hljs-keyword">addend </span>= *--<span class="hljs-built_in">sp</span>
+*<span class="hljs-built_in">sp</span>++ = *--<span class="hljs-built_in">sp</span> + <span class="hljs-keyword">addend
+</span><span class="hljs-symbol">jump</span> *<span class="hljs-built_in">ip</span>++
+</code></pre>参数也可以包含在thread中，缺点是thread变大了。<pre><code><span class="hljs-symbol">thread</span>:
+&amp;<span class="hljs-keyword">push
+</span>&amp;A
+&amp;<span class="hljs-keyword">push
+</span>&amp;<span class="hljs-keyword">B
+</span>&amp;<span class="hljs-keyword">add
+</span><span class="hljs-keyword">push:
+</span>*<span class="hljs-built_in">sp</span>++ = *<span class="hljs-built_in">ip</span>++
+<span class="hljs-symbol">jump</span> *<span class="hljs-built_in">ip</span>++
+<span class="hljs-keyword">add:
+</span><span class="hljs-keyword">addend </span>= *--<span class="hljs-built_in">sp</span>
+*<span class="hljs-built_in">sp</span>++ = *--<span class="hljs-built_in">sp</span> + <span class="hljs-keyword">addend
+</span><span class="hljs-symbol">jump</span> *<span class="hljs-built_in">ip</span>++
+</code></pre></li>
+<li>Indirect threading<pre><code><span class="hljs-symbol">thread</span>:
+&amp;i_pushA
+&amp;i_pushB
+&amp;i_add
+<span class="hljs-symbol">i_pushA</span>:
+&amp;<span class="hljs-keyword">push
+</span>&amp;A
+<span class="hljs-symbol">i_pushB</span>:
+&amp;<span class="hljs-keyword">push
+</span>&amp;<span class="hljs-keyword">B
+</span><span class="hljs-symbol">i_add</span>:
+&amp;<span class="hljs-keyword">add
+</span><span class="hljs-keyword">push:
+</span>*<span class="hljs-built_in">sp</span>++ = *(*<span class="hljs-built_in">ip</span> + <span class="hljs-number">1</span>)
+<span class="hljs-symbol">jump</span> *(*<span class="hljs-built_in">ip</span>++)
+<span class="hljs-keyword">add:
+</span><span class="hljs-keyword">addend </span>= *--<span class="hljs-built_in">sp</span>
+*<span class="hljs-built_in">sp</span>++ = *--<span class="hljs-built_in">sp</span> + <span class="hljs-keyword">addend
+</span><span class="hljs-symbol">jump</span> *(*<span class="hljs-built_in">ip</span>++)
+</code></pre></li>
+<li>Subrouting threading<pre><code><span class="hljs-symbol">thread</span>:
+<span class="hljs-symbol">call</span> <span class="hljs-keyword">pushA
+</span><span class="hljs-symbol">call</span> <span class="hljs-keyword">pushB
+</span><span class="hljs-symbol">call</span> <span class="hljs-keyword">add
+</span><span class="hljs-symbol">ret</span>
+<span class="hljs-keyword">pushA:
+</span>*<span class="hljs-built_in">sp</span>++ = A
+<span class="hljs-symbol">ret</span>
+<span class="hljs-keyword">pushB:
+</span>*<span class="hljs-built_in">sp</span>++ = <span class="hljs-keyword">B
+</span><span class="hljs-symbol">ret</span>
+<span class="hljs-keyword">add:
+</span><span class="hljs-keyword">addend </span>= *--<span class="hljs-built_in">sp</span>
+*<span class="hljs-built_in">sp</span>++ = *--<span class="hljs-built_in">sp</span> + <span class="hljs-keyword">addend
+</span><span class="hljs-symbol">ret</span>
+</code></pre></li>
+<li>Token threading bytecode, 非常紧凑<pre><code><span class="hljs-keyword">bytecode:
+</span><span class="hljs-number">0</span> <span class="hljs-comment">/*pushA*/</span>
+<span class="hljs-number">1</span> <span class="hljs-comment">/*pushB*/</span>
+<span class="hljs-number">2</span> <span class="hljs-comment">/*add*/</span>
+<span class="hljs-symbol">top:</span>
+i = decode(vpc++)
+<span class="hljs-keyword">addr </span>= table[i]
+<span class="hljs-keyword">jump </span>*<span class="hljs-keyword">addr
+</span><span class="hljs-symbol">pushA:</span>
+*<span class="hljs-built_in">sp</span>++ = A
+<span class="hljs-keyword">jump </span>top
+<span class="hljs-symbol">pushB:</span>
+*<span class="hljs-built_in">sp</span>++ = <span class="hljs-keyword">B
+</span><span class="hljs-keyword">jump </span>top
+<span class="hljs-keyword">add:
+</span><span class="hljs-keyword">addend </span>= *--<span class="hljs-built_in">sp</span>
+*<span class="hljs-built_in">sp</span>++ = *--<span class="hljs-built_in">sp</span> + <span class="hljs-keyword">addend
+</span><span class="hljs-keyword">jump </span>top
+</code></pre>实现方法</li>
+</ul>
+<hr>
+<ul>
+<li>Continuation-passing style (CPS) tail call optimization</li>
+</ul>
+<h2><a name="参考文档" class="anchor" href="#参考文档"><span class="header-link"></span></a>参考文档</h2><ul>
+<li><a href="https://www.complang.tuwien.ac.at/forth/threaded-code.html">Threaded Code - Complang</a></li>
+<li><a href="http://webdocs.cs.ualberta.ca/~amaral/cascon/CDP05/slides/CDP05-berndl.pdf">Context Threading</a></li>
+</ul>
+</div>
+
+    </div>
+
+    <div id="disqus_thread"></div>
+    <script>
+    /**
+    *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+    *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+    var disqus_config = function () {
+        this.page.url = "https://wudeng.github.io//publish/threaded-code.html"; 
+        this.page.identifier = "/publish/threaded-code.html";
+    };
+    (function() { // DON'T EDIT BELOW THIS LINE
+    var d = document, s = d.createElement('script');
+    s.src = 'https://wudeng.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+</div>
+</body>
+    <span id="busuanzi_container_page_pv"><span id="busuanzi_value_page_pv"></span></span>,
+    <span id="busuanzi_container_site_uv"><span id="busuanzi_value_site_uv"></span></span>,
+    <span id="busuanzi_container_site_pv"><span id="busuanzi_value_site_pv"></span></span>
+</span>
+</html>

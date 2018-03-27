@@ -1,0 +1,116 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script> 
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><p>dot product:</p>
+<p><img src="http://chart.googleapis.com/chart?cht=tx&amp;chl=\vec{u}\cdot%20\vec{v}=|\vec{u}|\cdot%20|\vec{v}|\cdot%20cos(\theta" alt="">)</p>
+<p>vector3.Cross, direction: left hand rule</p>
+<p>perp dot product: 2d version of cross product,
+    |u x v| = |u| <em> |v| </em> sin(t)
+    u is replace by the perpendicular vector rotated 90 to the left
+    cp = dx1 <em> dy2 - dx2 </em> dy1
+    cp is actually the signed magnitude of the classic 3d cross product of vectors (dx1, dy1, 0) and (dx2, dy2, 0),
+    obviously the value is simply a scalar product, in which one of the vectors war replaced by its perpendicular.</p>
+<pre><code>dot product <span class="hljs-keyword">of</span> (-y1, x1) <span class="hljs-keyword">and</span> (x2, y2), <span class="hljs-keyword">and</span> (-y1, x1) is <span class="hljs-number">90</span> rotated <span class="hljs-keyword">of</span> (x1, y1),
+
+<span class="hljs-keyword">if</span> cp &gt; <span class="hljs-number">0</span>, <span class="hljs-keyword">then</span> <span class="hljs-keyword">the</span> shortest radial sweep <span class="hljs-built_in">from</span> (dx1, dy1) <span class="hljs-built_in">to</span> (dx2, dy2) goes counter-clockwise,
+negative cp means clockwise sweep. <span class="hljs-literal">zero</span> <span class="hljs-keyword">in</span> cp indicates collinear vectors.
+</code></pre><pre><code>// counterclockwise
+<span class="hljs-symbol">int</span> ccw (Point <span class="hljs-built_in">P0</span>, Point <span class="hljs-built_in">P1</span>, Point <span class="hljs-built_in">P2</span>) {
+    dx1 = <span class="hljs-built_in">P1</span>.x - <span class="hljs-built_in">P0</span>.x<span class="hljs-comment">;</span>
+    dx2 = <span class="hljs-built_in">P2</span>.x - <span class="hljs-built_in">P0</span>.x<span class="hljs-comment">;</span>
+    dy1 = <span class="hljs-built_in">P1</span>.y - <span class="hljs-built_in">P0</span>.y<span class="hljs-comment">;</span>
+    dy2 = <span class="hljs-built_in">P1</span>.y - <span class="hljs-built_in">P0</span>.y<span class="hljs-comment">;</span>
+
+    <span class="hljs-meta">if</span> (dy1 * dx2 &gt; dy2 * dx1) return -<span class="hljs-number">1</span><span class="hljs-comment">;</span>
+    <span class="hljs-meta">if</span> (dx1 * dy2 &gt; dy1 * dx2) return <span class="hljs-number">1</span><span class="hljs-comment">;</span>
+    <span class="hljs-meta">if</span> ((dx1 * dx2 &lt; <span class="hljs-number">0</span>) <span class="hljs-title">||</span> (dy1 * dy2 &lt; <span class="hljs-number">0</span>)) return <span class="hljs-number">1</span><span class="hljs-comment">;</span>
+    <span class="hljs-meta">if</span> ((dx1 * dx1 + dy1 * dy1) &lt; (dx2 * dx2 + dy2 * dy2)) return -<span class="hljs-number">1</span><span class="hljs-comment">;</span>
+    return <span class="hljs-number">0</span><span class="hljs-comment">;</span>
+}
+
+// segment intersect
+<span class="hljs-keyword">bool </span>intersect (Vector2D l1, Vector2D l2) {
+    return (((ccw(l1.start, l1<span class="hljs-meta">.end</span>, l2.start) * ccw(l1.start, l1<span class="hljs-meta">.end</span>, l2<span class="hljs-meta">.end</span>)) &lt;= <span class="hljs-number">0</span>)
+    &amp;&amp; ((ccw(l2.start, l2<span class="hljs-meta">.end</span>, l1.start) * ccw(l2.start, l2<span class="hljs-meta">.end</span>, l1.start)) &lt;= <span class="hljs-number">0</span>))
+}
+</code></pre><p>point is in triangle:
+    <a href="https://stackoverflow.com/questions/2049582/how-to-determine-if-a-point-is-in-a-2d-triangle">https://stackoverflow.com/questions/2049582/how-to-determine-if-a-point-is-in-a-2d-triangle</a>
+    <a href="http://blackpawn.com/texts/pointinpoly/">http://blackpawn.com/texts/pointinpoly/</a></p>
+<pre><code><span class="hljs-symbol">func</span> sign(<span class="hljs-built_in">p1</span>, <span class="hljs-built_in">p2</span>, <span class="hljs-built_in">p3</span> Point3) float32 {
+    return (<span class="hljs-built_in">p1</span>.X-<span class="hljs-built_in">p3</span>.X)*(<span class="hljs-built_in">p2</span>.Y-<span class="hljs-built_in">p3</span>.Y) - (<span class="hljs-built_in">p2</span>.X-<span class="hljs-built_in">p3</span>.X)*(<span class="hljs-built_in">p1</span>.Y-<span class="hljs-built_in">p3</span>.Y)
+}
+
+<span class="hljs-symbol">func</span> inside(pt, <span class="hljs-built_in">v1</span>, <span class="hljs-built_in">v2</span>, <span class="hljs-built_in">v3</span> Point3) <span class="hljs-keyword">bool </span>{
+    <span class="hljs-keyword">b1 </span>:= sign(pt, <span class="hljs-built_in">v1</span>, <span class="hljs-built_in">v2</span>) &lt;= <span class="hljs-number">0</span>
+    <span class="hljs-keyword">b2 </span>:= sign(pt, <span class="hljs-built_in">v2</span>, <span class="hljs-built_in">v3</span>) &lt;= <span class="hljs-number">0</span>
+    <span class="hljs-keyword">b3 </span>:= sign(pt, <span class="hljs-built_in">v3</span>, <span class="hljs-built_in">v1</span>) &lt;= <span class="hljs-number">0</span>
+    return ((<span class="hljs-keyword">b1 </span>== <span class="hljs-keyword">b2) </span>&amp;&amp; (<span class="hljs-keyword">b2 </span>== <span class="hljs-keyword">b3))
+</span>}
+</code></pre><p>直线 ax + by + c = 0，法向量为[a, b]
+证明：[a, b] 垂直于直线上的任意两点构成的向量。</p>
+<p>对于平面：ax + by + cz = d, 法向量为 [a, b, c]</p>
+<p><a href="https://stackoverflow.com/questions/26315401/explanation-of-ccw-algorithm">https://stackoverflow.com/questions/26315401/explanation-of-ccw-algorithm</a>
+navmesh</p>
+</div>
+
+    </div>
+
+    <div id="disqus_thread"></div>
+    <script>
+    /**
+    *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+    *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+    var disqus_config = function () {
+        this.page.url = "https://wudeng.github.io//publish/math.html"; 
+        this.page.identifier = "/publish/math.html";
+    };
+    (function() { // DON'T EDIT BELOW THIS LINE
+    var d = document, s = d.createElement('script');
+    s.src = 'https://wudeng.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+</div>
+</body>
+    <span id="busuanzi_container_page_pv"><span id="busuanzi_value_page_pv"></span></span>,
+    <span id="busuanzi_container_site_uv"><span id="busuanzi_value_site_uv"></span></span>,
+    <span id="busuanzi_container_site_pv"><span id="busuanzi_value_site_pv"></span></span>
+</span>
+</html>

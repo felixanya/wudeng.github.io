@@ -1,0 +1,106 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h1>tcpdump</h1><ul>
+<li><a href="#-d">-D</a></li>
+<li><a href="#-i">-i</a></li>
+<li><a href="#-n-nn">-n -nn</a></li>
+<li><a href="#-t">-t</a></li>
+<li><a href="#-c">-c</a></li>
+<li><a href="#-w">-w</a></li>
+<li><a href="#表达式过滤">表达式过滤</a></li>
+</ul>
+<p>tcpdump -i eth0 -nt &#39;(src 192.168.4.116 and dst 192.168.4.168) or (src 192.168.4.168 and dst 192.168.4.116)&#39;</p>
+<p>[S] SYN
+[P] PSH
+[.] ACK</p>
+<h2><a name="-d" class="anchor" href="#-d"><span class="header-link"></span></a>-D</h2><p>列出所有接口。有些系统不支持<code>ifconfig -a</code>，那这个选项就很有用了。接口名或者编号都可以用在-i选项中。</p>
+<h2><a name="-i" class="anchor" href="#-i"><span class="header-link"></span></a>-i</h2><p>Listen on interface.
+指定要监听的网卡接口。<code>-i any</code>表示抓取所有网卡接口上的数据包。</p>
+<h2><a name="-n--nn" class="anchor" href="#-n--nn"><span class="header-link"></span></a>-n -nn</h2><p>Don’t convert host addresses to names.  This can be used to avoid DNS lookups.
+使用IP地址表示主机而不是主机名；使用数字表示端口号，而不是服务名称。</p>
+<h2><a name="-t" class="anchor" href="#-t"><span class="header-link"></span></a>-t</h2><p>Don’t print a timestamp on each dump line.
+不打印时间戳。</p>
+<h2><a name="-c" class="anchor" href="#-c"><span class="header-link"></span></a>-c</h2><p>仅抓取指定数量的数据包。</p>
+<h2><a name="-w" class="anchor" href="#-w"><span class="header-link"></span></a>-w</h2><p>将tcpdump的输出以特定的格式定向到某个文件。</p>
+<h2><a name="表达式过滤" class="anchor" href="#表达式过滤"><span class="header-link"></span></a>表达式过滤</h2><p>man pcap-filter</p>
+<p>表达式由一个或多个qualifiers加id构成，id一般为名字或者数字。 qualifiers分为三类</p>
+<ul>
+<li>type类型主要是主机，网络，端口，端口范围<ul>
+<li><em>host</em></li>
+<li>net</li>
+<li>port</li>
+<li>portrange</li>
+</ul>
+</li>
+<li>dir方向<ul>
+<li>src </li>
+<li>dst</li>
+<li><em>src or dst</em></li>
+<li>src and dst</li>
+</ul>
+</li>
+<li>proto协议<ul>
+<li>ip</li>
+<li>tcp</li>
+<li>udp</li>
+<li>icmp </li>
+<li>...</li>
+</ul>
+</li>
+</ul>
+<p>逻辑操作符</p>
+<ul>
+<li>and &amp;&amp;</li>
+<li>or ||</li>
+<li>not !</li>
+</ul>
+<p>直接用数据包中的部分协议字段来过滤，比如抓取TCP同步报文段：</p>
+<pre><code>tcpdump 'tcp[<span class="hljs-number">13</span>] &amp; <span class="hljs-number">2</span> != <span class="hljs-number">0</span>'
+</code></pre><p>TCP头部第14个字节的第二个位正是同步标记。该命令也可以表示为：</p>
+<pre><code><span class="hljs-attribute">tcpdump</span> <span class="hljs-string">'tcp[tcpflags] &amp; tcp-syn != 0'</span>
+</code></pre><ul>
+<li><a href="https://danielmiessler.com/study/tcpdump/">https://danielmiessler.com/study/tcpdump/</a></li>
+<li>man tcpdump</li>
+<li>man pcap-filter</li>
+</ul>
+</div>
+
+    </div>
+
+</div>
+</body>
+</html>

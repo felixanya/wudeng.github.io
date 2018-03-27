@@ -1,0 +1,108 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h1>游戏开发中的人工智能</h1><ul>
+<li><a href="#追逐和闪躲">追逐和闪躲</a></li>
+<li><a href="#移动模式">移动模式</a></li>
+<li><a href="#群聚">群聚</a></li>
+<li><a href="#以势函数实现移动">以势函数实现移动</a></li>
+<li><a href="#基本路径寻找及航点应用">基本路径寻找及航点应用</a></li>
+<li><a href="#a路径寻找算法">A*路径寻找算法</a></li>
+<li><a href="#描述式ai及描述引擎">描述式AI及描述引擎</a></li>
+<li><a href="#有限状态机">有限状态机</a></li>
+<li><a href="#模糊逻辑">模糊逻辑</a></li>
+<li><a href="#规则式ai">规则式AI</a></li>
+<li><a href="#概率概论">概率概论</a></li>
+<li><a href="#不确定状态下的决策贝叶斯技术">不确定状态下的决策：贝叶斯技术</a></li>
+<li><a href="#神经网络">神经网络</a></li>
+<li><a href="#遗传算法-genetic-algorithm">遗传算法 genetic algorithm</a></li>
+</ul>
+<h2><a name="追逐和闪躲" class="anchor" href="#追逐和闪躲"><span class="header-link"></span></a>追逐和闪躲</h2><h2><a name="移动模式" class="anchor" href="#移动模式"><span class="header-link"></span></a>移动模式</h2><h2><a name="群聚" class="anchor" href="#群聚"><span class="header-link"></span></a>群聚</h2><h2><a name="以势函数实现移动" class="anchor" href="#以势函数实现移动"><span class="header-link"></span></a>以势函数实现移动</h2><h2><a name="基本路径寻找及航点应用" class="anchor" href="#基本路径寻找及航点应用"><span class="header-link"></span></a>基本路径寻找及航点应用</h2><h2><a name="a*路径寻找算法" class="anchor" href="#a*路径寻找算法"><span class="header-link"></span></a>A*路径寻找算法</h2><h2><a name="描述式ai及描述引擎" class="anchor" href="#描述式ai及描述引擎"><span class="header-link"></span></a>描述式AI及描述引擎</h2><h2><a name="有限状态机" class="anchor" href="#有限状态机"><span class="header-link"></span></a>有限状态机</h2><h2><a name="模糊逻辑" class="anchor" href="#模糊逻辑"><span class="header-link"></span></a>模糊逻辑</h2><h2><a name="规则式ai" class="anchor" href="#规则式ai"><span class="header-link"></span></a>规则式AI</h2><h2><a name="概率概论" class="anchor" href="#概率概论"><span class="header-link"></span></a>概率概论</h2><h2><a name="不确定状态下的决策：贝叶斯技术" class="anchor" href="#不确定状态下的决策：贝叶斯技术"><span class="header-link"></span></a>不确定状态下的决策：贝叶斯技术</h2><h2><a name="神经网络" class="anchor" href="#神经网络"><span class="header-link"></span></a>神经网络</h2><p>优点：</p>
+<ul>
+<li>简化复杂状态机或规则系统的程序编写</li>
+<li>AI自适应</li>
+</ul>
+<p>未广泛使用，原因：</p>
+<ul>
+<li>难控制，难预测，难测试，难调试</li>
+</ul>
+<p>决策：是否和玩家交战</p>
+<ul>
+<li>chase</li>
+<li>evade</li>
+<li>flock</li>
+<li>attack</li>
+</ul>
+<p>三层前馈神经网络，multilayer feed-forward network</p>
+<ul>
+<li>输入层input<ul>
+<li>输入数据 转换成实数 </li>
+</ul>
+</li>
+<li>隐匿层hidden</li>
+<li>输出层output</li>
+</ul>
+<p>除了输入层，每个神经元都有一个额外的输入值叫偏差值(bias)。</p>
+<p>活化函数：接收神经元的总输入值，予以处理，产生神经元的输出结果。非线性。</p>
+<ul>
+<li>logistic aka sigmoid(S shape function)</li>
+<li>阶跃函数</li>
+<li>双曲正切函数</li>
+</ul>
+<h2><a name="遗传算法-genetic-algorithm" class="anchor" href="#遗传算法-genetic-algorithm"><span class="header-link"></span></a>遗传算法 genetic algorithm</h2><p>适应度函数</p>
+<p>Problem：平衡: 技巧水平 =&gt; 挑战性
+演化evolution</p>
+<p>交叉crossover
+突变</p>
+<p>四步</p>
+<ul>
+<li>first generation: 多样化很重要</li>
+<li>rank fitness: fitness function</li>
+<li>selection </li>
+<li>evolution: 组合，随机突变
+后三部构成一个循环。</li>
+</ul>
+<p>不可预测性，试误法。</p>
+<ul>
+<li><a href="https://books.google.co.uk/books?id=kFAsDwAAQBAJ&amp;printsec=frontcover#v=onepage&amp;q&amp;f=false">Game AI Pro 3</a></li>
+</ul>
+</div>
+
+    </div>
+
+</div>
+</body>
+</html>

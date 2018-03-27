@@ -1,0 +1,303 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script> 
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h1>怎样实现一个虚拟机</h1><ul>
+<li><a href="#erlang模拟栈式虚拟机">Erlang模拟栈式虚拟机</a></li>
+<li><a href="#生成字节码">生成字节码</a></li>
+<li><a href="#switch-case指令分派">switch-case指令分派</a></li>
+<li><a href="#token-threaded-code">token-threaded code</a></li>
+<li><a href="#参考文档">参考文档</a></li>
+</ul>
+<p>我们来实现一个支持加法和乘法的虚拟机。利用Erlang的erl_scan和erl_parse可以帮助我们实现一个简单的编译器，把表达式编译成可以被虚拟机执行的代码。
+从输入的表达式到可以执行的虚拟机代码，经历了以下几个过程：</p>
+<ul>
+<li>词法分析，将输入的符号序列解析成有意义的符号，对应Erlang里面的erl_scan模块。</li>
+<li>语法分析，词法分析得到的符号转化成抽象语法树（AST），对应Erlang里面的erl_parse模块。</li>
+<li>代码生成</li>
+<li>解释执行</li>
+</ul>
+<h2><a name="erlang模拟栈式虚拟机" class="anchor" href="#erlang模拟栈式虚拟机"><span class="header-link"></span></a>Erlang模拟栈式虚拟机</h2><pre><code>-<span class="hljs-built_in">module</span>(stack_machine).
+-compile(export_all).
+
+eval<span class="hljs-function"><span class="hljs-params">(String)</span> -&gt;</span>
+    {ok, Tokens, _} = erl_scan:string(String++<span class="hljs-string">"."</span>),
+    {ok, [ParseTree]} = erl_parse:parse_exprs(Tokens),
+    Code = generate_code(ParseTree),
+    interpret(Code).
+
+interpret<span class="hljs-function"><span class="hljs-params">(Code)</span> -&gt;</span> interpret(Code, []).
+
+interpret<span class="hljs-function"><span class="hljs-params">([], [Value|_])</span> -&gt;</span> Value;
+interpret<span class="hljs-function"><span class="hljs-params">([push, Arg|Rest], Stack)</span> -&gt;</span> interpret(Rest, [Arg|Stack]);
+interpret<span class="hljs-function"><span class="hljs-params">([add|Rest], [Arg1, Arg2|Stack])</span> -&gt;</span> interpret(Rest, [Arg1 + Arg2|Stack]);
+interpret<span class="hljs-function"><span class="hljs-params">([minus|Rest], [Arg1, Arg2|Stack])</span> -&gt;</span> interpret(Rest, [Arg1 - Arg2|Stack]);
+interpret<span class="hljs-function"><span class="hljs-params">([multiply|Rest], [Arg1, Arg2|Stack])</span> -&gt;</span> interpret(Rest, [Arg1 * Arg2|Stack]);
+interpret<span class="hljs-function"><span class="hljs-params">([divide|Rest], [Arg1, Arg2|Stack])</span> -&gt;</span> interpret(Rest, [Arg1 / Arg2|Stack]).
+
+generate_code<span class="hljs-function"><span class="hljs-params">({op, _, <span class="hljs-string">'+'</span>, Arg1, Arg2})</span> -&gt;</span> generate_code(Arg1) ++ generate_code(Arg2) ++ [add];
+generate_code<span class="hljs-function"><span class="hljs-params">({op, _, <span class="hljs-string">'-'</span>, Arg1, Arg2})</span> -&gt;</span> generate_code(Arg2) ++ generate_code(Arg1) ++ [minus];
+generate_code<span class="hljs-function"><span class="hljs-params">({op, _, <span class="hljs-string">'*'</span>, Arg1, Arg2})</span> -&gt;</span> generate_code(Arg1) ++ generate_code(Arg2) ++ [multiply];
+generate_code<span class="hljs-function"><span class="hljs-params">({op, _, <span class="hljs-string">'/'</span>, Arg1, Arg2})</span> -&gt;</span> generate_code(Arg2) ++ generate_code(Arg1) ++ [divide];
+generate_code<span class="hljs-function"><span class="hljs-params">({integer, _, Arg1})</span> -&gt;</span> [push, Arg1];
+generate_code<span class="hljs-function"><span class="hljs-params">({float, _, Arg1})</span> -&gt;</span> [push, Arg1].
+</code></pre><p>上面的代码模拟了一个简单的栈式虚拟机，操作数保存在栈中。然后能够执行简单的加减乘除，输入有效的算术表达式，能够给出最终结果。</p>
+<h2><a name="生成字节码" class="anchor" href="#生成字节码"><span class="header-link"></span></a>生成字节码</h2><p>上文中实现的虚拟机在执行生成的代码的时候利用了Erlang的模式匹配， 实际中我们使用的Beam虚拟机执行的字节码文件，需要为每个指令分配一个指令码。
+虚拟机通过case语句来分派指令。下面我们来实现一个基于字节码的虚拟机。</p>
+<p>首先需要生成字节码，还是利用Erlang来编译表达式，生成文件。</p>
+<pre><code><span class="hljs-keyword">-module</span><span class="hljs-params">(bytecode_generator)</span>.
+
+<span class="hljs-keyword">-compile</span><span class="hljs-params">([export_all])</span>.
+
+<span class="hljs-function"><span class="hljs-title">gen</span><span class="hljs-params">(String)</span> -&gt;</span>
+    {ok, Tokens, _} = erl_scan:string(String++<span class="hljs-string">"."</span>),
+    {ok, [ParseTree]} = erl_parse:parse_exprs(Tokens),
+    ByteCode = generate_code(ParseTree),
+    file:write_file(<span class="hljs-string">"bytecode"</span>, [ByteCode, stop()]),
+    ok.
+
+<span class="hljs-function"><span class="hljs-title">generate_code</span><span class="hljs-params">({op, _, '+', Arg1, Arg2})</span> -&gt;</span> 
+    generate_code(Arg1) ++ generate_code(Arg2) ++ [add()];
+<span class="hljs-function"><span class="hljs-title">generate_code</span><span class="hljs-params">({op, _, '*', Arg1, Arg2})</span> -&gt;</span> 
+    generate_code(Arg1) ++ generate_code(Arg2) ++ [multiply()];
+<span class="hljs-function"><span class="hljs-title">generate_code</span><span class="hljs-params">({integer, _, Arg1})</span> -&gt;</span> 
+    [push() | integer(Arg1)].
+
+<span class="hljs-function"><span class="hljs-title">add</span><span class="hljs-params">()</span> -&gt;</span> <span class="hljs-number">1</span>.
+<span class="hljs-function"><span class="hljs-title">multiply</span><span class="hljs-params">()</span> -&gt;</span> <span class="hljs-number">2</span>.
+<span class="hljs-function"><span class="hljs-title">push</span><span class="hljs-params">()</span> -&gt;</span> <span class="hljs-number">3</span>.
+<span class="hljs-function"><span class="hljs-title">stop</span><span class="hljs-params">()</span> -&gt;</span> <span class="hljs-number">0</span>.
+
+<span class="hljs-function"><span class="hljs-title">integer</span><span class="hljs-params">(Num)</span> -&gt;</span>
+    NumList = binary_to_list(binary:encode_unsigned(Num)),
+    [length(NumList) | NumList].
+</code></pre><p>我们定义了4个不同的指令，分别是add，multiply，push，stop，用不同的字节码表示。为了支持大于255的整数，我们将整数编译成长度加整数编码的形式。
+通过上面的gen函数，我们可以为表达式生成一个名为bytecode的字节码文件。下面我们来解释执行这个文件。</p>
+<h2><a name="switch-case指令分派" class="anchor" href="#switch-case指令分派"><span class="header-link"></span></a>switch-case指令分派</h2><pre><code><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;cstdio&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;cstdlib&gt;</span></span>
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> ADD 1</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> MUL 2</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> PUSH 3</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> STOP 0</span>
+
+<span class="hljs-function"><span class="hljs-keyword">char</span> *<span class="hljs-title">read_file</span><span class="hljs-params">(<span class="hljs-keyword">char</span> *filename)</span> </span>{
+    FILE *file = fopen(filename, <span class="hljs-string">"r"</span>);
+    <span class="hljs-keyword">if</span> (!file) {<span class="hljs-built_in">exit</span>(<span class="hljs-number">-1</span>);}
+    fseek(file, <span class="hljs-number">0</span>, SEEK_END);
+    <span class="hljs-keyword">long</span> size = ftell(file);
+    <span class="hljs-keyword">char</span> *code = (<span class="hljs-keyword">char</span> *)<span class="hljs-built_in">calloc</span>(size, <span class="hljs-number">1</span>); 
+    <span class="hljs-keyword">if</span>(!code) {<span class="hljs-built_in">exit</span>(<span class="hljs-number">-1</span>);}
+    fseek(file, <span class="hljs-number">0</span>, SEEK_SET);
+    fread(code, size, size, file);
+    close(file);
+    <span class="hljs-keyword">return</span> code;
+}
+
+
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">run</span><span class="hljs-params">(<span class="hljs-keyword">char</span> *code)</span> </span>{
+    <span class="hljs-keyword">int</span> <span class="hljs-built_in">stack</span>[<span class="hljs-number">1000</span>];
+    <span class="hljs-keyword">int</span> sp = <span class="hljs-number">0</span>, size = <span class="hljs-number">0</span>, val = <span class="hljs-number">0</span>;
+    <span class="hljs-keyword">char</span> *ip = code;
+    <span class="hljs-keyword">int</span> op1 = <span class="hljs-number">0</span>, op2 = <span class="hljs-number">0</span>;
+
+    <span class="hljs-keyword">while</span> (*ip != STOP) {
+        <span class="hljs-keyword">switch</span> (*ip++) {
+            <span class="hljs-keyword">case</span> ADD: 
+                op1 = <span class="hljs-built_in">stack</span>[--sp];
+                op2 = <span class="hljs-built_in">stack</span>[--sp];
+                <span class="hljs-built_in">stack</span>[sp++] = op1 + op2;
+                <span class="hljs-keyword">break</span>;
+            <span class="hljs-keyword">case</span> MUL: 
+                op1 = <span class="hljs-built_in">stack</span>[--sp];
+                op2 = <span class="hljs-built_in">stack</span>[--sp];
+                <span class="hljs-built_in">stack</span>[sp++] = op1 * op2;
+                <span class="hljs-keyword">break</span>;
+            <span class="hljs-keyword">case</span> PUSH:
+                size = *ip++; 
+                val = <span class="hljs-number">0</span>;
+                <span class="hljs-keyword">while</span> (size--) { 
+                    val = (val &lt;&lt; <span class="hljs-number">8</span>) + *ip++;
+                }   
+                <span class="hljs-built_in">stack</span>[sp++] = val;
+                <span class="hljs-keyword">break</span>;
+        }   
+    }   
+    <span class="hljs-keyword">return</span> <span class="hljs-built_in">stack</span>[--sp];
+}
+
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>{
+    <span class="hljs-keyword">int</span> result = <span class="hljs-number">0</span>;
+    <span class="hljs-keyword">char</span> *code = read_file(<span class="hljs-string">"bytecode"</span>);
+    <span class="hljs-comment">//printf("read code %s\n", code);</span>
+    result = run(code);
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">"result %d\n"</span>, result);
+    <span class="hljs-built_in">free</span>(code);
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+}
+</code></pre><p>关键代码是中间的switch-case语句，这种方式实现的虚拟机需要不停的比较指令来执行相应操作，每条指令都需要跟所有指令比较一次，如果有好几百条指令，这样的效率不高。
+Beam应用了一种叫做dynamic threaded code的技术，加载文件的时候直接将指令替换成执行相应指令的代码地址。</p>
+<h2><a name="token-threaded-code" class="anchor" href="#token-threaded-code"><span class="header-link"></span></a>token-threaded code</h2><p>要去掉switch-case语句，我们需要在加载代码的时候做更多的工作。</p>
+<pre><code><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;cstdlib&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;cstdio&gt;</span></span>
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> ADD 1</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> MUL 2</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> PUSH 3</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> POP 4</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> STOP 0</span>
+
+<span class="hljs-function"><span class="hljs-keyword">typedef</span> <span class="hljs-title">void</span> <span class="hljs-params">(*<span class="hljs-keyword">instructionp_t</span>)</span><span class="hljs-params">(<span class="hljs-keyword">void</span>)</span></span>;
+
+<span class="hljs-keyword">int</span> <span class="hljs-built_in">stack</span>[<span class="hljs-number">1000</span>];
+<span class="hljs-keyword">instructionp_t</span> *ip;
+<span class="hljs-keyword">int</span> running;
+<span class="hljs-keyword">int</span> sp = <span class="hljs-number">0</span>;
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> pop() stack[ --sp ]</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> push(x) stack[ sp++ ] = (x)</span>
+
+
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">add</span><span class="hljs-params">()</span> </span>{
+    <span class="hljs-keyword">int</span> x, y;  
+    x = pop(); 
+    y = pop(); 
+    push(x+y);
+}
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">multiply</span><span class="hljs-params">()</span> </span>{
+    <span class="hljs-keyword">int</span> x, y;  
+    x = pop(); 
+    y = pop(); 
+    push(x*y);
+}
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">pushi</span><span class="hljs-params">()</span> </span>{
+    <span class="hljs-keyword">long</span> x;  
+    x = (<span class="hljs-keyword">long</span>) (*ip++); 
+    push(x);
+}
+
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">stopi</span><span class="hljs-params">()</span> </span>{
+    running = <span class="hljs-number">0</span>;
+}
+
+<span class="hljs-keyword">instructionp_t</span> *read_file() {
+    <span class="hljs-keyword">instructionp_t</span> *code;
+    <span class="hljs-keyword">instructionp_t</span> *cp;
+    <span class="hljs-keyword">char</span> c;
+    <span class="hljs-keyword">int</span> val = <span class="hljs-number">0</span>, len = <span class="hljs-number">0</span>;
+    FILE *file;
+    <span class="hljs-keyword">long</span> size = <span class="hljs-number">0</span>;
+    file = fopen(<span class="hljs-string">"bytecode"</span>,<span class="hljs-string">"r"</span>);
+    <span class="hljs-keyword">if</span> (!file) {
+        <span class="hljs-built_in">printf</span>(<span class="hljs-string">"open file error"</span>);
+        <span class="hljs-built_in">exit</span>(<span class="hljs-number">-1</span>);
+    }   
+    fseek(file, <span class="hljs-number">0</span>, SEEK_END);
+    size = ftell(file);
+    fseek(file, <span class="hljs-number">0</span>, SEEK_SET);
+    code = (<span class="hljs-keyword">instructionp_t</span> *)<span class="hljs-built_in">calloc</span>(size, <span class="hljs-keyword">sizeof</span>(<span class="hljs-keyword">instructionp_t</span>));
+    cp = code;
+    <span class="hljs-keyword">while</span>((c = fgetc(file)) != STOP) {
+        <span class="hljs-keyword">switch</span>(c) {
+            <span class="hljs-keyword">case</span> ADD:
+                *cp++ = &amp;add;
+                <span class="hljs-keyword">break</span>;
+            <span class="hljs-keyword">case</span> MUL:
+                *cp++ = &amp;multiply;
+                <span class="hljs-keyword">break</span>;
+            <span class="hljs-keyword">case</span> PUSH:
+                *cp++ = &amp;pushi;
+                len = fgetc(file);
+                val = <span class="hljs-number">0</span>;
+                <span class="hljs-keyword">while</span>(len-- &gt; <span class="hljs-number">0</span>) {
+                    val = val*<span class="hljs-number">256</span> + fgetc(file);
+                }
+                *cp++ = (<span class="hljs-keyword">instructionp_t</span>)val;
+                <span class="hljs-keyword">break</span>;
+        }
+    }
+    *cp = &amp;stopi;
+    fclose(file);
+    <span class="hljs-keyword">return</span> code;
+
+}
+
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>{
+    sp = <span class="hljs-number">0</span>;
+    running = <span class="hljs-number">1</span>;
+    <span class="hljs-keyword">while</span>(running) (*ip++)();
+    <span class="hljs-keyword">return</span> pop();
+}
+
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>{
+    <span class="hljs-keyword">int</span> result = <span class="hljs-number">0</span>;
+    ip = read_file();
+    result = run();
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">"resutl:%d\n"</span>, result);
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+</code></pre><p>这种方式，我们加载字节码的时候直接将字节码替换成需要执行的函数指针，最终执行的时候只需要从头到尾执行ip指针指向的函数即可。</p>
+<h2><a name="参考文档" class="anchor" href="#参考文档"><span class="header-link"></span></a>参考文档</h2><ul>
+<li>theBeamBook</li>
+</ul>
+</div>
+
+    </div>
+
+    <div id="disqus_thread"></div>
+    <script>
+    /**
+    *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+    *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+    var disqus_config = function () {
+        this.page.url = "https://wudeng.github.io//publish/how-to-make-virtual-machine.html"; 
+        this.page.identifier = "/publish/how-to-make-virtual-machine.html";
+    };
+    (function() { // DON'T EDIT BELOW THIS LINE
+    var d = document, s = d.createElement('script');
+    s.src = 'https://wudeng.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+</div>
+</body>
+    <span id="busuanzi_container_page_pv"><span id="busuanzi_value_page_pv"></span></span>,
+    <span id="busuanzi_container_site_uv"><span id="busuanzi_value_site_uv"></span></span>,
+    <span id="busuanzi_container_site_pv"><span id="busuanzi_value_site_pv"></span></span>
+</span>
+</html>

@@ -1,0 +1,141 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h1>iptables</h1><ul>
+<li><a href="#语法">语法</a></li>
+<li><a href="#tables">tables</a></li>
+<li><a href="#动作">动作</a></li>
+<li><a href="#清除已有iptables规则">清除已有iptables规则</a></li>
+<li><a href="#开放指定的端口">开放指定的端口</a></li>
+<li><a href="#屏蔽ip">屏蔽ip</a></li>
+<li><a href="#查看已添加">查看已添加</a></li>
+</ul>
+<p>netfilter项目的一部分。</p>
+<h2><a name="语法" class="anchor" href="#语法"><span class="header-link"></span></a>语法</h2><p><code>iptables -t 表名 &lt;-A/I/D/R&gt; 规则链名 [规则号] &lt;-i/o 网卡名&gt; -p 协议名 &lt;-s 源IP/源子网&gt; --sport 源端口 &lt;-d 目标IP/目标子网&gt; --dport 目标端口 -j 动作</code></p>
+<p>-A 添加 -append
+-I 插入 -insert
+-D 删除 -delete
+-R 替换 -replace
+-L 显示 -list
+-F 清除 -flush
+-Z 清空计数器 -zero
+-j&lt;目标&gt;：指定要跳转的目标</p>
+<p>-s -source [!]address[/mask] 源地址
+-d destination [!]address[/mask] 目标地址
+-j --jump target</p>
+<h2><a name="tables" class="anchor" href="#tables"><span class="header-link"></span></a>tables</h2><p>优先顺序：raw - mangle - nat - filter</p>
+<p>PREROUTING: raw -&gt; mangle -&gt; nat
+INPUT: mangle -&gt; nat -&gt; filter
+OUTPUT: raw -&gt; mangle -&gt; nat -&gt; filter
+FORWARD: mangle -&gt; filter
+POSTROUTING: mangle -&gt; nat</p>
+<p>路径：</p>
+<ul>
+<li>PREROUTING -&gt; INPUT</li>
+<li>PREROUTING -&gt; FORWARD -&gt; POSTROUTING</li>
+<li>OUTPUT -&gt; POSTROUTING</li>
+</ul>
+<ul>
+<li><em>filter</em> 包过滤，用于防火墙规则。<ul>
+<li>INPUT 处理输入数据包</li>
+<li>FORWARD 处理转发数据包</li>
+<li>OUTPUT 处理输出数据包</li>
+</ul>
+</li>
+<li>nat 地址转换用于网关路由器<ul>
+<li>PREROUTING  用于目标地址转换（DNAT）</li>
+<li>OUTPUT</li>
+<li>POSTROUTING 用于原地址转换（SNAT）</li>
+</ul>
+</li>
+<li>mangle 数据包修改（QoS），用于实现服务质量。<ul>
+<li>PREROUTING</li>
+<li>OUTPUT</li>
+<li>INPUT</li>
+<li>FORWARD</li>
+<li>POSTROUTING</li>
+</ul>
+</li>
+<li>raw 高级功能，如网址过滤 (数据跟踪处理？)<ul>
+<li>PREROUTING</li>
+<li>OUTPUT</li>
+</ul>
+</li>
+<li>security<ul>
+<li>INPUT</li>
+<li>OUTPUT</li>
+<li>FORWARD</li>
+</ul>
+</li>
+</ul>
+<h2><a name="动作" class="anchor" href="#动作"><span class="header-link"></span></a>动作</h2><ul>
+<li>ACCEPT 接收数据包</li>
+<li>DROP 丢弃数据包</li>
+<li>REDIRECT 重定向、映射、透明代理</li>
+<li>SNAT 原地址转换</li>
+<li>DNAT 目标地址转换</li>
+<li>MASQUERADE IP伪装（NAT）,用于ADSL</li>
+<li>LOG 记录</li>
+</ul>
+<h2><a name="清除已有iptables规则" class="anchor" href="#清除已有iptables规则"><span class="header-link"></span></a>清除已有iptables规则</h2><p>iptables -F 
+iptables -X 
+iptables -Z</p>
+<h2><a name="开放指定的端口" class="anchor" href="#开放指定的端口"><span class="header-link"></span></a>开放指定的端口</h2><p>iptables -A INPUT -s 127.0.0.1 -d 127.0.0.1 -j ACCEPT #允许本地回环接口(即运行本机访问本机) 
+iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT #允许已建立的或相关连的通行 
+iptables -A OUTPUT -j ACCEPT #允许所有本机向外的访问 
+iptables -A INPUT -p tcp --dport 22 -j ACCEPT #允许访问22端口 
+iptables -A INPUT -p tcp --dport 80 -j ACCEPT #允许访问80端口 
+iptables -A INPUT -p tcp --dport 21 -j ACCEPT #允许ftp服务的21端口 
+iptables -A INPUT -p tcp --dport 20 -j ACCEPT #允许FTP服务的20端口 
+iptables -A INPUT -j reject #禁止其他未允许的规则访问 
+iptables -A FORWARD -j REJECT #禁止其他未允许的规则访问</p>
+<h2><a name="屏蔽ip" class="anchor" href="#屏蔽ip"><span class="header-link"></span></a>屏蔽ip</h2><p>iptables -I INPUT -s 123.45.6.7 -j DROP #屏蔽单个IP的命令 
+iptables -I INPUT -s 123.0.0.0/8 -j DROP #封整个段即从123.0.0.1到123.255.255.254的命令 
+iptables -I INPUT -s 124.45.0.0/16 -j DROP #封IP段即从123.45.0.1到123.45.255.254的命令 
+iptables -I INPUT -s 123.45.6.0/24 -j DROP #封IP段即从123.45.6.1到123.45.6.254的命令</p>
+<h2><a name="查看已添加" class="anchor" href="#查看已添加"><span class="header-link"></span></a>查看已添加</h2><p>iptables -L -n -v</p>
+<ul>
+<li><a href="http://man.linuxde.net/iptables">http://man.linuxde.net/iptables</a></li>
+<li><a href="http://www.zsythink.net/archives/1199">http://www.zsythink.net/archives/1199</a></li>
+<li><a href="https://www.cnblogs.com/metoy/p/4320813.html">https://www.cnblogs.com/metoy/p/4320813.html</a></li>
+</ul>
+</div>
+
+    </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h1>Erlang系统工具</h1><ul>
+<li><a href="#反编译">反编译</a></li>
+<li><a href="#进程栈">进程栈</a></li>
+<li><a href="#etop">etop </a></li>
+<li><a href="#手动gc">手动gc</a></li>
+<li><a href="#trace">Trace</a></li>
+<li><a href="#系统级别">系统级别</a></li>
+</ul>
+<p>推荐recon，非常全面的线上调试工具。下面是我个人比较偏爱的一些线上分析问题的工具。一般可以放在user_default模块，在shell里面直接执行。</p>
+<h2><a name="反编译" class="anchor" href="#反编译"><span class="header-link"></span></a>反编译</h2><p>用于确认线上代码是否正确版本。需要在编译的时候加上debug_info选项，btw，加上export_all选项对于线上调试很有帮助。</p>
+<pre><code>decompile(Mod) -&gt; decompile(Mod, undefined).
+decompile(Mod, <span class="hljs-keyword">Dir</span>) -&gt;
+    {ok, {_, [{abstract_code, {_, <span class="hljs-keyword">AC</span>}}]}} = beam_lib:chunks(code:<span class="hljs-keyword">which</span>(Mod), [abstract_code]),
+    Code = erl_prettypr:<span class="hljs-keyword">format</span>(erl_syntax:form_list(<span class="hljs-keyword">AC</span>)),
+    case is_list(<span class="hljs-keyword">Dir</span>) of
+        true -&gt;
+            FileName = filename:join([<span class="hljs-keyword">Dir</span>, lists:concat([Mod, <span class="hljs-string">".erl"</span>])]),
+            filelib:ensure_dir(<span class="hljs-keyword">Dir</span>),
+            {ok, IoDev} = <span class="hljs-keyword">file</span>:<span class="hljs-keyword">open</span>(FileName, [binary, write]),
+            <span class="hljs-keyword">file</span>:write(IoDev, unicode:characters_to_binary(Code)),
+            <span class="hljs-keyword">file</span>:<span class="hljs-keyword">close</span>(IoDev);
+        _ -&gt; 
+            io:<span class="hljs-keyword">format</span>(<span class="hljs-string">"~ts~n"</span>, [Code])
+    end.
+</code></pre><h2><a name="进程栈" class="anchor" href="#进程栈"><span class="header-link"></span></a>进程栈</h2><p>类似jstack，分析异常进程行为。</p>
+<pre><code>pstack<span class="hljs-function"><span class="hljs-params">(ProcName)</span> <span class="hljs-title">when</span> <span class="hljs-title">is_atom</span><span class="hljs-params">(ProcName)</span> -&gt;</span>
+    <span class="hljs-keyword">case</span> whereis(ProcName) <span class="hljs-keyword">of</span>
+        Pid <span class="hljs-keyword">when</span> is_pid<span class="hljs-function"><span class="hljs-params">(Pid)</span> -&gt;</span> show_stack(Pid);
+        _<span class="hljs-function"> -&gt;</span> <span class="hljs-literal">undefined</span>
+    end;
+pstack<span class="hljs-function"><span class="hljs-params">(Pid)</span> -&gt;</span>
+    <span class="hljs-keyword">case</span> erlang:process_info(Pid, backtrace) <span class="hljs-keyword">of</span>
+        {_, Stack}<span class="hljs-function"> -&gt;</span> show_info(<span class="hljs-string">"~ts~n"</span>, [Stack]);
+        Ret<span class="hljs-function"> -&gt;</span> Ret
+    end.
+</code></pre><h2><a name="etop" class="anchor" href="#etop"><span class="header-link"></span></a>etop </h2><p>类似系统top，查询占用资源最多的进程。</p>
+<pre><code>top_mem<span class="hljs-function"><span class="hljs-params">()</span> -&gt;</span> show_top(<span class="hljs-number">20</span>, <span class="hljs-number">5</span>, memory).
+top_msg<span class="hljs-function"><span class="hljs-params">()</span> -&gt;</span> show_top(<span class="hljs-number">20</span>, <span class="hljs-number">5</span>, msg_q).
+top_runtime<span class="hljs-function"><span class="hljs-params">()</span> -&gt;</span> show_top(<span class="hljs-number">20</span>, <span class="hljs-number">5</span>, runtime).
+top_reductions<span class="hljs-function"><span class="hljs-params">()</span> -&gt;</span> show_top(<span class="hljs-number">20</span>, <span class="hljs-number">5</span>, reductions).
+show_top<span class="hljs-function"><span class="hljs-params">()</span> -&gt;</span> show_top(<span class="hljs-number">20</span>, <span class="hljs-number">5</span>, memory).
+show_top<span class="hljs-function"><span class="hljs-params">(SortBy)</span> -&gt;</span> show_top(<span class="hljs-number">20</span>, <span class="hljs-number">5</span>, SortBy).
+show_top<span class="hljs-function"><span class="hljs-params">(Count, Interval, SortBy)</span> -&gt;</span>
+    erlang:spawn<span class="hljs-function"><span class="hljs-params">(fun() -&gt;
+        Opts = [{node, node()}, {output, text}, {lines, Count}, {interval, Interval}, {sort, SortBy}],
+        etop:start(Opts)
+    end)</span>.
+<span class="hljs-title">stop_top</span><span class="hljs-params">()</span> -&gt;</span> etop:stop().
+</code></pre><h2><a name="手动gc" class="anchor" href="#手动gc"><span class="header-link"></span></a>手动gc</h2><p>内存占用过高时可以快速见效，属于治标不治本。</p>
+<pre><code>gc<span class="hljs-function"><span class="hljs-params">()</span> -&gt;</span> gc(erlang:processes()).
+gc<span class="hljs-function"><span class="hljs-params">(Pid)</span> <span class="hljs-title">when</span> <span class="hljs-title">is_pid</span><span class="hljs-params">(Pid)</span>; <span class="hljs-title">is_atom</span><span class="hljs-params">(Pid)</span> -&gt;</span> gc([Pid]);
+gc<span class="hljs-function"><span class="hljs-params">(PidList)</span> <span class="hljs-title">when</span> <span class="hljs-title">is_list</span><span class="hljs-params">(PidList)</span> -&gt;</span>
+    Fun = fun <span class="hljs-function"><span class="hljs-params">(P)</span> <span class="hljs-title">when</span> <span class="hljs-title">is_pid</span><span class="hljs-params">(P)</span> -&gt;</span>
+                  erlang:garbage_collect(P), show_info(<span class="hljs-string">"gc ~p "</span>, [P]);
+              <span class="hljs-function"><span class="hljs-params">(P)</span> <span class="hljs-title">when</span> <span class="hljs-title">is_atom</span><span class="hljs-params">(P)</span> -&gt;</span>
+                  <span class="hljs-keyword">case</span> whereis(P) <span class="hljs-keyword">of</span>
+                      Pid <span class="hljs-keyword">when</span> is_pid<span class="hljs-function"><span class="hljs-params">(Pid)</span> -&gt;</span>
+                          erlang:garbage_collect(Pid), show_info(<span class="hljs-string">"gc ~p"</span>, [P]);
+                      _<span class="hljs-function"> -&gt;</span> ignore
+                  end;
+              <span class="hljs-function"><span class="hljs-params">(_)</span> -&gt;</span> ignore
+          end,
+    lists:foreach(Fun, PidList).
+</code></pre><h2><a name="trace" class="anchor" href="#trace"><span class="header-link"></span></a>Trace</h2><p>非常强大的功能，可以参见另一篇<a href=""></a></p>
+<h2><a name="系统级别" class="anchor" href="#系统级别"><span class="header-link"></span></a>系统级别</h2><ul>
+<li>perf top</li>
+<li>dstat -tam</li>
+<li>vtune</li>
+</ul>
+</div>
+
+    </div>
+
+</div>
+</body>
+</html>

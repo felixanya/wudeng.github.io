@@ -1,5 +1,11 @@
 # Erlang代码加载模式
 
+Erlang自带三个Boot脚本：
+- start_clean.boot 加载和启动Kernel和STDLIB
+- start_sasl.boot 比上面多了一个SASL
+- no_dot_erlang.boot 跟第一个一样，只是不加载`.erlang`
+安装otp的时候可以选择默认脚本是start_clean还是start_sasl，选择以后会拷贝一份start.boot.
+
 ERTS中有两种代码加载模式：
 * interactive：代码第一次被引用的时候会去代码路径中搜索并加载。
 * embedded：一开始就根据boot script来加载。
@@ -125,7 +131,7 @@ do_soft_purge([], Mod) ->
 ## 热更机制
 在开发环境中，可以使用Mochiweb的reloader模块来进行热更。reloader的实现机制主要是每隔一秒钟检测一次系统中加载的代码对应的beam文件时间戳，
 如果发现时间戳从上次检测以来发生了变更，就执行热更新。在开发中使用起来非常方便。我们只需要编译代码，系统自动进行加载。
-但是reloader的热更新用的是purge，也就是说如果你的进程不符合otp规范，比如进程的主循环用的是短名函数，那么就存在进程被杀死的风险。
+但是reloader的热更新用的是purge，也就是说如果你的进程持有热更模块的匿名函数引用，或者不符合otp规范，比如进程的主循环用的是短名函数，那么就存在进程被杀死的风险。
 reloader的核心代码如下：
 ```
 doit(From, To) ->

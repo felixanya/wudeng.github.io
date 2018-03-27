@@ -1,0 +1,67 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h2><a name="collision-detection" class="anchor" href="#collision-detection"><span class="header-link"></span></a>Collision Detection</h2><ul>
+<li><a href="#collision-avoidance">Collision Avoidance</a></li>
+</ul>
+<p>Stage</p>
+<ul>
+<li>Board Phase<ul>
+<li>uniform spatial partioning (hierarchical grids)</li>
+<li>complex Spatial partitioning (dynamic BSP, kd trees)</li>
+<li>coordinate sorting(sweep and prune, range search)</li>
+</ul>
+</li>
+<li>Mid Phase</li>
+<li>Narrow Phase</li>
+</ul>
+<p><a href="https://dai.fmph.uniba.sk/upload/8/87/Ca15_lesson05.pdf">Broad Phase Collision Detection</a>
+<a href="http://www.playchilla.com/as3-broad phase">As3 Spatial Hash</a></p>
+<p>steering</p>
+<h1>Collision Avoidance</h1><p>移动障碍算法 Velocity Obstacles Algorithm
+    ORCA
+    RVO 
+        Reciprocal Velocity Obstacles
+        <a href="http://gamma.cs.unc.edu/RVO/">http://gamma.cs.unc.edu/RVO/</a>
+        <a href="http://gamma.cs.unc.edu/RVO2/">http://gamma.cs.unc.edu/RVO2/</a>
+        <a href="https://aigamedev.com/open/teaser/velocity-obstacle-integration/">https://aigamedev.com/open/teaser/velocity-obstacle-integration/</a></p>
+</div>
+
+    </div>
+
+</div>
+</body>
+</html>

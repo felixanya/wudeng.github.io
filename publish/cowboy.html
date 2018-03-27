@@ -1,0 +1,255 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script> 
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h1>cowboy源码分析</h1><ul>
+<li><a href="#cowboy">cowboy</a><ul>
+<li><a href="#启动http服务">启动http服务：</a></li>
+</ul>
+</li>
+<li><a href="#cowboyprotocol">cowboy_protocol</a></li>
+<li><a href="#cowboymiddleware">cowboy_middleware</a></li>
+<li><a href="#cowboyrouter">cowboy_router</a></li>
+<li><a href="#cowboyhandler">cowboy_handler</a></li>
+<li><a href="#cowboyhttphandler">cowboy_http_handler</a></li>
+<li><a href="#cowboyloophandler">cowboy_loop_handler</a></li>
+<li><a href="#cowboysubprotocol">cowboy_sub_protocol</a></li>
+<li><a href="#cowboywebsockethandler">cowboy_websocket_handler</a></li>
+<li><a href="#cowboyrest">cowboy_rest</a></li>
+<li><a href="#cowboystatic">cowboy_static</a></li>
+<li><a href="#cowboywebsocket">cowboy_websocket</a><ul>
+<li><a href="#handshake">handshake:</a></li>
+</ul>
+</li>
+<li><a href="#cowboyreq">cowboy_req</a></li>
+<li><a href="#参考文档">参考文档</a></li>
+</ul>
+<p>cowboy是一个强大的http服务器。底层利用ranch提供连接管理。本文基于cowboy1.0.x版本对源码进行分析。</p>
+<h2><a name="cowboy" class="anchor" href="#cowboy"><span class="header-link"></span></a>cowboy</h2><p>定义各种对外接口。</p>
+<h3><a name="启动http服务：" class="anchor" href="#启动http服务："><span class="header-link"></span></a>启动http服务：</h3><ul>
+<li>start_http/4</li>
+<li>start_https/4</li>
+<li>start_spdy/4</li>
+</ul>
+<h2><a name="cowboy_protocol" class="anchor" href="#cowboy_protocol"><span class="header-link"></span></a>cowboy_protocol</h2><p>cowboy使用ranch来管理socket，之前文章中我们分析了ranch的实现，ranch提供连接管理，并且定义了一个数据处理模块的接口，
+要利用ranch来实现一个HTTP服务器，第一件事就是实现一个ranch_protocol接口的模块，用来处理数据收发。
+在cowboy中，这个模块就是cowboy_protocol。在启动进程并通过ranch:accept_ack确认拿到了socket的控制权以后，
+该进程开始接管socket的数据读写，开始进入数据解析。当所有数据解析完毕以后，调用request开始处理请求。
+然后构造一个cowboy_req结构体Req，调用onrequest(Req, State)。</p>
+<p>如果定义了全局onrequest回调，则先调用全局onrequest回调。这个回调可能发送响应，那么我们可以开始处理下一个请求。
+如果没有回调，或者回调没有发送响应，我们继续调用execute函数。</p>
+<p>execute主要逻辑就是依次取出中间件，依次调用中间件的回调函数<code>Middleware:execute(Req, Env)</code>。
+执行完所有中间件接着处理下一个请求。</p>
+<h2><a name="cowboy_middleware" class="anchor" href="#cowboy_middleware"><span class="header-link"></span></a>cowboy_middleware</h2><p>定义了中间件接口。</p>
+<ul>
+<li><code>execute(Req, Env) -&gt; {ok, Req, Env} | {suspend, Module, Fun, [Args]} | {halt, Req} | {error, Status, Req}</code><ul>
+<li>ok 继续处理后面的中间件 </li>
+<li>suspend 休眠</li>
+<li>halt 不处理后续的中间件，继续处理后续请求</li>
+<li>error 终止处理</li>
+</ul>
+</li>
+</ul>
+<p>cowboy定义了两个中间件，分别是cowboy_router处理路由, cowboy_handler处理请求逻辑。
+如果用户没有指定中间件，那么这两个中间件就是默认配置的中间件。
+中间件必须按照特定的顺序依次执行，比如路由中间件必须在处理中间件前面执行。</p>
+<h2><a name="cowboy_router" class="anchor" href="#cowboy_router"><span class="header-link"></span></a>cowboy_router</h2><p>路由中间件。主要功能是根据host和path获取handler和handler_opts，将其加入Env。
+路由与处理模块信息的映射一般在启动服务器的时候提供。</p>
+<h2><a name="cowboy_handler" class="anchor" href="#cowboy_handler"><span class="header-link"></span></a>cowboy_handler</h2><p>最重要的中间件。需要用到路由中间件提供的handler和handler_opts参数。</p>
+<ul>
+<li>handle_after_callback：如果已经发送响应，设置resp_send标志，然后调用handle_before_loop。</li>
+</ul>
+<p>loop循环体：</p>
+<ul>
+<li>handle_before_loop：设置socket选项{active, once}，然后调用handler_loop</li>
+<li>handler_loop：等待消息，来自socket的，或者来自自身定时器，或者定时器超时。<ul>
+<li>如果超时，调用handle_after_loop </li>
+<li>如果是非socket消息，交给handler的info回调来处理。</li>
+</ul>
+</li>
+</ul>
+<h2><a name="cowboy_http_handler" class="anchor" href="#cowboy_http_handler"><span class="header-link"></span></a>cowboy_http_handler</h2><p>定义http_handler接口，通常处理的是一次性的请求。</p>
+<ul>
+<li><code>init({atom(), http}, Req, opts()) -&gt; {ok, Req, State} | {loop, Req, State} | {loop, Req, State, Timeout} | {shutdown, Req, State} | {upgrade, protocol, Module} | {upgrade, protocol, Module, Req, opts()}</code></li>
+<li><code>terminate(Reason, Req, State) -&gt; ok</code></li>
+<li><code>handle(Req, State) -&gt; {ok, Req, State}</code> </li>
+</ul>
+<h2><a name="cowboy_loop_handler" class="anchor" href="#cowboy_loop_handler"><span class="header-link"></span></a>cowboy_loop_handler</h2><p>定义了loop_handler接口，通常处理的是持续性的连接，比如eventsource这种。
+init以及terminate接口跟http_handler是一样的，不同的是loop_handler有个info接口。</p>
+<ul>
+<li><code>info(Message, Req, State) -&gt; {ok, Req, State} | {loop, Req, State} | {loop, Req, State, hibernate}</code></li>
+</ul>
+<p>我们cowboy处理请求的时候首先就要实现自己的http_handler接口或者loop_handler接口。</p>
+<h2><a name="cowboy_sub_protocol" class="anchor" href="#cowboy_sub_protocol"><span class="header-link"></span></a>cowboy_sub_protocol</h2><p>定义子协议接口，唯一的接口为upgrade，随后逻辑由子协议的实现模块接管。</p>
+<ul>
+<li><code>upgrade(Req, State, Handler, HandlerOpts, Module) -&gt; {ok, Req, Env} | {suspend, M, F, A} | {halt, Req} | {error, Status, Req}</code></li>
+</ul>
+<p>前面定义的两种类型的接口，如果init返回的是upgrade协议，说明我们要用子协议交互，那么我们的handler模块不需要提供handle或者info，而应该提供rest的回调函数。
+cowboy中定义了两种子协议，分别是cowboy_rest和cowboy_websocket。</p>
+<h2><a name="cowboy_websocket_handler" class="anchor" href="#cowboy_websocket_handler"><span class="header-link"></span></a>cowboy_websocket_handler</h2><p>定义websocket的handler的接口，主要是四个：</p>
+<ul>
+<li>websocket_init/3</li>
+<li>websocket_handle/3</li>
+<li>websocket_info/3</li>
+<li>websocket_terminate/3</li>
+</ul>
+<h2><a name="cowboy_rest" class="anchor" href="#cowboy_rest"><span class="header-link"></span></a>cowboy_rest</h2><p>实现了cowboy_sub_protocol接口。</p>
+<p>有个函数值得一提，expect，我们写erlang代码的时候，经常会遇到各种条件检查，很容易写出缩进很长的代码，
+这里的要求也是各种前置检查：</p>
+<ul>
+<li>service_available</li>
+<li>known_methods</li>
+<li>uri_too_long</li>
+<li>allow_methods</li>
+<li>malformed_request</li>
+<li>is_authorized</li>
+<li>valid_content_headers</li>
+<li>known_content_type</li>
+<li>valid_entity_length</li>
+<li>options</li>
+<li>content_types_provided</li>
+<li>languages_provided</li>
+<li>chaset_provieded</li>
+<li>variances</li>
+<li>resource_exists
+<code>expect(Req, State, Callback, Expected, OnTrue, OnFalse)</code></li>
+</ul>
+<ul>
+<li>如果Handler模块导出了Callback函数，那么执行它。<ul>
+<li>Callback函数有三种返回值 <ul>
+<li>{halt, Req, State} </li>
+<li>{Expected, Req, State}，执行OnTrue</li>
+<li>{UnExpeted, Req, State}，执行OnFalse</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>如果没有导出函数，直接执行OnTrue </li>
+</ul>
+<p>如果升级到rest协议，那么我们的handler需要导出的接口包括：</p>
+<ul>
+<li>rest_init(Req, {Name, Path})</li>
+<li>前面各种前置检查</li>
+<li>资源操作<ul>
+<li>delete_resource </li>
+<li>delete_completed</li>
+<li>multiple_choices</li>
+<li>is_conflict</li>
+<li>content_type_accepted</li>
+<li>generate_etag</li>
+<li>...</li>
+</ul>
+</li>
+<li>rest_terminate(Req, State)</li>
+</ul>
+<h2><a name="cowboy_static" class="anchor" href="#cowboy_static"><span class="header-link"></span></a>cowboy_static</h2><p>一个实现了cowboy_rest的handler模块，用于处理静态资源的请求。</p>
+<h2><a name="cowboy_websocket" class="anchor" href="#cowboy_websocket"><span class="header-link"></span></a>cowboy_websocket</h2><p>实现了cowboy_sub_protocol的接口。</p>
+<p>rfc6455
+实时通信</p>
+<p>节省每次请求的header
+服务器可以主动传送数据到客户端</p>
+<h3><a name="handshake:" class="anchor" href="#handshake:"><span class="header-link"></span></a>handshake:</h3><p>client:</p>
+<ul>
+<li>connection:upgrade</li>
+<li>upgrade:websocket</li>
+<li>sec-websocket-version:7,8,13</li>
+<li>sec-websocket-key</li>
+<li>sec-websocket-extensions<ul>
+<li>x-webkit-deflate-frame </li>
+</ul>
+</li>
+<li>origin </li>
+<li>sec-websocket-protocol</li>
+</ul>
+<pre><code><span class="hljs-keyword">GET</span> <span class="hljs-string">/chat</span> HTTP/1.1
+<span class="hljs-attribute">Host</span>: server.example.com
+<span class="hljs-attribute">Upgrade</span>: websocket
+<span class="hljs-attribute">Connection</span>: Upgrade
+<span class="hljs-attribute">Sec-WebSocket-Key</span>: dGhlIHNhbXBsZSBub25jZQ==
+<span class="hljs-attribute">Origin</span>: http://example.com
+<span class="hljs-attribute">Sec-WebSocket-Protocol</span>: chat, superchat
+<span class="hljs-attribute">Sec-WebSocket-Version</span>: 13
+</code></pre><p>server:</p>
+<ul>
+<li>HTTP/1.1 101 Switching Protocols</li>
+<li>connection:upgrade</li>
+<li>upgrade:websocket</li>
+<li>sec-websocket-accept<ul>
+<li>GUID:  258EAFA5-E914-47DA-95CA-C5AB0DC85B11</li>
+<li>base64(sha1(key+GUID))</li>
+</ul>
+</li>
+<li>sec-websocket-protocol</li>
+</ul>
+<pre><code>HTTP/1.1 101 Switching Protocols
+Upgrade: websocket
+Connection:<span class="hljs-built_in"> Upgrade
+</span>Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=
+</code></pre><h2><a name="cowboy_req" class="anchor" href="#cowboy_req"><span class="header-link"></span></a>cowboy_req</h2><p>封装请求，提供各种工具功能。</p>
+<pre><code><span class="hljs-comment">#http_req{</span>
+    <span class="hljs-attr">headers</span> = [],
+    <span class="hljs-attr">meta</span> = [{websocket_version, IntVersion},{websocket_compress, <span class="hljs-literal">true</span>|<span class="hljs-literal">false</span>}],
+}
+</code></pre><h2><a name="参考文档" class="anchor" href="#参考文档"><span class="header-link"></span></a>参考文档</h2><p>*　<a href="https://tools.ietf.org/html/rfc6455">The WebSocket Protocol</a></p>
+</div>
+
+    </div>
+
+    <div id="disqus_thread"></div>
+    <script>
+    /**
+    *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+    *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+    var disqus_config = function () {
+        this.page.url = "https://wudeng.github.io//publish/cowboy.html"; 
+        this.page.identifier = "/publish/cowboy.html";
+    };
+    (function() { // DON'T EDIT BELOW THIS LINE
+    var d = document, s = d.createElement('script');
+    s.src = 'https://wudeng.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+</div>
+</body>
+    <span id="busuanzi_container_page_pv"><span id="busuanzi_value_page_pv"></span></span>,
+    <span id="busuanzi_container_site_uv"><span id="busuanzi_value_site_uv"></span></span>,
+    <span id="busuanzi_container_site_pv"><span id="busuanzi_value_site_pv"></span></span>
+</span>
+</html>

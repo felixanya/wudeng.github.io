@@ -1,0 +1,335 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script> 
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h1>天书</h1><ul>
+<li><a href="#充值相关">充值相关</a></li>
+<li><a href="#svn">svn</a></li>
+<li><a href="#登录">登录</a></li>
+<li><a href="#背包">背包</a></li>
+<li><a href="#优化点">优化点</a></li>
+<li><a href="#战斗属性管理">战斗属性管理</a></li>
+<li><a href="#ets表">ETS表</a><ul>
+<li><a href="#etsonline">ets_online{}</a></li>
+<li><a href="#etsplayerpid">ets_player_pid{}</a></li>
+<li><a href="#battleinfo">battle_info{}</a></li>
+</ul>
+</li>
+<li><a href="#性别">性别</a></li>
+<li><a href="#技能">技能</a></li>
+<li><a href="#家族">家族</a></li>
+<li><a href="#世界boss">世界BOSS</a></li>
+<li><a href="#八卦副本">八卦副本</a></li>
+<li><a href="#银两副本">银两副本</a></li>
+<li><a href="#千层塔">千层塔</a></li>
+<li><a href="#英雄帖">英雄帖</a></li>
+<li><a href="#打宝塔">打宝塔</a></li>
+<li><a href="#玲珑幻境">玲珑幻境</a></li>
+<li><a href="#家族战">家族战</a></li>
+<li><a href="#serverlist">server_list</a></li>
+<li><a href="#ai">AI</a></li>
+<li><a href="#排行榜">排行榜</a></li>
+<li><a href="#挂机">挂机</a><ul>
+<li><a href="#">#</a></li>
+</ul>
+</li>
+<li><a href="#内测问题">内测问题</a></li>
+<li><a href="#疑难杂症">疑难杂症</a></li>
+</ul>
+<p>经验丹 61-64</p>
+<p>gm命令：max_hp，max_def，max_att
+加防：12,16
+加血：13,15,18
+加攻：14,17</p>
+<p>从r16b03-1升级到20.2，使用kerl管理多版本。</p>
+<h2><a name="充值相关" class="anchor" href="#充值相关"><span class="header-link"></span></a>充值相关</h2><p>pay_count : 充值获得的元宝数量
+pay_lv : 付费等级</p>
+<p>diamond : 拥有的元宝数量</p>
+<p>base_pay 充值档位
+base_monthcard 月卡</p>
+<h2><a name="svn" class="anchor" href="#svn"><span class="header-link"></span></a>svn</h2><p>svn://192.168.4.168:6379/game6/program/code/server/trunk</p>
+<p>/tools
+/design
+/program/proto
+/program/code/client/Game
+/program/code/server/trunk</p>
+<h2><a name="登录" class="anchor" href="#登录"><span class="header-link"></span></a>登录</h2><p>登录时间：login_time
+登出时间：logout_time</p>
+<p>判断顶号：
+    写入时机：
+    删除时机：
+    ets_player_pid
+        player_id
+        player_pid
+        account</p>
+<p>建立连接，客户端发account过来，获取玩家列表，选择角色登录。</p>
+<p>如果没有玩家进程。
+    怎么判断？查找ets_player_pid表。
+创建玩家进程。
+    init        加入ets_player_pid
+    terminate   删除ets_player_pid</p>
+<p>egrep &quot;{cs_login,1000001,\&quot;22\&quot;|tcp terminate, PlayerId:1000020|mod_player:156 1000020&quot; console.log &gt; xx</p>
+<p>建立连接1
+15155 2017-12-28 11:35:56.344 [debug] &lt;0.29907.18&gt;@tcp_client:220 packet from undefined: {cs_login,1000001,&quot;22&quot;,[&lt;&lt;&quot;mypassword&quot;&gt;&gt;],&quot;0&quot;,&quot;0&quot;,0,[],[],1,true}</p>
+<p>建立连接2
+15169 2017-12-28 11:36:10.584 [debug] &lt;0.30030.18&gt;@tcp_client:220 packet from undefined: {cs_login,1000001,&quot;22&quot;,[&lt;&lt;&quot;mypassword&quot;&gt;&gt;],&quot;0&quot;,&quot;0&quot;,0,[],[],1,true}</p>
+<p>断开连接1
+15295 2017-12-28 11:36:17.302 [info] &lt;0.29907.18&gt;@tcp_client:258 tcp terminate, PlayerId:1000020, account:&quot;22&quot;, PlayerPid:&lt;0.29905.18&gt; Reason:normal
+15303 2017-12-28 11:36:17.560 [info] &lt;0.29905.18&gt;@mod_player:224 close_gate_proc___1 4
+玩家进程1退出
+15393 2017-12-28 11:36:27.562 [info] &lt;0.29905.18&gt;@mod_player:156 1000020 terminated! normal</p>
+<p>断开连接2
+15406 2017-12-28 11:36:37.473 [info] &lt;0.30030.18&gt;@tcp_client:258 tcp terminate, PlayerId:1000020, account:&quot;22&quot;, PlayerPid:&lt;0.30028.18&gt; Reason:normal</p>
+<p>玩家进程2出错，无法退出</p>
+<p>连接进程</p>
+<p>所有连接进程都挂载了tcp_client_sup进程下面。有连接过来以后，启动tcp_client_sup的孩子进程。也就是tcp_client:start_link().</p>
+<p>gateway_app -&gt; gateway_sup -&gt;
+  tcp_client_sup
+  tcp_listener_sup
+    tcp_acceptor_sup
+    tcp_listener</p>
+<p>gen_statem</p>
+<h2><a name="背包" class="anchor" href="#背包"><span class="header-link"></span></a>背包</h2><p>lib_reward:award(RewardList, Type)</p>
+<h2><a name="优化点" class="anchor" href="#优化点"><span class="header-link"></span></a>优化点</h2><ul>
+<li>通过PlayerId获取Pid的操作：目前通过global来实现，需要改成本地ets。<ul>
+<li>ets_online 掉线了貌似就移除了</li>
+<li>ets_player_pid</li>
+<li>如果用本地的ets来做的话，需要考虑跨服直接call玩家进程的情况</li>
+</ul>
+</li>
+<li>通过名字搜索在线玩家：家族中，ets:match_object ?</li>
+<li>打宝塔组队匹配推荐玩家</li>
+<li>创角立马登录，通过账号去数据库查询，有可能查不到。解决办法: 选择角色带id</li>
+</ul>
+<h2><a name="战斗属性管理" class="anchor" href="#战斗属性管理"><span class="header-link"></span></a>战斗属性管理</h2><p>速度，防御的增加，减少如何实现？</p>
+<p>(基础值 + 加减值) * (1 + 百分比值) = 最终值</p>
+<p>buff影响加减值和百分比值，buff变化的时候计算最终值。
+战斗计算的时候直接用最终值。</p>
+<p>等级变化 =&gt; 基础知识变化
+buff变化 =&gt; 加减值，百分比变化</p>
+<p>两种情况都需要重新计算最终值</p>
+<p>关于buff：
+  功能buff：针对玩家。这部分buff的时间由玩家进程管理。
+  战斗buff：所有战斗对象。这部分buff由场景进程管理。切换场景以后移除。</p>
+<p>  所有buff都通过场景进程添加，因为需要广播。
+  切换场景的时候，buff变化需要通知前端？</p>
+<h2><a name="ets表" class="anchor" href="#ets表"><span class="header-link"></span></a>ETS表</h2><ul>
+<li>ets_online<ul>
+<li><h1>ets_online{}</h1></li>
+</ul>
+</li>
+<li>ets_player_pid<ul>
+<li><h1>ets_player_pid{}</h1></li>
+</ul>
+</li>
+<li>ets_player_battle_info<ul>
+<li><h1>battle_info{}</h1></li>
+</ul>
+</li>
+</ul>
+<h2><a name="性别" class="anchor" href="#性别"><span class="header-link"></span></a>性别</h2><p>role_type</p>
+<ul>
+<li>女1</li>
+<li>男2
+role_base_id: 20 + role_type
+角色表id</li>
+</ul>
+<h2><a name="技能" class="anchor" href="#技能"><span class="header-link"></span></a>技能</h2><p>技能由兵魂决定，兵魂有多组，初始激活并装备一组。装备的兵魂id决定技能(base_soul_weapon)。
+女主角只有一组普攻，男主角有两组普攻。</p>
+<p>技能槽有5个位置，1号位普攻，2号到4号技能，5号闪避。</p>
+<h2><a name="家族" class="anchor" href="#家族"><span class="header-link"></span></a>家族</h2><ul>
+<li>上限5人</li>
+<li>PK模式</li>
+<li>聊天频道</li>
+</ul>
+<h2><a name="世界boss" class="anchor" href="#世界boss"><span class="header-link"></span></a>世界BOSS</h2><p>多人PVE
+BOSS血量同步</p>
+<h2><a name="八卦副本" class="anchor" href="#八卦副本"><span class="header-link"></span></a>八卦副本</h2><p>单人副本</p>
+<h2><a name="银两副本" class="anchor" href="#银两副本"><span class="header-link"></span></a>银两副本</h2><p>单人副本</p>
+<h2><a name="千层塔" class="anchor" href="#千层塔"><span class="header-link"></span></a>千层塔</h2><p>单人副本</p>
+<p>| 副本 | 类型 | 人数 | 是否跨服 |
+| 八卦阵 | PVE | 单人 | 本服 |
+| 千层塔 | PVE | 单人 | 本服 |
+| 银两副本 | PVE | 单人 | 本服 |
+| 打宝塔 | PVE | 多人 | 本服 |
+| 家族战 | PVP | 多人 | 跨服|
+| 玲珑幻境 | PVE &amp; PVP | 多人 | 跨服 |
+| 英雄帖 | PVP | 两人 | 跨服 |</p>
+<h2><a name="英雄帖" class="anchor" href="#英雄帖"><span class="header-link"></span></a>英雄帖</h2><p>hero_mgr
+跨服单人PVP</p>
+<h2><a name="打宝塔" class="anchor" href="#打宝塔"><span class="header-link"></span></a>打宝塔</h2><p>pagoda_mgr
+pagoda_ctl
+三人组队本地PVE副本
+可以单人进入
+每天一次免费进入次数，可以购买一次。</p>
+<h2><a name="玲珑幻境" class="anchor" href="#玲珑幻境"><span class="header-link"></span></a>玲珑幻境</h2><p>fairyland_mgr
+fairyland_ctl
+跨服多人副本</p>
+<h2><a name="家族战" class="anchor" href="#家族战"><span class="header-link"></span></a>家族战</h2><p>family_war_mgr
+family_war_ctl
+跨服多人PVP</p>
+<p>报名：设置is_enroll=1, is_enroll=1的家族，成员无法退家族，也无法解散家族。
+到点以后中心服拉取报名家族信息插入ets_war_family,
+然后进行匹配，并应对玩家的查询请求。</p>
+<p>为了防止玩家报名后退家族，家族战期间不能退家族。</p>
+<h2><a name="server_list" class="anchor" href="#server_list"><span class="header-link"></span></a>server_list</h2><p>DDNS不稳定，解析时间太长，所以必须得外网部署一个。
+那内网再部署一个就没必要了。可以统一用外网的。</p>
+<h2><a name="ai" class="anchor" href="#ai"><span class="header-link"></span></a>AI</h2><p>基于行为树，行为树直接用Erlang数据结构手动编写，方便修改。</p>
+<h2><a name="排行榜" class="anchor" href="#排行榜"><span class="header-link"></span></a>排行榜</h2><p>一个进程负责排序，存储通过lib_global_value存储</p>
+<p>一个最小榜单value，所谓看门人。大于看门人才能进。
+    对于可能增加可能减少的排行榜，如果是减少需要检查是否在排行榜中。
+    对于由于减少导致掉出排行榜的情况不处理？可以:门槛只能越来越高。
+    当list长度小于100是，门槛一直为0</p>
+<p>更新通过cast进来，</p>
+<p>请求的时候直接读缓存，不走排序进程。</p>
+<h2><a name="挂机" class="anchor" href="#挂机"><span class="header-link"></span></a>挂机</h2><p>玩家进程离线时，terminate，开启挂机。</p>
+<p>通过挂机进程管理挂机玩家。
+    timer: ets:delete(PlayerId)</p>
+<pre><code><span class="hljs-string">ets:</span> <span class="hljs-string">ets_offline_player:</span> (PlayerId, MapPid, RoleId).
+<span class="hljs-string">ets:</span> ets_offline_map, {MapPid, RoleId}, 正在挂机战斗的{} 正在等待战斗的。
+</code></pre><p>玩家上线：
+    结算离线奖励。
+    干掉离线怪物形象。
+    一个离线只能对应一个分线。</p>
+<pre><code>场景进程：
+    添加玩家形象。
+    移除玩家形象。
+    每个地图初始化。
+    AI
+        周围有人时跑AI循环，AI以刷怪点为单位。
+        当成主角处理：
+           <span class="hljs-built_in"> type </span>= player
+
+        BattleInfo还是存ets表。会修改技能和base_role_id，但是玩家重新上线以后会覆盖，所以没问题。
+        机器人死后移除AI
+</code></pre><p>刷出机器人的时机：每张地图每个刷怪点最多5只。时间到后移除。</p>
+<p>死亡的时候移除，或者自动复活。
+登录的时候结算奖励
+MechAI</p>
+<p>压测机器人，进场景。</p>
+<p>BUFF属性变化，去老的，加新的。
+排行榜分页显示。</p>
+<p>BattleInfo=lib_player:get_battle_info(2000019).
+lib_offline_player:create_offline_player(BattleInfo).</p>
+<ul>
+<li><a href="https://gamedevelopment.tutsplus.com/series/understanding-steering-behaviors--gamedev-12732">https://gamedevelopment.tutsplus.com/series/understanding-steering-behaviors--gamedev-12732</a></li>
+</ul>
+<p><code>lists:filter(fun(Level) -&gt; case lib_offline_player:get_base_monster(Level) of [_] -&gt; false; _ -&gt; true end end, lists:seq(1, 300)).</code></p>
+<p>搭建一个敏感词过滤系统</p>
+<h1>#</h1><p>battle_info存地图进程的理由：
+    玩家已经离开场景，但是buff或者技能杀死了怪物，掉落物会导致前端出错</p>
+<pre><code><span class="hljs-function"><span class="hljs-title">dbgon</span><span class="hljs-params">(lib_skill,skill_action)</span></span>,dbgadd(lib_skill,do_shift).
+</code></pre><p>机器人移动：
+    机器人id</p>
+<pre><code>地图：从起点 走到 终点
+移动：前端寻路
+</code></pre><p>IDE
+    XML/Scene/1.Xml
+        root
+            Scene: ID,Name,Music,Path
+            Born: Pos,Forward
+            Triggers
+                Trigger:ID,Pos,Forward,Center,LossyScale,MapId,MapPos
+            Monsters
+                Monster:ID,MonsterID,Pos,Forward,Radius,Number,Rebirth
+            Obstacles
+    SceneVO</p>
+<p>寻路作为第三方服务</p>
+<h2><a name="内测问题" class="anchor" href="#内测问题"><span class="header-link"></span></a>内测问题</h2><ul>
+<li>服务器重启更新服务器列表状态问题：url没有更新。</li>
+<li>怪物刷新位置问题：由修改怪物的复活导致的刷新点偏移问题。</li>
+<li>家族战没有正常启动的bug：{start_match} 少写了大括号。</li>
+<li>主角死后复活攻击没有伤害：跟怪物不攻击的原因一样，都是加上了buff没有清掉。不过玩家的buff是因为死亡没有清除。
+  技能结算的时候由于先算buff，后算伤害，被攻击死亡那一次加上了buff，但是后面的buff_timer看到玩家死亡了直接从
+  监视列表中移除了玩家。导致buff一直在身上。</li>
+<li>野外boss是后端控制刷新。地图杀满一定数量的小怪就会刷boss出来。策划配置了复活，所以可能有多个boss。去掉复活即可。</li>
+<li>死亡后有保护buff，复活以后切换全体模式没有移除保护buff：已经修复。</li>
+</ul>
+<h2><a name="疑难杂症" class="anchor" href="#疑难杂症"><span class="header-link"></span></a>疑难杂症</h2><ul>
+<li>PVP，A攻击B，B死亡，原地复活，B加了保护Buff，但是A还是可以砍B。</li>
+</ul>
+<ul>
+<li>buff肯定加上去了。</li>
+<li>时机问题？不也像。
+加了点log，发现确实加上了保护，但是确实死了。那么只有可能是过滤的函数有问题的。一项项看下来还正式，
+把FromType写成了FromPos。</li>
+</ul>
+<ul>
+<li>怪物不攻击（2018-03-20）</li>
+</ul>
+<p>长松同学反映，开发服上有些怪物不攻击玩家。我估计可能是中了某种不攻击的buff。
+于是让他把怪物杀死，看看重生后的怪物会不会攻击。结果是仍然不会。这就奇怪了。难道是AI的问题。
+在我本地跑了一下，没有问题，那就是开发服上的问题了。找了只怪物看了下，确实是有过期的石化buff。
+那么为什么buff到期了没有清理掉呢？难道是清理buff的机制除了问题？检查了一遍代码没发现问题，
+手动加buff，时间到了正常移除。注意到怪物身上的buff是几小时前加上去的。于是找到了那段时间的log。
+发现并没有找到给这只怪物上buff的log。而buff的施法者确实在那个时刻给一些怪物上了buff，然而并不包括当前这只怪物。
+于是结论就很明显了：当前怪物的这个buff不是这个玩家加上去的。那么buff是哪里来的呢？
+只有一种可能，就是继承来的。查看了一下怪物复活的机制，果然没有把buff清理掉。</p>
+<ul>
+<li>家族任务只有5次，但是有人完成了6次</li>
+</ul>
+<p>从log上看到确实只接了5次任务。定位到了修改次数的地方，发现是先检查内存，然后cast到另一个进程去修改内存。
+那么如果玩家最后一次攻击造成多个怪物死亡，那么这个地方会被调用两次。第一次的修改由于是异步的，第二次调用的时候很可能还没有修改完毕。
+所以就会出现调用两次。</p>
+</div>
+
+    </div>
+
+    <div id="disqus_thread"></div>
+    <script>
+    /**
+    *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+    *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+    var disqus_config = function () {
+        this.page.url = "https://wudeng.github.io//publish/tianshu.html"; 
+        this.page.identifier = "/publish/tianshu.html";
+    };
+    (function() { // DON'T EDIT BELOW THIS LINE
+    var d = document, s = d.createElement('script');
+    s.src = 'https://wudeng.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+</div>
+</body>
+    <span id="busuanzi_container_page_pv"><span id="busuanzi_value_page_pv"></span></span>,
+    <span id="busuanzi_container_site_uv"><span id="busuanzi_value_site_uv"></span></span>,
+    <span id="busuanzi_container_site_pv"><span id="busuanzi_value_site_pv"></span></span>
+</span>
+</html>

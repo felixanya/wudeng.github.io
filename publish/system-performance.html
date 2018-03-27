@@ -1,0 +1,209 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script> 
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h1>system performance</h1><ul>
+<li><a href="#观测工具">观测工具</a></li>
+<li><a href="#the-use-method">The USE Method</a><ul>
+<li><a href="#cpu">CPU</a></li>
+<li><a href="#内存">内存</a></li>
+<li><a href="#网络">网络</a></li>
+<li><a href="#存储">存储</a></li>
+</ul>
+</li>
+<li><a href="#参考文档">参考文档</a></li>
+</ul>
+<h2><a name="观测工具" class="anchor" href="#观测工具"><span class="header-link"></span></a>观测工具</h2><p>要么基于计数器，要么基于跟踪。</p>
+<p>系统级别的计数器：</p>
+<ul>
+<li>vmstat 虚拟内存和物理内存的统计，系统级别</li>
+<li>mpstat 每个CPU的使用情况</li>
+<li>iostat 每个磁盘IO的使用情况，由块设备接口报告</li>
+<li>netstat 网络接口的统计，TCP/IP栈的统计，以及每个连接的一些统计信息</li>
+<li>sar 各种各样的统计，能归档历史数据</li>
+</ul>
+<p>进程级别计数器：</p>
+<ul>
+<li>ps 进程状态，显示进程的各种统计信息，包括内存和CPU使用</li>
+<li>top 按照一个统计顺序排序，显示排名高的进程</li>
+<li>pmap 将进程的内存段和使用统计一起列出</li>
+</ul>
+<p>一般来说，上述这些工具是从/proc文件系统里读取统计信息的。</p>
+<p>基于跟踪，有开销，默认不启动</p>
+<ul>
+<li>tcpdump 网络包跟踪</li>
+<li>blktrace 块IO跟踪</li>
+<li>DTrace 跟踪内核的内部活动和所有资源的使用情况，支持静态和动态的跟踪</li>
+<li>SystemTap 同上</li>
+<li>perf Linux性能事件，跟踪静态和动态的指针</li>
+</ul>
+<p>进程级别：</p>
+<ul>
+<li>strace 系统调用跟踪</li>
+<li>gdb: 源码级别的调试器</li>
+</ul>
+<h2><a name="the-use-method" class="anchor" href="#the-use-method"><span class="header-link"></span></a>The USE Method</h2><p>For every resource, check utilization, saturation, and errors.</p>
+<p>定义：</p>
+<ul>
+<li>resource: all physical server functional components (CPUs, disks, busses, ...) [1]</li>
+<li>utilization: the average time that the resource was busy servicing work [2]</li>
+<li>saturation: the degree to which the resource has extra work which it can&#39;t service, often queued</li>
+<li>errors: the count of error events</li>
+</ul>
+<p>Utilization Saturation and Errors (USE)
+<a href="http://www.brendangregg.com/USEmethod/use-linux.html">http://www.brendangregg.com/USEmethod/use-linux.html</a></p>
+<h3><a name="cpu" class="anchor" href="#cpu"><span class="header-link"></span></a>CPU</h3><p>Utilization:
+system-wide</p>
+<ul>
+<li><code>vmstat 1</code> &quot;us&quot; + &quot;sy&quot; + &quot;st&quot;</li>
+<li><code>sar -u</code> sum fields except &quot;%idle&quot; and &quot;%iowait&quot;</li>
+<li><code>dstat -c</code> sum fields except &quot;idl&quot; and &quot;wai&quot;</li>
+</ul>
+<p>per cpu</p>
+<ul>
+<li><code>mpstat -P ALL 1</code> sum fields except &quot;%idle&quot; and &quot;%iowait&quot;</li>
+<li><code>sar -P ALL</code> same as mpstat</li>
+</ul>
+<p>per process</p>
+<ul>
+<li><code>top</code> &quot;%CPU&quot;</li>
+<li><code>htop</code> &quot;CPU%&quot;</li>
+<li><code>ps -o pcpu</code></li>
+<li><code>pidstat 1</code></li>
+</ul>
+<p>per-kernel-thread</p>
+<ul>
+<li><code>top</code>/<code>htop</code> K</li>
+</ul>
+<p>Saturation:
+system-wide:</p>
+<ul>
+<li><code>vmstat 1</code> &quot;r&quot; &gt; CPU count</li>
+<li><code>sar -q</code> &quot;runq-sz&quot; &gt; CPU count</li>
+<li><code>dstat -p</code> &quot;run&quot; &gt; CPU count</li>
+</ul>
+<p>per-process:</p>
+<ul>
+<li><code>/proc/PID/schedstat</code> 2nd field (sched_info.run_delay)</li>
+<li>perf sched latency</li>
+<li>dynamic tracing</li>
+</ul>
+<h3><a name="内存" class="anchor" href="#内存"><span class="header-link"></span></a>内存</h3><p>Utilization:
+系统级别</p>
+<ul>
+<li><code>free -m</code> &quot;Mem:&quot; (main memory), &quot;Swap:&quot; (virtual memory)</li>
+<li><code>vmstat 1</code> &quot;free&quot; (main memory), &quot;swap&quot; (virtual memory)</li>
+<li><code>sar -r</code> &quot;%memused&quot;</li>
+<li><code>dstat -m</code> &quot;free&quot;</li>
+<li>slabtop -s c</li>
+</ul>
+<p>进程级别：</p>
+<ul>
+<li>top / htop &quot;RES&quot; (resident main memory), &quot;VIRT&quot; (virtual memory), &quot;Mem&quot; for system-wide summary</li>
+</ul>
+<p>Saturation:</p>
+<ul>
+<li><code>vmstat 1</code> &quot;si&quot;/&quot;so&quot; (swapping)</li>
+<li><code>sar -B</code> &quot;pgscank&quot; + &quot;pgscand&quot; (scanning)</li>
+<li><code>sar -W</code></li>
+</ul>
+<p>进程级别：</p>
+<ul>
+<li><code>dmesg | grep killed</code> OOM killer</li>
+</ul>
+<h3><a name="网络" class="anchor" href="#网络"><span class="header-link"></span></a>网络</h3><p>Utilization</p>
+<ul>
+<li><code>sar -n DEV 1</code> &quot;rxKB/s&quot;/max &quot;txKB/s&quot;/max</li>
+<li><code>ip -s link</code> link指网络设备，-s表示统计数据，RX/TX tput / max bandwidth</li>
+<li><code>/proc/net/dev</code> &quot;bytes&quot; RX/TX tput/max</li>
+<li><code>nicstat</code> &quot;%Util&quot;</li>
+</ul>
+<p>Saturation</p>
+<ul>
+<li><code>ifconfig</code> &quot;overruns&quot;, &quot;dropped&quot;</li>
+<li><code>netstat -s</code> &quot;segments retransmited&quot;</li>
+<li><code>sar -n EDEV</code> drop and fifo metrics</li>
+<li><code>nicstat</code> &quot;Sat&quot;</li>
+</ul>
+<h3><a name="存储" class="anchor" href="#存储"><span class="header-link"></span></a>存储</h3><p>Utilization</p>
+<ul>
+<li><code>iostat -xz 1</code> &quot;%util&quot;</li>
+<li><code>sar -d</code> &quot;%util&quot;</li>
+</ul>
+<p>进程级别</p>
+<ul>
+<li><code>iotop</code></li>
+<li><code>pidstat -d</code></li>
+<li><code>/proc/PID/sched</code> &quot;se.statistics.iowait_sum&quot;</li>
+</ul>
+<p>Saturation</p>
+<ul>
+<li><code>iostat -xnz 1</code> &quot;avgqu-sz&quot; &gt; 1, or high &quot;await&quot;</li>
+<li><code>sar -d</code></li>
+</ul>
+<h2><a name="参考文档" class="anchor" href="#参考文档"><span class="header-link"></span></a>参考文档</h2><ul>
+<li>性能之巅</li>
+<li><a href="http://www.brendangregg.com">http://www.brendangregg.com</a></li>
+</ul>
+</div>
+
+    </div>
+
+    <div id="disqus_thread"></div>
+    <script>
+    /**
+    *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+    *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+    var disqus_config = function () {
+        this.page.url = "https://wudeng.github.io//publish/system-performance.html"; 
+        this.page.identifier = "/publish/system-performance.html";
+    };
+    (function() { // DON'T EDIT BELOW THIS LINE
+    var d = document, s = d.createElement('script');
+    s.src = 'https://wudeng.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+</div>
+</body>
+    <span id="busuanzi_container_page_pv"><span id="busuanzi_value_page_pv"></span></span>,
+    <span id="busuanzi_container_site_uv"><span id="busuanzi_value_site_uv"></span></span>,
+    <span id="busuanzi_container_site_pv"><span id="busuanzi_value_site_pv"></span></span>
+</span>
+</html>

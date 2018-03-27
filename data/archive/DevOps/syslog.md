@@ -1,0 +1,3 @@
+# syslog
+
+/etc/syslog.conf

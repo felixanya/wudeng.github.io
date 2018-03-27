@@ -1,0 +1,90 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><p>powershell</p>
+<p>IDE:Windows PowerShell ISE</p>
+<ul>
+<li>自动完成</li>
+<li>脚本交互</li>
+<li>调试</li>
+<li>远程调试</li>
+</ul>
+<p>Win+R 输入 powershell 进入shell命令行界面。脚本文件后缀名为.ps1。</p>
+<p>获取帮助：
+get-help command</p>
+<ul>
+<li>get-help get-executionpolicy</li>
+</ul>
+<p>脚本后缀：
+.ps1</p>
+<p>get-executionpolicy
+set-executionpolicy remotesigned -Scope CurrentUser -Force</p>
+<ul>
+<li>Restricted 默认设置，不允许任何脚本运行</li>
+<li>RemoteSigned 运行未签名脚本</li>
+<li>Unrestricted</li>
+</ul>
+<pre><code><span class="hljs-meta">#</span><span class="bash"> create new excel instance</span>
+<span class="hljs-meta">$</span><span class="bash">objExcel = New-Object -comobject Excel.Application</span>
+<span class="hljs-meta">$</span><span class="bash">objExcel.Visible = <span class="hljs-variable">$True</span></span>
+<span class="hljs-meta">$</span><span class="bash">objWorkbook = <span class="hljs-variable">$objExcel</span>.Workbooks.Add()</span>
+<span class="hljs-meta">$</span><span class="bash">objWorksheet = <span class="hljs-variable">$objWorkbook</span>.Worksheets.Item(1)</span>
+<span class="hljs-meta">
+#</span><span class="bash"> write information to the excel file</span>
+<span class="hljs-meta">$</span><span class="bash">i = 0</span>
+<span class="hljs-meta">$</span><span class="bash">first10 = (ps | sort ws -Descending | select -first 10)</span>
+<span class="hljs-meta">$</span><span class="bash">first10 | foreach -Process {<span class="hljs-variable">$i</span>++; <span class="hljs-variable">$objWorksheet</span>.Cells.Item(<span class="hljs-variable">$i</span>,1) = <span class="hljs-variable">$_</span>.name; <span class="hljs-variable">$objWorksheet</span>.Cells.Item(<span class="hljs-variable">$i</span>,2) = <span class="hljs-variable">$_</span>.ws}</span>
+<span class="hljs-meta">$</span><span class="bash">otherMem = (ps | measure ws -s).Sum - (<span class="hljs-variable">$first10</span> | measure ws -s).Sum</span>
+<span class="hljs-meta">$</span><span class="bash">objWorksheet.Cells.Item(11,1) = <span class="hljs-string">"Others"</span>; <span class="hljs-variable">$objWorksheet</span>.Cells.Item(11,2) = <span class="hljs-variable">$otherMem</span></span>
+<span class="hljs-meta">
+#</span><span class="bash"> draw the pie chart</span>
+<span class="hljs-meta">$</span><span class="bash">objCharts = <span class="hljs-variable">$objWorksheet</span>.ChartObjects()</span>
+<span class="hljs-meta">$</span><span class="bash">objChart = <span class="hljs-variable">$objCharts</span>.Add(0, 0, 500, 300)</span>
+<span class="hljs-meta">$</span><span class="bash">objChart.Chart.SetSourceData(<span class="hljs-variable">$objWorksheet</span>.range(<span class="hljs-string">"A1:B11"</span>), 2)</span>
+<span class="hljs-meta">$</span><span class="bash">objChart.Chart.ChartType = 70</span>
+<span class="hljs-meta">$</span><span class="bash">objChart.Chart.ApplyDataLabels(5)</span>
+</code></pre><p>保存为CPUPie.ps1，右键单击选择run with powershell。打开Excel，画出占用内存最高的10个进程饼图。</p>
+<p>cmdlet + regex + pipeline</p>
+<p>显示占用内存最大的10个进程：
+ps | sort ws -Descending | select -first 10</p>
+<p><a href="https://www.zhihu.com/question/22611859">https://www.zhihu.com/question/22611859</a></p>
+</div>
+
+    </div>
+
+</div>
+</body>
+</html>

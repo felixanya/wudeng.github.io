@@ -1,0 +1,113 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script> 
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><p>link-load</p>
+<p>进程地址空间
+直接使用物理内存的缺点：空间不隔离，使用效率低，地址不确定。
+所以使用虚拟内存：每个进程4GB虚拟空间，分为4部分：NULL空指针，用户区，64KB禁入区，内核区。
+  分段：解决1,3，没有解决2
+  分页：解决1,2,3</p>
+<p>可执行文件PE文件。
+  PE文件头
+  段表，段的长度都是页长的整数倍。段映射到虚拟空间中相应的页。
+创建 4GB 虚拟地址空间其实并不是要真的创建空间，只是要创建那种映射机制所需要的数据结构而已，这种数据结构就是页目和页表。
+页错误PageFault，控制权交给操作系统，操作系统为该PE页面在物理内存中分配一个页面，然后再将这个物理页面与虚拟空间中的虚拟页面映射起来，然后将控制权交给进程，进程从刚才发生页错误的位置重新开始执行。
+由于此时已经为PE文件的那个页面分配了内存，所以不会发生页错误了。随着程序的执行，页错误会不断的产生，操作系统也会为进程分配相应的物理页面来满足进程执行的需求。</p>
+<p>分页方法的核心思想就是当可执行文件执行到第 x 页时，就为第 x 页分配一个内存页 y ，
+然后再将这个内存页添加到进程虚拟地址空间的映射表中 , 这个映射表就相当于一个 y=f(x) 函数。应用程序通过这个映射表就可以访问到 x 页关联的 y 页了。</p>
+<p>32 位的CPU 的寻址空间是4G , 所以虚拟内存的最大值为4G , 而windows 操作系统把这4G 分成2 部分, 即2G 的用户空间和2G 的系统空间,
+系统空间是各个进程所共享的, 他存放的是操作系统及一些内核对象等, 而用户空间是分配给各个进程使用的, 用户空间包括用: 程序代码和数据, 堆, 共享库, 栈</p>
+<p>共享库 shared library .so, windows .dll
+静态库 .a Archive, windows .lib</p>
+<p>gcc -c stack/stack.c stack/push.c stack/pop.c stack/is_empty.c
+ar rs libstack.a stack.o push.o pop.o is_empty.o</p>
+<p>-fPIC Position Independent Code</p>
+<p>进程有自己的虚拟地址空间。
+共享库必须使用-fPIC编译。</p>
+<p>组成共享库的目标文件和一般的目标文件有所不同，在编译时要加-fPIC选项。
+-f后面跟一些编译选项，PIC是其中一种。表示生成位置无关代码（Position Independent Code）。</p>
+<p>ldd main 产看main可执行文件依赖哪些共享库。</p>
+<p>ldd模拟运行一遍main，在运行过程中做动态链接，从而得知这个可执行文件依赖于哪些共享库，每个共享库都在什么路径下，加载到进程地址空间的什么地址。
+/lib/ld-linux.so.2是动态链接器，它的路径是在编译链接时指定的，gcc在做链接时用-dynamic-linker指定动态链接器的路径，它也像其它共享库一样加载到进程的地址空间中。
+libc.so.6的路径/lib/tls/i686/cmov/libc.so.6是由动态链接器ld-linux.so.2在做动态链接时搜索到的，而libstack.so的路径没有找到。
+linux-gate.so.1这个共享库其实并不存在于文件系统中，它是由内核虚拟出来的共享库，所以它没有对应的路径，它负责处理系统调用。
+总之，共享库的搜索路径由动态链接器决定，从ld.so(8)的Man Page可以查到共享库路径的搜索顺序：</p>
+<ul>
+<li>首先在环境变量LD_LIBRARY_PATH所记录的路径中查找。</li>
+<li>然后从缓存文件/etc/ld.so.cache中查找。这个缓存文件由ldconfig命令读取配置文件/etc/ld.so.conf之后生成，稍后详细解释。</li>
+<li>如果上述步骤都找不到，则到默认的系统路径中查找，先是/lib然后是/usr/lib。</li>
+</ul>
+<p>按照共享库的命名惯例，每个共享库有三个文件名：real name、soname和linker name。</p>
+<p>real name
+真正的库文件（而不是符号链接）的名字是real name，包含完整的共享库版本号。例如上面的libcap.so.1.10、libc-2.8.90.so等。</p>
+<p>soname
+soname是一个符号链接的名字，只包含共享库的主版本号，主版本号一致即可保证库函数的接口一致，因此应用程序的.dynamic段只记录共享库的soname，只要soname一致，这个共享库就可以用。例如上面的libcap.so.1和libcap.so.2是两个主版本号不同的libcap，有些应用程序依赖于libcap.so.1，有些应用程序依赖于libcap.so.2，但对于依赖libcap.so.1的应用程序来说，真正的库文件不管是libcap.so.1.10还是libcap.so.1.11都可以用，所以使用共享库可以很方便地升级库文件而不需要重新编译应用程序，这是静态库所没有的优点。注意libc的版本编号有一点特殊，libc-2.8.90.so的主版本号是6而不是2或2.8。</p>
+<p>linker name
+linker name仅在编译链接时使用，gcc的-L选项应该指定linker name所在的目录。有的linker name是库文件的一个符号链接，有的linker name是一段链接脚本。例如上面的libc.so就是一个linker name，它是一段链接脚本：</p>
+<p>使用共享库可以大大节省内存。比如libc，系统中几乎所有的进程都映射libc到自己的进程地址空间，而libc的只读部分在物理内存中只需要存在一份，就可以被所有进程共享，这就是“共享库”这个名称的由来了。
+使用共享库可以很方便地升级库文件而不需要重新编译应用程序。</p>
+<p>深入阅读</p>
+<p><a href="http://www.hahack.com/wiki/c-linker.html">http://www.hahack.com/wiki/c-linker.html</a></p>
+</div>
+
+    </div>
+
+    <div id="disqus_thread"></div>
+    <script>
+    /**
+    *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+    *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+    var disqus_config = function () {
+        this.page.url = "https://wudeng.github.io//publish/link-load.html"; 
+        this.page.identifier = "/publish/link-load.html";
+    };
+    (function() { // DON'T EDIT BELOW THIS LINE
+    var d = document, s = d.createElement('script');
+    s.src = 'https://wudeng.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+</div>
+</body>
+    <span id="busuanzi_container_page_pv"><span id="busuanzi_value_page_pv"></span></span>,
+    <span id="busuanzi_container_site_uv"><span id="busuanzi_value_site_uv"></span></span>,
+    <span id="busuanzi_container_site_pv"><span id="busuanzi_value_site_pv"></span></span>
+</span>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><p><code>.cmd</code></p>
+<p>注释
+    REM
+    ::</p>
+<p>@ECHO OFF</p>
+<p>定义变量：
+    SET FOO=&quot;bar&quot; =前后没有空格
+    SET /A four=2+2</p>
+<p>使用变量：
+    echo %FOO%
+    命令行参数 %1, %2 等
+    IF NOT DEFINED FOO SET FOO=&quot;bar&quot;</p>
+<p>循环：
+    FOR /L %A IN (1, 1, 10) DO @echo hello</p>
+<p>@echo off</p>
+<p>SET ROOT_DIR=&quot;/home/dtll/resources/tianshu&quot;
+SET TAR_FILE=&quot;resouce.tar.gz&quot;
+SET KEY=&quot;caizhichao.ppk&quot;
+SET HOST=&quot;caizhichao@192.168.4.168&quot;</p>
+<p>tar zcf %TAR_FILE% ../server/
+ssh -i %KEY% %HOST% &quot;rm -rf %ROOT_DIR%/*&quot;
+scp -i %KEY% %TAR_FILE% &quot;caizhichao@120.92.43.188:/tmp/&quot;
+ssh -i %KEY% %HOST% &quot;tar zxf %TAR_FILE% -C %ROOT_DIR%&quot;</p>
+<p>pause</p>
+<ul>
+<li><a href="http://steve-jansen.github.io/guides/windows-batch-scripting/index.html">http://steve-jansen.github.io/guides/windows-batch-scripting/index.html</a></li>
+</ul>
+</div>
+
+    </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><p>分布式消息系统。</p>
+<p>为什么要用消息系统</p>
+<ul>
+<li>解耦</li>
+<li>冗余：比如后台给多个服务器发邮件，可能发邮件的时候刚好某些服务器出现问题了，比如重启等等没有收到请求。这样部分邮件发送成功，部分失败，如果使用消息队列则避免出现这种情况。</li>
+<li>扩展性</li>
+<li>灵活性&amp;峰值处理能力</li>
+<li>可恢复性</li>
+<li>送达保证</li>
+<li>顺序保证</li>
+<li>缓冲</li>
+<li>理解数据流</li>
+<li>异步通信</li>
+</ul>
+</div>
+
+    </div>
+
+</div>
+</body>
+</html>

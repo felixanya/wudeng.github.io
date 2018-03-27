@@ -1,0 +1,113 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h1>ethereum</h1><ul>
+<li><a href="#accounts">accounts</a></li>
+<li><a href="#state">state</a></li>
+<li><a href="#gas-and-fees">gas and fees</a></li>
+<li><a href="#tranactions">tranactions</a></li>
+<li><a href="#blocks">blocks</a></li>
+<li><a href="#transaction-execution">transaction execution</a></li>
+</ul>
+<h2><a name="accounts" class="anchor" href="#accounts"><span class="header-link"></span></a>accounts</h2><ul>
+<li>externally owned accounts, controlled by private keys and no code associated with them</li>
+<li>contract accounts, controlled by their contract code and have code associated with them</li>
+</ul>
+<h2><a name="state" class="anchor" href="#state"><span class="header-link"></span></a>state</h2><p>Account State</p>
+<ul>
+<li>nonce<ul>
+<li>number of transaction sent from the account&#39;s address</li>
+<li>number of contracts created by the account</li>
+</ul>
+</li>
+<li>balance: Wei 1e+18 Wei = 1 Ether</li>
+<li>storageRoot: hash of root node of a Merkle Patricia tree</li>
+<li>codeHash: hash of EVM code</li>
+</ul>
+<p>World State</p>
+<ul>
+<li>State trie</li>
+<li>transaction trie</li>
+<li>Receipts trie</li>
+</ul>
+<h2><a name="gas-and-fees" class="anchor" href="#gas-and-fees"><span class="header-link"></span></a>gas and fees</h2><p>unit gwei, 1 gwei = 10^9 wei</p>
+<h2><a name="tranactions" class="anchor" href="#tranactions"><span class="header-link"></span></a>tranactions</h2><ul>
+<li>message calls</li>
+<li>contract createions</li>
+</ul>
+<p>nonce: count of number of transaction sent by the sender
+gasPrice: number of Wei that the sender is willing to pay per unit of gas
+gasLimit: the maximum amount of gas that the sender is williing to pay
+to
+value: the amount of Wei to be transfered from sender to the Receipt
+v,r,s
+init: contract creation
+data: message calls</p>
+<h2><a name="blocks" class="anchor" href="#blocks"><span class="header-link"></span></a>blocks</h2><ul>
+<li>block header<ul>
+<li>parentHash</li>
+<li>ommersHash</li>
+<li>beneficiary</li>
+<li>transactionsRoot</li>
+<li>receiptsRoot</li>
+<li>stateRoot</li>
+<li>logsBloom</li>
+<li>difficulty</li>
+<li>number</li>
+<li>gasLimit</li>
+<li>gasUsed</li>
+<li>timestamp</li>
+<li>extraData</li>
+<li>mixHash</li>
+<li>nonce</li>
+</ul>
+</li>
+<li>set of transaction</li>
+<li>a set of other block headers for the current block&#39;s ommers</li>
+</ul>
+<h2><a name="transaction-execution" class="anchor" href="#transaction-execution"><span class="header-link"></span></a>transaction execution</h2><p>mining
+proof of work</p>
+<ul>
+<li><a href="https://medium.com/@preethikasireddy/how-does-ethereum-work-anyway-22d1df506369">https://medium.com/@preethikasireddy/how-does-ethereum-work-anyway-22d1df506369</a></li>
+<li><a href="https://github.com/ethereum/yellowpaper">https://github.com/ethereum/yellowpaper</a></li>
+</ul>
+</div>
+
+    </div>
+
+</div>
+</body>
+</html>

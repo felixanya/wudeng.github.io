@@ -1,0 +1,80 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><p>tc - show / manipulate traffic control settings</p>
+<p>man tc</p>
+<p>shaping: egress
+scheduling: egress
+policing: ingress
+dropping: ingress and egress</p>
+<ul>
+<li>qdiscs: queueing discipling</li>
+<li>classes</li>
+<li>filters</li>
+</ul>
+<p>classless qdiscs:</p>
+<ul>
+<li>[p|b]fifo, limited in packets or in bytes</li>
+<li>pfifo_fast</li>
+<li>red: random early detection</li>
+<li>sfq: stochastic fairness queueing</li>
+<li>tbf: token bucket filter</li>
+</ul>
+<p>classful qdiscs</p>
+<ul>
+<li>cbq: class based queueing</li>
+<li>htb: hierarchy token bucket</li>
+<li>prio</li>
+</ul>
+<p>控发不控收</p>
+<p>iproute2</p>
+<p>tc qdisc add dev eth0 root netem delay 50ms 30ms loss 5%
+这句的意思是给网卡eth0加上 50ms的延时，± 30ms 的抖动，在加 5%的丢包率</p>
+<pre><code><span class="hljs-keyword">tc</span> qdisc <span class="hljs-built_in">add</span> dev eth0 root netem delay <span class="hljs-number">100</span>ms
+<span class="hljs-keyword">tc</span> qdisc <span class="hljs-keyword">change</span> dev eth0 root netem delay <span class="hljs-number">100</span>ms <span class="hljs-number">10</span>ms
+</code></pre><pre><code>tc qdisc <span class="hljs-selector-tag">del</span> dev eth0 root netem
+</code></pre><p><a href="http://lartc.org">http://lartc.org</a>
+<a href="https://www.ibm.com/developerworks/cn/linux/1412_xiehy_tc/index.html">https://www.ibm.com/developerworks/cn/linux/1412_xiehy_tc/index.html</a>
+<a href="https://wenku.baidu.com/view/f02078db50e2524de5187e45.html">https://wenku.baidu.com/view/f02078db50e2524de5187e45.html</a>
+<a href="http://www.tldp.org/HOWTO/html_single/Traffic-Control-HOWTO/">http://www.tldp.org/HOWTO/html_single/Traffic-Control-HOWTO/</a></p>
+<p><a href="https://wiki.linuxfoundation.org/networking/netem">https://wiki.linuxfoundation.org/networking/netem</a></p>
+</div>
+
+    </div>
+
+</div>
+</body>
+</html>

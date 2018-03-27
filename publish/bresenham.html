@@ -1,0 +1,108 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h1>bresemham</h1><ul>
+<li><a href="#推导过程">推导过程</a></li>
+<li><a href="#优化">优化</a></li>
+<li><a href="#实现">实现</a></li>
+<li><a href="#参考文档">参考文档</a></li>
+</ul>
+<p>布雷森汉姆光栅直线算法，用于计算光栅图中两点间的直线经过的点，因为其简单高效，被广泛使用。
+本文简单介绍了该算法的推导过程，并用Erlang实现了该算法。</p>
+<h2><a name="推导过程" class="anchor" href="#推导过程"><span class="header-link"></span></a>推导过程</h2><p>给定起始点(X0,Y0), (X1, Y1)，先考虑特殊情况，斜率范围从0到1，X0&lt;X1, Y0&lt;Y1。
+那么x每前进1步，y前进距离为m，其中m=dy/dx， 我们用e记录y前进的累积值，x每前进1步，e=e+m。 
+当e&gt;0.5时，应当使y也前进1步，并将1从e中扣去：e=e-1。</p>
+<p>概括起来就是一个判断条件，两种更新策略：</p>
+<pre><code>// <span class="hljs-attr">e</span> = <span class="hljs-number">0</span>;
+<span class="hljs-attr">e</span> = e + m;
+<span class="hljs-keyword">if</span> (e &gt; <span class="hljs-number">0.5</span>) {
+    <span class="hljs-attr">e</span> = e - <span class="hljs-number">1</span>;
+} <span class="hljs-keyword">else</span> {
+    <span class="hljs-attr">e</span> = e;
+}
+</code></pre><h2><a name="优化" class="anchor" href="#优化"><span class="header-link"></span></a>优化</h2><p>为了去掉除法和浮点计算，我们令<code>D = 2*dx*e - dx</code>, 带入上面的三个公式，上面的判断条件和更新策略变成这样：</p>
+<pre><code>// <span class="hljs-keyword">D</span> = -Dx;
+<span class="hljs-keyword">D</span> = <span class="hljs-keyword">D</span> + <span class="hljs-number">2</span>*dy;
+if(<span class="hljs-keyword">D</span> &gt; <span class="hljs-number">0</span>) {
+    D = D - 2*dx
+} else {
+    D = D
+}
+</code></pre><p>初始e=0, 所以D=-dx，然后每次D增加2dy，当D&gt;0时，减去2dx。</p>
+<h2><a name="实现" class="anchor" href="#实现"><span class="header-link"></span></a>实现</h2><p>实现的时候需要把特殊情况一般化。下面的代码给出了一个一般化的计算过程。首先根据轴的长短选择主轴，
+主轴就是每次前进一个单位的轴。然后根据起点和重点的大小决定前进的方向，终点大于起点，则+1，否则-1.</p>
+<pre><code>plot({<span class="hljs-keyword">X</span><span class="hljs-number">0</span>, <span class="hljs-keyword">Y</span><span class="hljs-number">0</span>}, {<span class="hljs-keyword">X</span><span class="hljs-number">1</span>, <span class="hljs-keyword">Y</span><span class="hljs-number">1</span>}) -&gt;
+    Dx = abs(<span class="hljs-keyword">X</span><span class="hljs-number">1</span> - <span class="hljs-keyword">X</span><span class="hljs-number">0</span>),
+    Dy = abs(<span class="hljs-keyword">Y</span><span class="hljs-number">1</span> - <span class="hljs-keyword">Y</span><span class="hljs-number">0</span>),
+    StepX = if <span class="hljs-keyword">X</span><span class="hljs-number">1</span> &gt; <span class="hljs-keyword">X</span><span class="hljs-number">0</span> -&gt; <span class="hljs-number">1</span>; true -&gt; <span class="hljs-number">-1</span> end,
+    StepY = if <span class="hljs-keyword">Y</span><span class="hljs-number">1</span> &gt; <span class="hljs-keyword">Y</span><span class="hljs-number">0</span> -&gt; <span class="hljs-number">1</span>; true -&gt; <span class="hljs-number">-1</span> end,
+    if 
+        Dx &gt; Dy -&gt; plot_x({<span class="hljs-keyword">X</span><span class="hljs-number">0</span>, <span class="hljs-keyword">Y</span><span class="hljs-number">0</span>}, {<span class="hljs-keyword">X</span><span class="hljs-number">1</span>, <span class="hljs-keyword">Y</span><span class="hljs-number">1</span>}, <span class="hljs-number">2</span>*Dx, <span class="hljs-number">2</span>*Dy, StepX, StepY, -Dx, [{<span class="hljs-keyword">X</span><span class="hljs-number">0</span>,<span class="hljs-keyword">Y</span><span class="hljs-number">0</span>}]);
+        true -&gt; plot_y({<span class="hljs-keyword">X</span><span class="hljs-number">0</span>, <span class="hljs-keyword">Y</span><span class="hljs-number">0</span>}, {<span class="hljs-keyword">X</span><span class="hljs-number">1</span>, <span class="hljs-keyword">Y</span><span class="hljs-number">1</span>}, <span class="hljs-number">2</span>*Dx, <span class="hljs-number">2</span>*Dy, StepX, StepY, -Dy, [{<span class="hljs-keyword">X</span><span class="hljs-number">0</span>,<span class="hljs-keyword">Y</span><span class="hljs-number">0</span>}])
+    end.
+
+plot_x({<span class="hljs-keyword">X</span><span class="hljs-number">1</span>, _}, {<span class="hljs-keyword">X</span><span class="hljs-number">1</span>, _}, _DeltaX, _DeltaY, _, _, _D, Path) -&gt; 
+    lists:reverse(Path);
+plot_x({<span class="hljs-keyword">X</span><span class="hljs-number">0</span>, <span class="hljs-keyword">Y</span><span class="hljs-number">0</span>}, {<span class="hljs-keyword">X</span><span class="hljs-number">1</span>, <span class="hljs-keyword">Y</span><span class="hljs-number">1</span>}, DeltaX, DeltaY, StepX, StepY, D<span class="hljs-number">0</span>, Path) -&gt;
+    Nx = <span class="hljs-keyword">X</span><span class="hljs-number">0</span> + StepX,
+    D<span class="hljs-number">1</span> = D<span class="hljs-number">0</span> + DeltaY,
+    {Ny, Nd} = if 
+        D<span class="hljs-number">1</span> &gt; <span class="hljs-number">0</span> -&gt; {<span class="hljs-keyword">Y</span><span class="hljs-number">0</span> + StepY, D<span class="hljs-number">1</span> - DeltaX};
+        true -&gt; {<span class="hljs-keyword">Y</span><span class="hljs-number">0</span>, D<span class="hljs-number">1</span>}
+    end,
+    plot_x({Nx, Ny}, {<span class="hljs-keyword">X</span><span class="hljs-number">1</span>, <span class="hljs-keyword">Y</span><span class="hljs-number">1</span>}, DeltaX, DeltaY, StepX, StepY, Nd, [{Nx, Ny}|Path]).
+
+
+plot_y({_, <span class="hljs-keyword">Y</span><span class="hljs-number">1</span>}, {_, <span class="hljs-keyword">Y</span><span class="hljs-number">1</span>}, _DeltaX, _DeltaY, _, _, _D, Path) -&gt; 
+    lists:reverse(Path);
+plot_y({<span class="hljs-keyword">X</span><span class="hljs-number">0</span>, <span class="hljs-keyword">Y</span><span class="hljs-number">0</span>}, {<span class="hljs-keyword">X</span><span class="hljs-number">1</span>, <span class="hljs-keyword">Y</span><span class="hljs-number">1</span>}, DeltaX, DeltaY, StepX, StepY, D<span class="hljs-number">0</span>, Path) -&gt;
+    Ny = <span class="hljs-keyword">Y</span><span class="hljs-number">0</span> + StepY,
+    D<span class="hljs-number">1</span> = D<span class="hljs-number">0</span> + DeltaX,
+    {Nx, Nd} = if 
+        D<span class="hljs-number">1</span> &gt; <span class="hljs-number">0</span> -&gt; {<span class="hljs-keyword">X</span><span class="hljs-number">0</span> + StepX, D<span class="hljs-number">1</span> - DeltaY};
+        true -&gt; {<span class="hljs-keyword">X</span><span class="hljs-number">0</span>, D<span class="hljs-number">1</span>}
+    end,
+    plot_y({Nx, Ny}, {<span class="hljs-keyword">X</span><span class="hljs-number">1</span>, <span class="hljs-keyword">Y</span><span class="hljs-number">1</span>}, DeltaX, DeltaY, StepX, StepY, Nd, [{Nx, Ny}|Path]).
+</code></pre><h2><a name="参考文档" class="anchor" href="#参考文档"><span class="header-link"></span></a>参考文档</h2><ul>
+<li><a href="https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm">https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm</a></li>
+</ul>
+</div>
+
+    </div>
+
+</div>
+</body>
+</html>
