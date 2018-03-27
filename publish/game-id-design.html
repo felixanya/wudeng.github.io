@@ -1,0 +1,99 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h1>游戏服中全局ID的设计</h1><ul>
+<li><a href="#梦幻神界">梦幻神界</a></li>
+<li><a href="#少年西游">少年西游</a></li>
+<li><a href="#修仙物语">修仙物语</a></li>
+<li><a href="#九剑">九剑</a></li>
+<li><a href="#更优的办法">更优的办法</a></li>
+<li><a href="#临时id">临时Id</a></li>
+</ul>
+<p>在以合服为特色的小服架构中，全局ID的设计是能否方便快捷合服的至关重要的一环。
+用uuid太长了，效率差，用snowflake感觉有点杀鸡用牛刀。
+这里总结一下我做过的游戏里面用到的一些方案。</p>
+<h2><a name="梦幻神界" class="anchor" href="#梦幻神界"><span class="header-link"></span></a>梦幻神界</h2><p>玩家ID是采用<code>ServerId*1000000+AutoIncrId</code>的方式，但是部分Id并没有按照这种方式来设计，
+比如帮派Id，邮件Id等。这导致合服的时候不能直接把数据库合并到一起，而是要先计算一个服的id范围，
+再根据这个服的id范围决定另一个服的id的范围，然后处理在程序中做id转换。这导致合服的过程复杂，
+速度慢。</p>
+<h2><a name="少年西游" class="anchor" href="#少年西游"><span class="header-link"></span></a>少年西游</h2><p>少年西游采用的是一个ID服务器来分配id的方式。每个服务器需要id的时候向ID服务器请求一段Id，
+然后等这段Id用完了以后继续向ID服务器申请。这种方式的优点是Id分配紧凑，而且保证全局唯一。
+但是缺点是从Id本身看不出所在服务器。而且由于引入了一个外部依赖，增加了出错的可能性。
+比如当网络出现问题的时候就请求不到Id，导致出错。</p>
+<h2><a name="修仙物语" class="anchor" href="#修仙物语"><span class="header-link"></span></a>修仙物语</h2><p>修仙物语的ID是我自己设计的，延续了梦幻神界<code>ServerId*1000000+AutoIncrId</code>的方案，把其他id也
+考虑进来了。由于这种方式每个服只保留了100万个Id，对于玩家来说肯定是够用了，但是对于装备、邮件
+等ID，很大可能性是不够用的。所以我把Id分为两类，一类是32位的，一类是64位的，对于64位Id，
+采取的是<code>ServerId*10000000000+AutoIncrId</code>。这种方式克服了梦幻神界和少年西游的缺陷，
+既不不需要在合服中单独处理Id，又不依赖外部的服务，而且就算是64位的id，范围也是限定好了的，
+用浮点数也能装得下，没有精度损失（浮点数的整数部分是53bit，已经远远超出我们这里整数的范围）。
+但是有个小小的缺陷就是起步Id很大。特别是64位Id，一开始就是一个很大的整数。
+网络传输和存储都需要更多的空间。</p>
+<p>Id的产生由一个进程通过进程字典的方式来维护。请求id的时候带上服务器id。相对于用auto_increment的方式来获取最新id的方式，
+这种方式可以非常灵活。比如修仙物语中部分物品有全局唯一id，这些id散落在不同的表里面。比如装备、宝石等。要获取最大的id需要
+比较这些表，从中获取最大的id，仅仅根据一个表的auto_increment属性远远满足不了这么奇葩的需求。</p>
+<h2><a name="九剑" class="anchor" href="#九剑"><span class="header-link"></span></a>九剑</h2><p>这个是兄弟组项目，采用的是统一的<code>ServerId*100000000+AutoIncrId</code>的方案。
+服务器启动的时候利用mysql表的auto_increment来初始化起始Id，如果未定义，就用公式计算出来的Id设置表的auto_increment表。
+插入的时候故意跳过id，或者设置成0，将id交给mysql来控制，通过执行完sql语句返回的id来获取新的id。
+因此创建角色的时候插表是同步的，必须等sql执行完毕才能拿到玩家Id。这部分插入操作没法异步执行。</p>
+<h2><a name="更优的办法" class="anchor" href="#更优的办法"><span class="header-link"></span></a>更优的办法</h2><p>其实只要把ServerId和AutoIncrId交换一下位置就行了。<code>AutoIncrId*1000+ServerId</code>。这种方式不需要
+区分到底是32位还是64位。可以限定ServerId大于0。</p>
+<ul>
+<li><code>AutoIncrId*1000+ServerId</code> 玩家Id</li>
+<li><code>AutoIncrId*1000</code> 玩家AI</li>
+<li><code>0-999</code> 怪物Id</li>
+<li><code>1-999</code> server_id</li>
+</ul>
+<p>这种方案最主要的思想是：</p>
+<ul>
+<li>把服务器id考虑进来</li>
+<li>把自增的部分放到高位</li>
+</ul>
+<p>相对于修仙物语的方式，这种方式不需要针对32位和64位分别计算，可以统一管理，更加简单。当然修仙物语这种方式，
+不分类也是可以的，直接把所有id空间放大100倍，基本也够用了，九剑就是用的这种方式。
+而server_id放高位限死了id空间。不容易扩展。比如前期用32位，后面要改成64位会比较麻烦。
+放低位则没有这个问题。</p>
+<h2><a name="临时id" class="anchor" href="#临时id"><span class="header-link"></span></a>临时Id</h2><p>游戏中，怪物，玩家AI等使用的是临时Id。
+把怪物和主角使用相同的数据结构，就不需要区分到底是主角还是怪物，可以共用一套代码流程。
+所以最方便的办法是能够从ID上区分怪物还是主角。采用低位放服务器ID的方式，留给怪物使用的空间会比较小。
+要求服务器id&gt;0，那么怪物只有1000个可用的id。</p>
+</div>
+
+    </div>
+
+</div>
+</body>
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_site_pv"><span id="busuanzi_value_site_pv"></span></span>
+</html>

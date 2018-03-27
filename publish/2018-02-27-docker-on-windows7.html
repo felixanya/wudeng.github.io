@@ -38,7 +38,10 @@
 <li><a href="#安装virtualbox">安装VirtualBox</a></li>
 <li><a href="#docker-machine">docker-machine</a></li>
 <li><a href="#文件夹挂载">文件夹挂载</a></li>
-<li><a href="#端口映射">端口映射</a></li>
+<li><a href="#端口映射">端口映射</a><ul>
+<li><a href="#配置加速器">配置加速器</a></li>
+</ul>
+</li>
 </ul>
 <p>windows 7以前的系统需要通过虚拟机软件运行boot2docker来支持docker,
 一般使用VirtualBox来运行boot2docker。boot2docker是一个支持docker的linux环境。</p>
@@ -62,6 +65,7 @@ Enabling it in the BIOS is mandatory</p>
 <li>ls</li>
 <li>ip 查看boot2docker虚拟机的ip地址，通常是<code>192.168.99.100</code>。</li>
 </ul>
+<p>虚拟机的默认账号是docker, 密码是tcuser。docker用户是sudoers, 直接执行sudo -i就能切换为root账号。</p>
 <h2><a name="文件夹挂载" class="anchor" href="#文件夹挂载"><span class="header-link"></span></a>文件夹挂载</h2><p>跟linux系统不一样，windows下的宿主系统并不是windows本身，而是运行在虚拟机中的boot2docker，
 所以在windows下挂载volumn的时候，不能直接把windows下的目录挂载到容器中。</p>
 <p>要实现挂载，首先要通过虚拟机系统把windows下的文件夹共享到虚拟机中，默认的虚拟机已经共享了一个文件夹：<code>c:\Users</code>，对应的虚拟机中的目录是：<code>/c/Users</code>。
@@ -70,16 +74,27 @@ Enabling it in the BIOS is mandatory</p>
 <p>但是如果需要支持其他目录，首先要通过VirtualBox把文件夹共享到虚拟机中，
 然后才能挂载到容器中。而且使用的时候使用的宿主目录不是windows下的目录，而是虚拟机中的挂载目录。</p>
 <p>直接用打开VirtualBox，能看到一个名为default的虚拟机，这个虚拟机就是docker的宿主机，
-在这个虚拟机中创建一个共享文件夹，比如把<code>D:\</code>挂载到<code>/d</code>目录下。</p>
+在这个虚拟机中创建一个共享文件夹，比如把<code>D:\</code>挂载到<code>/d</code>目录下。
+通过<code>docker-machine restart</code>重启虚拟机。</p>
 <p><code>docker run --rm -it -v /d/projects:/apps -w /apps erlang:19.3.3 ./rebar3 as prod tar</code></p>
 <p>这条命令会把windows下的<code>D:\projects</code>目录通过宿主机的<code>/d/projects</code>挂载到容器的<code>/apps</code>目录下。并且把<code>/apps</code>作为容器的工作目录。
-这样就能实现通过docker来实现跨平台的编译。</p>
+这样就能实现通过docker来实现跨平台的编译。顺便说一句，如果只需要支持特定平台的编译，用Jenkins实现目标环境的编译更加方便。</p>
 <h2><a name="端口映射" class="anchor" href="#端口映射"><span class="header-link"></span></a>端口映射</h2><p>容器的端口也是映射到宿主机中而不是windows中。这一点也要注意，windows中访问端口的时候要使用宿主机的ip，而不是自身的ip。
 宿主机的ip可以通过<code>docker-machine ip</code>来查看。一般是<code>192.168.99.100</code>.</p>
+<h3><a name="配置加速器" class="anchor" href="#配置加速器"><span class="header-link"></span></a>配置加速器</h3><p>由于DockerHub默认使用的国外的镜像地址，在国内使用的速度感人，需要配置国内的加速。
+我本人使用的是<a href="https://www.daocloud.io/mirror">DaoCloud</a>的加速服务，注册账号以后会分配一个私有的加速地址。
+也可以直接用<a href="https://www.docker-cn.com/registry-mirror。">https://www.docker-cn.com/registry-mirror。</a>
+修改方法如下：
+首先通过<code>docker-machine ssh &lt;machine-name&gt;</code>登录虚拟机，默认名字为default.
+然后修改/var/lib/boot2docker/profile文件，
+<code>sudo vi /var/lib/boot2docker/profile</code>
+将--registry-mirror=&lt;your accelerate address&gt;添加到EXTRA_ARGS中
+最后sudo /etc/init.d/docker restart重启Docker服务就可以了。</p>
 </div>
 
     </div>
 
 </div>
 </body>
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_site_pv"><span id="busuanzi_value_site_pv"></span></span>
 </html>
