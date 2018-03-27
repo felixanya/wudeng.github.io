@@ -1,0 +1,113 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><p>剑指Offer</p>
+<ul>
+<li><a href="#erlang">Erlang</a></li>
+<li><a href="#algorithm">Algorithm</a></li>
+<li><a href="#网络">网络</a></li>
+<li><a href="#design">Design</a></li>
+</ul>
+<p>STAR原则
+    Situation
+    Task
+    Action
+    Result</p>
+<ul>
+<li>基本功<ul>
+<li>编程语言</li>
+<li>数据结构</li>
+<li>算法</li>
+</ul>
+</li>
+<li>能写高质量代码</li>
+<li>分析问题思路清晰</li>
+<li>能优化时间效率和空间效率</li>
+<li>学习沟通
+  最近看什么书、从中学到什么技术</li>
+</ul>
+<p>精通，熟悉，掌握，了解</p>
+<h2><a name="erlang" class="anchor" href="#erlang"><span class="header-link"></span></a>Erlang</h2><ul>
+<li>网关进程创建过程。</li>
+<li>supervisor如何知道子进程异常退出？<ul>
+<li>link trap_exit</li>
+</ul>
+</li>
+</ul>
+<h2><a name="algorithm" class="anchor" href="#algorithm"><span class="header-link"></span></a>Algorithm</h2><ul>
+<li><p>判断四个点是否构成一个正方形</p>
+<ul>
+<li>求出6条边长，排序，len[0] == len[3], len[4] == len[5], len[4] &gt; len[3]</li>
+</ul>
+</li>
+<li><p>带O(1) min功能的栈</p>
+</li>
+<li>两个栈模拟队列，参考queue.erl</li>
+<li>斐波那契数
+  青蛙跳台阶，1或者2，跳n有多少种跳法。</li>
+<li>2-Sum, 3-Sum, N-Sum</li>
+<li>map N function calls to M nodes<pre><code><span class="hljs-function"><span class="hljs-title">map_nodes</span><span class="hljs-params">([],_,_)</span> -&gt;</span> [];
+<span class="hljs-function"><span class="hljs-title">map_nodes</span><span class="hljs-params">(ArgL,[],Original)</span> -&gt;</span>
+  map_nodes(ArgL,Original,Original);
+<span class="hljs-function"><span class="hljs-title">map_nodes</span><span class="hljs-params">([{M,F,A}|Tail],[Node|MoreNodes], Original)</span> -&gt;</span>
+  [?MODULE:async_call(Node,M,F,A) |
+   map_nodes(Tail,MoreNodes,Original)].
+</code></pre></li>
+</ul>
+<h2><a name="网络" class="anchor" href="#网络"><span class="header-link"></span></a>网络</h2><ul>
+<li>浏览器的一个请求从发送到返回都经历了什么？</li>
+</ul>
+<h2><a name="design" class="anchor" href="#design"><span class="header-link"></span></a>Design</h2><ul>
+<li><p>设计手机扫码登陆</p>
+</li>
+<li><p><a href="https://www.zhihu.com/question/29270034">设计短Url系统</a></p>
+<ul>
+<li>自增</li>
+<li>多个实例，如单双</li>
+<li>301永久重定向，压力小，但是无法统计</li>
+<li>302临时重定向，大数据分析</li>
+<li>短时间的缓存长连接到短连接的映射，解决每次请求给出不同的url</li>
+</ul>
+</li>
+</ul>
+</div>
+
+    </div>
+
+</div>
+</body>
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_site_pv"><span id="busuanzi_value_site_pv"></span></span>
+</html>

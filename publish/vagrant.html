@@ -1,0 +1,99 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h1>Vagrant</h1><ul>
+<li><a href="#box">box</a></li>
+<li><a href="#vagrangfile">Vagrangfile</a></li>
+<li><a href="#命令">命令</a></li>
+<li><a href="#etcsudoers">/etc/sudoers</a></li>
+<li><a href="#参考文档">参考文档</a></li>
+</ul>
+<p>虚拟机管理软件，区别于Docker的虚拟机容器，更加重量级。用于开发环境搭建。</p>
+<h2><a name="box" class="anchor" href="#box"><span class="header-link"></span></a>box</h2><p>相当于虚拟机镜像。直接下载不了，用迅雷或者FDM等下载工具下载好box，添加进去。
+vagrant box</p>
+<ul>
+<li>add</li>
+<li>list</li>
+<li>remove</li>
+<li>update</li>
+<li>outdated</li>
+<li>prune</li>
+<li>repackage</li>
+</ul>
+<h2><a name="vagrangfile" class="anchor" href="#vagrangfile"><span class="header-link"></span></a>Vagrangfile</h2><ul>
+<li>配置端口映射<ul>
+<li>config.vm.network &quot;forwarded_port&quot;, guest: 80, host: 8080</li>
+<li>config.vm.network &quot;forwarded_port&quot;, guest: 80, host: 8080, host_ip: &quot;127.0.0.1&quot;</li>
+</ul>
+</li>
+<li>网络</li>
+<li>文件挂载<ul>
+<li>config.vm.synced_folder &quot;../data&quot;, &quot;/vagrant_data&quot;</li>
+</ul>
+</li>
+</ul>
+<h2><a name="命令" class="anchor" href="#命令"><span class="header-link"></span></a>命令</h2><p>| vagrant port          | 查看端口映射           |
+| vagrant status        | 查看虚拟机状态         |
+| vagrant ssh           | 连接虚拟机             |
+| vagrant up            | 启动虚拟机             |
+| vagrant halt          | 停止虚拟机             |
+| vagrant suspend       | 挂起虚拟机             |
+| vagrant resume        | 恢复挂起的虚拟机       |
+| vagrant destroy       | 停止并删除虚拟机       |
+| vagrant global-status | 查看全局虚拟机状态     |
+| vagrant reload        | 重启并加载新的配置文件 |</p>
+<p>或者可以通过其他ssh工具如SecureCRT、putty等连接上去，
+对应的私钥存储在当前项目目录的.vagrant\machines\default\virtualbox\private_key, 用户名为vagrant，密码也是vagrant.</p>
+<p>mkdir ubuntu
+cd ubuntu
+vagrant box list
+vagrant init ubuntu         -- 生成Vagrangfile
+vagrant up
+vagrant ssh</p>
+<h2><a name="/etc/sudoers" class="anchor" href="#/etc/sudoers"><span class="header-link"></span></a>/etc/sudoers</h2><p>加入这两行到文件<strong>最后</strong></p>
+<pre><code>vagrant <span class="hljs-keyword">ALL</span>=(<span class="hljs-keyword">ALL</span>) NOPASSWD: <span class="hljs-keyword">ALL</span>
+Defaults:vagrant !requiretty
+</code></pre><h2><a name="参考文档" class="anchor" href="#参考文档"><span class="header-link"></span></a>参考文档</h2><ul>
+<li><a href="http://www.vagrantbox.es/">http://www.vagrantbox.es/</a></li>
+</ul>
+</div>
+
+    </div>
+
+</div>
+</body>
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_site_pv"><span id="busuanzi_value_site_pv"></span></span>
+</html>

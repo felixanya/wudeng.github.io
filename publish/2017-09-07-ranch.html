@@ -43,7 +43,7 @@
 <li><a href="#ranchtransport">ranch_transport</a></li>
 <li><a href="#ranchtcp">ranch_tcp</a></li>
 <li><a href="#ranchssl">ranch_ssl</a></li>
-<li><a href="#ranchaccept">ranch_accept</a></li>
+<li><a href="#ranchacceptor">ranch_acceptor</a></li>
 <li><a href="#ranchconnssup">ranch_conns_sup</a></li>
 <li><a href="#连接进程ranchprotocol的具体实现">连接进程(ranch_protocol的具体实现)</a></li>
 <li><a href="#源码">源码</a></li>
@@ -85,7 +85,7 @@ ranch实现了两个数据传输协议，tcp和ssl。分别由ranch_tcp和ranch_
 </ul>
 <p>可以看出，binary,{active,false},{packet,raw},{reuseaddr,true}这几个是写死了无法通过传入参数来改变的。</p>
 <h2><a name="ranch_ssl" class="anchor" href="#ranch_ssl"><span class="header-link"></span></a>ranch_ssl</h2><p>实现ranch_transport定义的接口，主要是封装了ssl的一些基本操作。</p>
-<h2><a name="ranch_accept" class="anchor" href="#ranch_accept"><span class="header-link"></span></a>ranch_accept</h2><p>ranch_accept接收到连接请求以后，将socket控制权转交ranch_conns_sup，
+<h2><a name="ranch_acceptor" class="anchor" href="#ranch_acceptor"><span class="header-link"></span></a>ranch_acceptor</h2><p>ranch_accept接收到连接请求以后，将socket控制权转交ranch_conns_sup，
 同时通知ranch_conns_sup启动连接处理进程，处理此socket的数据收发。
 ranch_conns_sup启动连接进程以后，accept进程继续accept新的连接。如果由于某些原因（比如连接数达到上限）
 连接进程没有启动起来，那么accept进程就会阻塞在这里，无法继续接收连接，直到连接进程启动起来为止。
@@ -95,11 +95,12 @@ ranch_conns_sup启动连接进程以后，accept进程继续accept新的连接�
 所以accept进程以及随后的ranch_conns_sup进程都不会收到socket的数据，从而保证连接进程接收到的数据是完整的。
 不过为了防止意外情况（比如socket用了active其他选项）导致accpet进程收到了其他消息，
 accpet进程会在进入下一次accpet前清空一下消息队列。</p>
-<h2><a name="ranch_conns_sup" class="anchor" href="#ranch_conns_sup"><span class="header-link"></span></a>ranch_conns_sup</h2><p>连接进程的管理进程，负责连接进程的启动。
+<h2><a name="ranch_conns_sup" class="anchor" href="#ranch_conns_sup"><span class="header-link"></span></a>ranch_conns_sup</h2><p>连接进程的管理进程，负责连接进程的启动。作为ranch_listener_sup的子进程之一，这个进程启动时会想ranch_server注册自己。
+这样后续启动的ranch_acceptors_sup就能拿到连接管理进程，可以作为参数传递给ranch_acceptor进程，以便后者收到连接请求是启动连接进程。
 这是一个特殊进程，也就是用proc_lib来启动的进程，并且会处理system消息，这个进程同时具有gen_server和supervisor的功能。
 在作者的书&lt;&lt;The Erlanger Playbook&gt;&gt;中第一章就讲到了特殊进程，以及为什么我们要用特殊进程。这个进程就是一个非常好的例子。</p>
 <p>这个进程收到socket发送的启动连接进程消息以后，启动连接进程，将socket控制权转交连接进程，并通知连接进程开始进行数据收发。</p>
-<p>此进程会将连接进程Pid存入进程字典，并维护连接进程的数量。 
+<p>此进程会将连接进程Pid存入进程字典，并维护连接进程的数量。
 如果数量达到上限，则暂时不回复accept进程，而是将accept进程存入Sleeper列表中。这将导致accept进程阻塞在receive语句中，
 无法继续accept连接。如果还没有到上限，则立即回复accept进程，accept进程收到回复就可以继续accpet连接了。
 所以达到配置的连接数量上限以后，实际上我们的还能创建NbAcceptors个连接进程，然后所有accept进程都阻塞在receive过程，
@@ -111,8 +112,8 @@ accpet进程会在进入下一次accpet前清空一下消息队列。</p>
 <p>ranch_conns_sup进程是作为ranch_listener_sup监控下的进程启动的，而且它启动的type是supervisor。
 所以他需要向它的父进程提供supervisor的功能，主要是以下几点：</p>
 <ul>
-<li>which_children </li>
-<li>count_children </li>
+<li>which_children</li>
+<li>count_children</li>
 <li>shutdown子进程。包括强制退出，以及等待超时退出。父进程退出时，或者系统退出时，等待通知子进程退出，超时后强制kill子进程。</li>
 </ul>
 <p>不过它并不需要向子进程提供supervisor功能，就算子进程异常退出，它也不会尝试重启子进程，因为没有这个必要。
@@ -206,4 +207,5 @@ init(Ref, Socket, Transport, _Opts = []) -&gt;
 
 </div>
 </body>
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_site_pv"><span id="busuanzi_value_site_pv"></span></span>
 </html>

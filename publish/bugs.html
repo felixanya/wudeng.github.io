@@ -1,0 +1,65 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h1>Bug追查记</h1><ul>
+<li><a href="#副本">副本</a></li>
+</ul>
+<h2><a name="副本" class="anchor" href="#副本"><span class="header-link"></span></a>副本</h2><p>表现：
+前一天进了副本，第二天来了还在副本场景？</p>
+<p>背景：
+连接进程断开以后会设置定时器让玩家进程退出。但是如果触发定时器的时候发现玩家在副本里面，这时玩家进程不会退出，而是设置一个新的定时器。
+讲道理，副本的时间都是有限的，到时间后会触发离开副本的定时器。所以只需要等到副本超时退出，这时候等待下一个退出玩家进程的定时器触发以后，
+玩家进程就会退出。然而发现某个玩家一直在尝试退出，却始终在场景里面。</p>
+<p>推理过程：
+从log发现了异常，玩家触发退出副本定时器时报错。因为副本定时器是一个整数而不是定时器引用。
+副本初始化以后不会立即启动定时器，而是等玩家进入场景以后才会启动定时器。这个玩家没有进入场景就退出了。这种情况，代码确实没有处理到。
+处理起来也很简单，增加一个case即可。bug解决啦！！？？</p>
+<p>然而分析log发现， 既然玩家没有进入场景，那定时器退出副本的定时器时谁触发的呢？从log来看，从玩家离开副本到触发离开副本的定时器，
+中间相隔了五十多分钟。那么很显然，这个定时器并非这个副本设置的？刚好发现这个时刻有一个副本场景退出了。一查，原来是个剧情副本的场景。
+这个给了我们一个线索。排除了场景触发离开副本定时器的情况，从代码里面也只找到了一个入口，那就是玩家进入场景时的设置的离开副本定时器。
+我们猜测，这个定时器是之前剧情副本留下的。时间上面也刚好可以吻合：剧情副本的超时时间设的是1小时。</p>
+<p>那么为什么剧情副本的定时器残留下来了呢？从log上看剧情副本一切正常。那退出的时候没有清除定时么？
+分析代码发现，我们初始化定时器的时候并不是立刻存入内存的，而是在处理进一步的操作的时候才写入。当时是为了节省一次写入操作。
+不过加入剧情副本的时候，没有下一步操作，导致这个地方没有写入内存，但是定时器还在那里，结果没有取消掉。解决的办法就是设置定时器以后立刻写入内存。</p>
+<p>至此，问题得到了一个比较完满的解决。</p>
+</div>
+
+    </div>
+
+</div>
+</body>
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_site_pv"><span id="busuanzi_value_site_pv"></span></span>
+</html>

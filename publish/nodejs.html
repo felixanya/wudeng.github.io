@@ -1,0 +1,104 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h1>nodejs</h1><ul>
+<li><a href="#npm-node-package-manager">npm: Node Package Manager</a></li>
+<li><a href="#淘宝镜像">淘宝镜像</a></li>
+<li><a href="#参考文档">参考文档</a></li>
+</ul>
+<h2><a name="npm:-node-package-manager" class="anchor" href="#npm:-node-package-manager"><span class="header-link"></span></a>npm: Node Package Manager</h2><p>Node.js的模块依赖管理工具。
+npm最终要的命令是npm help，掌握了这个命令，就相当于掌握了linux下的man命令，什么问题都能通过查看文档来解决。
+比如要查看配置相关的信息：通过npm help config即可打开网页查看相关的信息。</p>
+<p>npm的配置来自命令行，环境变量以及.npmrc文件，以及package.json文件。
+npm help config
+npm config list [-l] [--json]
+npm config edit
+npm get &lt;key&gt;
+npm set &lt;key&gt; &lt;value&gt; [-g|--global]</p>
+<p>通过<code>npm get</code>可以查看默认配置。如果加了proxy配置，可能导致出现503，too many open connections的错误。
+去掉代理即可。用户配置文件：~/.npmrc。</p>
+<pre><code>; proxy=<span class="hljs-string">http:</span><span class="hljs-comment">//127.0.0.1:1080/</span>
+registry=<span class="hljs-string">https:</span><span class="hljs-comment">//registry.npm.taobao.org/</span>
+disturl=<span class="hljs-string">https:</span><span class="hljs-comment">//npm.taobao.org/dist</span>
+chromedriver_cdnurl=<span class="hljs-string">http:</span><span class="hljs-comment">//cdn.npm.taobao.org/dist/chromedriver</span>
+operadriver_cdnurl=<span class="hljs-string">http:</span><span class="hljs-comment">//cdn.npm.taobao.org/dist/operadriver</span>
+phantomjs_cdnurl=<span class="hljs-string">http:</span><span class="hljs-comment">//cdn.npm.taobao.org/dist/phantomjs</span>
+sass_binary_site=<span class="hljs-string">http:</span><span class="hljs-comment">//cdn.npm.taobao.org/dist/node-sass</span>
+electron_mirror=<span class="hljs-string">http:</span><span class="hljs-comment">//cdn.npm.taobao.org/dist/electron/</span>
+selenium_cdnurl=<span class="hljs-string">http:</span><span class="hljs-comment">//npm.taobao.org/mirrors/selenium</span>
+node_inspector_cdnurl=<span class="hljs-string">https:</span><span class="hljs-comment">//npm.taobao.org/mirrors/node-inspector</span>
+</code></pre><p>我的windows上的npm版本是3.10.10，安装testrpc的时候提示失败。于是更新npm：
+windows 7升级npm：</p>
+<ul>
+<li>PowerShell中运行：Set-ExecutionPolicy Unrestricted -Scope CurrentUser -Force</li>
+<li>npm install --global --production npm-windows-upgrade</li>
+<li>npm-windows-upgrade</li>
+<li>用上下方向键选择要安装的版本，回车安装
+也可以使用<code>npm-windows-upgrade --npm-version latest</code>安装最新版本。
+等待完成即可。使用npm -v可以查新新的版本号。<pre><code><span class="hljs-selector-tag">PS</span> <span class="hljs-selector-tag">C</span>:\<span class="hljs-selector-tag">Users</span>\<span class="hljs-selector-tag">Administrator</span>&gt; <span class="hljs-selector-tag">npm</span> <span class="hljs-selector-tag">-v</span>
+5<span class="hljs-selector-class">.6</span><span class="hljs-selector-class">.0</span>
+</code></pre></li>
+</ul>
+<h2><a name="淘宝镜像" class="anchor" href="#淘宝镜像"><span class="header-link"></span></a>淘宝镜像</h2><p>npm默认的镜像地址在国外，所以最好切换成国内的淘宝镜像。
+查看镜像：</p>
+<pre><code>npm <span class="hljs-built_in">config</span> <span class="hljs-built_in">get</span> registry
+http:<span class="hljs-comment">//registry.npmjs.org/</span>
+</code></pre><p>通过cnpm使用：</p>
+<pre><code><span class="hljs-built_in">npm</span> install -g cnpm --registry=https:<span class="hljs-regexp">//</span>registry.<span class="hljs-built_in">npm</span>.taobao.org
+</code></pre><p><code>cnpm config get registry</code> 可以看到，cnpm已经使用淘宝的镜像了。
+安装成功以后就可以用cnpm命令取代npm了：<code>cnpm install [name]</code>。</p>
+<p>当然也可以通过修改配置文件达到使用镜像的目的。可以直接命令行修改，也可以直接修改.npmrc文件。</p>
+<pre><code><span class="hljs-built_in">npm</span> set registry https:<span class="hljs-regexp">//</span>registry.<span class="hljs-built_in">npm</span>.taobao.org <span class="hljs-comment"># 注册模块镜像</span>
+<span class="hljs-built_in">npm</span> set disturl https:<span class="hljs-regexp">//</span><span class="hljs-built_in">npm</span>.taobao.org/dist <span class="hljs-comment"># node-gyp 编译依赖的 node 源码镜像</span>
+<span class="hljs-built_in">npm</span> set chromedriver_cdnurl http:<span class="hljs-regexp">//</span>cdn.<span class="hljs-built_in">npm</span>.taobao.org/dist/chromedriver <span class="hljs-comment"># chromedriver 二进制包镜像</span>
+<span class="hljs-built_in">npm</span> set operadriver_cdnurl http:<span class="hljs-regexp">//</span>cdn.<span class="hljs-built_in">npm</span>.taobao.org/dist/operadriver <span class="hljs-comment"># operadriver 二进制包镜像</span>
+<span class="hljs-built_in">npm</span> set phantomjs_cdnurl http:<span class="hljs-regexp">//</span>cdn.<span class="hljs-built_in">npm</span>.taobao.org/dist/phantomjs <span class="hljs-comment"># phantomjs 二进制包镜像</span>
+<span class="hljs-built_in">npm</span> set sass_binary_site http:<span class="hljs-regexp">//</span>cdn.<span class="hljs-built_in">npm</span>.taobao.org/dist/node-sass <span class="hljs-comment"># node-sass 二进制包镜像</span>
+<span class="hljs-built_in">npm</span> set electron_mirror http:<span class="hljs-regexp">//</span>cdn.<span class="hljs-built_in">npm</span>.taobao.org<span class="hljs-regexp">/dist/electron/</span> <span class="hljs-comment"># electron 二进制包镜像</span>
+<span class="hljs-built_in">npm</span> set selenium_cdnurl=http:<span class="hljs-regexp">//</span><span class="hljs-built_in">npm</span>.taobao.org/mirrors/selenium
+<span class="hljs-built_in">npm</span> set node_inspector_cdnurl=https:<span class="hljs-regexp">//</span><span class="hljs-built_in">npm</span>.taobao.org/mirrors/node-inspector
+<span class="hljs-built_in">npm</span> cache clean <span class="hljs-comment"># 清空缓存</span>
+</code></pre><h2><a name="参考文档" class="anchor" href="#参考文档"><span class="header-link"></span></a>参考文档</h2><ul>
+<li><a href="https://github.com/felixrieseberg/npm-windows-upgrade">npm-windows-upgrade</a></li>
+<li><a href="https://npm.taobao.org/">https://npm.taobao.org/</a></li>
+</ul>
+</div>
+
+    </div>
+
+</div>
+</body>
+</html>

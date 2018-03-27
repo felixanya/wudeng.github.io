@@ -1,0 +1,75 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><p>what</p>
+<p>一个程序，用来管理ssh私钥。</p>
+<p>有啥用？</p>
+<ul>
+<li>不同的主机使用不同的私钥。ssh_config也可以做到。</li>
+<li>私钥设置了密码，可以免去重复的输入密码的操作。将秘钥加入ssh-agent的时候会提示输入密码，以后通过ssh-agent登陆就不需要再次输入密码了。</li>
+</ul>
+<p>How</p>
+<p>怎样启动：</p>
+<ul>
+<li>ssh-agent bash</li>
+<li>eval <code>ssh-agent</code></li>
+</ul>
+<p>怎样配置？</p>
+<p>首先启动ssh-agent，然后添加私钥：
+ssh-add ~/.ssh/id_rsa</p>
+<p>怎样查看秘钥：
+ssh-add -l
+ssh-add -L</p>
+<p>删除：
+ssh-add -d /path/to/id_rsa
+ssh-add -D</p>
+<p>加锁：
+ssh-add -x</p>
+<p>解锁：
+ssh-add -X</p>
+<p>关闭：
+ssh-agent -k</p>
+<ul>
+<li><a href="http://www.zsythink.net/archives/2407">http://www.zsythink.net/archives/2407</a></li>
+</ul>
+</div>
+
+    </div>
+
+</div>
+</body>
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_site_pv"><span id="busuanzi_value_site_pv"></span></span>
+</html>

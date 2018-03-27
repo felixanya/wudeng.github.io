@@ -1,0 +1,185 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h1>Git</h1><ul>
+<li><a href="#client">client</a></li>
+<li><a href="#分支">分支</a></li>
+<li><a href="#常用命令">常用命令</a></li>
+<li><a href="#branching-model-vicent-driessenhttpnviecompostsa-successful-git-branching-model"><a href="http://nvie.com/posts/a-successful-git-branching-model/">branching model (Vicent Driessen)</a></a></li>
+<li><a href="#git-flow">git-flow</a><ul>
+<li><a href="#初始化">初始化</a></li>
+<li><a href="#开发">开发</a></li>
+<li><a href="#测试">测试</a></li>
+<li><a href="#发布">发布</a></li>
+</ul>
+</li>
+<li><a href="#gitconfig">.gitconfig</a><ul>
+<li><a href="#socks代理">socks代理</a></li>
+</ul>
+</li>
+<li><a href="#参考文档">参考文档</a></li>
+</ul>
+<h2><a name="client" class="anchor" href="#client"><span class="header-link"></span></a>client</h2><p>git client</p>
+<p>.git</p>
+<p>git config --list
+git help config</p>
+<p>git init
+git status</p>
+<p>touch .gitignore
+git status</p>
+<h2><a name="分支" class="anchor" href="#分支"><span class="header-link"></span></a>分支</h2><p>查看所有分支：git branch -a
+checkout远程分支：git checkout lesson-19</p>
+<h2><a name="常用命令" class="anchor" href="#常用命令"><span class="header-link"></span></a>常用命令</h2><p>git fetch origin : harmless
+git pull = git pull + git merge</p>
+<p>查看远程仓库地址</p>
+<ul>
+<li>git config --get remote.origin.url</li>
+<li>git ls-remote --get-url</li>
+<li>git remote get-url origin</li>
+<li>git remote show origin</li>
+<li>git remote -v</li>
+</ul>
+<h2><a name="<a-href="http://nvie.com/posts/a-successful-git-branching-model/">branching-model-(vicent-driessen)</a>" class="anchor" href="#<a-href="http://nvie.com/posts/a-successful-git-branching-model/">branching-model-(vicent-driessen)</a>"><span class="header-link"></span></a><a href="http://nvie.com/posts/a-successful-git-branching-model/">branching model (Vicent Driessen)</a></h2><ul>
+<li>develope 内网开发环境，汇总下个版本的提交。</li>
+<li>master 生产环境。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>branch</th>
+<th>branch from</th>
+<th>merge</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>feature</td>
+<td>develop</td>
+<td>develop</td>
+</tr>
+<tr>
+<td>release</td>
+<td>develop</td>
+<td>develop,master</td>
+</tr>
+<tr>
+<td>hotfix</td>
+<td>master</td>
+<td>develop,master</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>feature<ul>
+<li>git checkout -b myfeature develop</li>
+<li>commit...</li>
+<li>git checkout develop</li>
+<li>git merge --no-ff myfeature</li>
+<li>git branch -d myfeature</li>
+<li>git push origin develop</li>
+</ul>
+</li>
+<li>release 测试环境，基于develope创建，修复bug，最后合并到develope和master分支，并发布master到生产环境，然后删除release分支。<ul>
+<li>git checkout -b release-1.2 develop</li>
+<li>./bump-version.sh 1.2</li>
+<li>git commit -a -m &quot;Bumped version number to 1.2&quot;</li>
+<li>fix bug...</li>
+<li>git checkout master</li>
+<li>git merge --no-ff release-1.2</li>
+<li>git tag -a 1.2</li>
+<li>git checkout develop</li>
+<li>git merge --no-ff release-1.2</li>
+<li>git branch -d release-1.2</li>
+</ul>
+</li>
+<li>hotfix<ul>
+<li>git checkout -b hotfix-1.2.1 master</li>
+<li>./bump-version.sh 1.2.1</li>
+<li>git commit -a -m &quot;Bumped version number to 1.2.1&quot;</li>
+<li>fix bug...</li>
+<li>git commit -m &quot;Fix severe production problem&quot;</li>
+<li>git checkout master</li>
+<li>git merge --no-ff hotfix-1.2.1</li>
+<li>git tag -a 1.2.1</li>
+<li>git checkout develop</li>
+<li>git merge --no-ff hotfix-1.2.1</li>
+<li>git branch -d hotfix-1.2.1</li>
+</ul>
+</li>
+</ul>
+<h2><a name="git-flow" class="anchor" href="#git-flow"><span class="header-link"></span></a>git-flow</h2><h3><a name="初始化" class="anchor" href="#初始化"><span class="header-link"></span></a>初始化</h3><ul>
+<li>git flow init</li>
+</ul>
+<h3><a name="开发" class="anchor" href="#开发"><span class="header-link"></span></a>开发</h3><ul>
+<li>git flow feature start rss-feed</li>
+<li>git commit -am &#39;rss feed&#39;</li>
+<li>...</li>
+<li>git flow feature finish rss-feed</li>
+<li>git push</li>
+</ul>
+<h3><a name="测试" class="anchor" href="#测试"><span class="header-link"></span></a>测试</h3><ul>
+<li>git flow release start v1.1.0</li>
+<li>git commit -am &quot;fix bug 100&quot;</li>
+<li>...</li>
+</ul>
+<h3><a name="发布" class="anchor" href="#发布"><span class="header-link"></span></a>发布</h3><ul>
+<li>git flow release finish v1.1.0</li>
+<li>git push origin master</li>
+</ul>
+<h2><a name=".gitconfig" class="anchor" href="#.gitconfig"><span class="header-link"></span></a>.gitconfig</h2><h3><a name="socks代理" class="anchor" href="#socks代理"><span class="header-link"></span></a>socks代理</h3><p>[http]
+    proxy = &#39;socks5://127.0.0.1:1080&#39;
+[https]
+    proxy = &#39;socks5://127.0.0.1:1080&#39;</p>
+<ul>
+<li>私有GitLab</li>
+</ul>
+<h2><a name="参考文档" class="anchor" href="#参考文档"><span class="header-link"></span></a>参考文档</h2><ul>
+<li><a href="https://www.git-tower.com/learn/git/ebook/cn/command-line/advanced-topics/git-flow">https://www.git-tower.com/learn/git/ebook/cn/command-line/advanced-topics/git-flow</a></li>
+<li><a href="https://github.com/petervanderdoes/gitflow-avh">https://github.com/petervanderdoes/gitflow-avh</a></li>
+<li><a href="https://book.git-scm.com/">https://book.git-scm.com/</a></li>
+<li><a href="https://jeffkreeftmeijer.com/git-flow/">https://jeffkreeftmeijer.com/git-flow/</a></li>
+<li><a href="http://danielkummer.github.io/git-flow-cheatsheet/">http://danielkummer.github.io/git-flow-cheatsheet/</a></li>
+<li><a href="https://gitee.com">https://gitee.com</a></li>
+<li><a href="http://git.oschina.net/progit/">http://git.oschina.net/progit/</a></li>
+</ul>
+</div>
+
+    </div>
+
+</div>
+</body>
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_site_pv"><span id="busuanzi_value_site_pv"></span></span>
+</html>

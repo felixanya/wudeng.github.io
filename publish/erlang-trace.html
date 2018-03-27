@@ -1,0 +1,126 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h1>Erlang Trace</h1><p>tracer有两种，一种是process，一种是port。默认的tracer是个process。
+<code>tracer(process, {Hanlder, HandlerData})</code>
+Hanlder接收两个参数，一个Msg，一个HandlerData，返回更新后的HandlerData。
+Handler = fun((Msg, AccIn) -&gt; AccOut end)
+类似lists:foldl(Fun, Acc0, List)里面的Fun函数，只不过Fun处理的是List里面的元素，
+而Handler处理的是process收到的trace消息。trace消息有五种格式：</p>
+<ul>
+<li>end_of_trace</li>
+<li>trace Tuple</li>
+<li>trace_ts Tuple</li>
+<li>{drop, Msg}</li>
+<li>seq_trace Tuple
+```
+tracer(Total) -&gt;
+  dbg:tracer(process,<pre><code>  {
+      fun
+          (<span class="hljs-name">_</span>, N) when N &gt;= Total -&gt; dbg:stop_clear()<span class="hljs-comment">;</span>
+          (<span class="hljs-name">Msg</span>, N) -&gt; io:format(<span class="hljs-string">"~p~n"</span>, [Msg]), N + <span class="hljs-number">1</span>
+      end,
+      <span class="hljs-number">0</span>
+  }
+</code></pre>  ).</li>
+</ul>
+<p>dbgon(Module) when is_atom(Module) -&gt;
+    dbgon(Module, 100);</p>
+<p>dbgon(MF) when is_list(MF) -&gt;
+    [M, F] = string:tokens(MF, &quot;:&quot;),
+    dbgon(list_to_existing_atom(M), list_to_existing_atom(F)).</p>
+<p>dbgon(Module, N) when is<em>integer(N) -&gt;
+    case tracer(N) of
+      {ok, </em>} -&gt;
+      dbg:p(all, call),
+      dbg:tpl(Module, [{&#39;<em>&#39;, [], [{return_trace}]}]),
+      ok;
+      Else -&gt; Else
+    end;
+dbgon(Module, Fun) when is_atom(Fun) -&gt;
+    dbgon(Module, Fun, 100);
+dbgon(Module, File) when is_list(File) -&gt;
+    {ok, </em>} = dbg:tracer(port, dbg:trace<em>port(file, File)),
+    dbg:p(all, call),
+    dbg:tpl(Module,
+        [{&#39;</em>&#39;, [], [{return_trace}, {exception_trace}]}]),
+    ok.</p>
+<p>dbgon(Module, Fun, File) when is<em>list(File) -&gt;
+    {ok, </em>} = dbg:tracer(port, dbg:trace<em>port(file, File)),
+    dbg:p(all, call),
+    dbg:tpl(Module, Fun,
+        [{&#39;</em>&#39;, [], [{return<em>trace}, {exception_trace}]}]),
+    ok;
+dbgon(Module, Fun, N) when is_atom(Fun) -&gt;
+    {ok, </em>} = tracer(N),
+    dbg:p(all, call),
+    dbg:tpl(Module, Fun,
+        [{&#39;_&#39;, [], [{return_trace}, {exception_trace}]}]),
+    ok.</p>
+<p>dbgon<em>port(Module, TcpPort) when is_integer(TcpPort) -&gt;
+    io:format(&quot;Use this command on the node you&#39;re &quot;
+          &quot;tracing (-remsh ...)\n&quot;),
+    io:format(&quot;Use dbg:stop() on target node when done.\n&quot;),
+    {ok, </em>} = dbg:tracer(port, dbg:trace<em>port(ip, TcpPort)),
+    dbg:p(all, call),
+    dbg:tpl(Module,
+        [{&#39;</em>&#39;, [], [{return_trace}, {exception_trace}]}]),
+    ok.</p>
+<p>dbg_ip_trace(TcpPort) -&gt;
+    io:format(&quot;Run on same machine as target but NOT &quot;
+          &quot;-remsh target-node\n&quot;),
+    io:format(&quot;Use dbg:stop() when done.\n&quot;),
+    dbg:trace_client(ip, TcpPort).</p>
+<p>dbgadd(Module) -&gt;
+    dbg:tpl(Module,
+        [{&#39;_&#39;, [], [{return_trace}, {exception_trace}]}]),
+    ok.</p>
+<p>dbgadd(Module, Fun) -&gt;
+    dbg:tpl(Module, Fun,
+        [{&#39;_&#39;, [], [{return_trace}, {exception_trace}]}]),
+    ok.</p>
+<p>dbgdel(Module) -&gt; dbg:ctpl(Module), ok.</p>
+<p>dbgdel(Module, Fun) -&gt; dbg:ctpl(Module, Fun), ok.</p>
+<p>dbgclr() -&gt; dbg:stop_clear().</p>
+<p>dbgoff() -&gt; dbg:stop().
+```</p>
+</div>
+
+    </div>
+
+</div>
+</body>
+</html>

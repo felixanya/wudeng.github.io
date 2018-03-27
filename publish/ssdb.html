@@ -1,0 +1,149 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><p>每秒钟同步输出到磁盘。</p>
+<ul>
+<li><a href="#leveldb">LevelDB</a></li>
+</ul>
+<h2><a name="leveldb" class="anchor" href="#leveldb"><span class="header-link"></span></a>LevelDB</h2><ul>
+<li>MemTable
+  Key 有序
+  SkipList
+  Lazy delete</li>
+<li>Immutable MemTable</li>
+<li>Current
+  记载当前的Manifest文件名</li>
+<li>Manifest</li>
+<li>log
+  系统崩溃不丢失数据
+  32K per block<pre><code><span class="hljs-attribute">  FULL
+  FIRST
+  MIDDLE
+  LAST</span>
+</code></pre></li>
+<li><p>SSTable
+  ssr文件
+  Key有序
+  Level 0可能重叠
+  Level L不会重叠</p>
+<pre><code>  数据存储区，<span class="hljs-built_in">key</span>-<span class="hljs-built_in">value</span>
+  数据管理区
+
+  Block
+  Snappy
+  CRC
+</code></pre></li>
+</ul>
+<p>Compaction
+    minor
+    major</p>
+<p>nosql
+alternative to redis</p>
+<p>KV
+    list
+    hashmap
+    zset(sorted set)</p>
+<p>commands
+    info
+        cmd
+        leveldb
+    dbsize
+    flushdb
+Key Value:
+    set key value
+    setx key value ttl
+    setnx key value
+    expire key ttl
+    ttl key
+    get key
+    getset key value
+    del key
+    incr key [num]
+    exists key
+    getbit key offset
+Hashmap:
+    hset name key value
+    hget name key
+    hdel name key
+    hclear name
+    hincr name key [num]
+    hlist name_start name_end limit     -- list hashmap names
+    hexists name key
+    hsize name
+    hkeys name key_start key_end limit
+    hgetall name
+Sorted Set:
+    zset name key score
+    zset name key
+    zdel name key
+    zincr name key num
+    zexists name key
+    zsize name
+    zlist name_start name_end limit
+    zrlist name_start name_end limit
+    zkeys name key_start score_start score_end limit
+    zscan name key_start score_start score_end limit
+    zrank name key
+    zrrank name key
+List:
+    qpush_front name item1 item2 ...
+    qpush_back name item1 item2 ...
+    qpop_front name size
+    qpop_back name size
+    qpush name item1 item2 ...
+    qpop name size
+    qfront name
+    qback name
+    qsize name
+    qclear name
+    qget name index
+    qset name index val
+    qrange name offset limit
+    qslice name begin end
+    qtrim_front name size
+    qtrim_back name size
+    qlist name_start name_end limit
+    qrlist name_start name_end limit</p>
+<p><a href="https://github.com/ideawu/ssdb">https://github.com/ideawu/ssdb</a>
+<a href="http://ssdb.io/docs/">http://ssdb.io/docs/</a>
+<a href="https://zhuanlan.zhihu.com/p/25349591">https://zhuanlan.zhihu.com/p/25349591</a></p>
+</div>
+
+    </div>
+
+</div>
+</body>
+</html>

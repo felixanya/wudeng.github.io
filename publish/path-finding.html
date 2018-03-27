@@ -1,0 +1,298 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h1>寻路</h1><ul>
+<li><a href="#地图的表示">地图的表示</a></li>
+<li><a href="#对角移动">对角移动</a></li>
+<li><a href="#启发函数">启发函数</a></li>
+<li><a href="#a">A*</a></li>
+<li><a href="#best-first-search">Best First Search</a></li>
+<li><a href="#双向a搜索">双向A*搜索</a></li>
+<li><a href="#breadth-first-search">Breadth First Search</a></li>
+<li><a href="#dijstra-search">Dijstra Search</a></li>
+<li><a href="#jps">JPS</a></li>
+<li><a href="#jps">JPS+</a></li>
+<li><a href="#goal-bouding">Goal Bouding</a></li>
+<li><a href="#jps-goal-bouding">JPS+ Goal Bouding</a></li>
+<li><a href="#寻路架构优化">寻路架构优化</a></li>
+<li><a href="#参考文献">参考文献</a></li>
+</ul>
+<h2><a name="地图的表示" class="anchor" href="#地图的表示"><span class="header-link"></span></a>地图的表示</h2><ul>
+<li>Grid Search Space</li>
+<li>Way Point Graph</li>
+<li>Navigation Mesh</li>
+</ul>
+<h2><a name="对角移动" class="anchor" href="#对角移动"><span class="header-link"></span></a>对角移动</h2><ul>
+<li>Always 总是允许</li>
+<li>Never 总是禁止</li>
+<li>IfAtMostOneObstacle 最多一个障碍物则允许</li>
+<li>OnlyWhenNoObstacles 仅当没有障碍</li>
+</ul>
+<p>这四种策略决定了一个节点的子节点个数，以及启发函数的选择。</p>
+<pre><code><span class="hljs-comment">/**
+ * Get the neighbors of the given node.
+ *
+ *     offsets      diagonalOffsets:
+ *  +---+---+---+    +---+---+---+
+ *  |   | 0 |   |    | 0 |   | 1 |
+ *  +---+---+---+    +---+---+---+
+ *  | 3 |   | 1 |    |   |   |   |
+ *  +---+---+---+    +---+---+---+
+ *  |   | 2 |   |    | 3 |   | 2 |
+ *  +---+---+---+    +---+---+---+
+ *
+ *  When allowDiagonal is true, if offsets[i] is valid, then
+ *  diagonalOffsets[i] and
+ *  diagonalOffsets[(i + 1) % 4] is valid.
+ * @param {Node} node
+ * @param {DiagonalMovement} diagonalMovement
+ */</span>
+<span class="hljs-symbol">Grid.prototype.getNeighbors</span> = <span class="hljs-meta">function</span>(node, diagonalMovement) {
+    var x = node.x,
+        y = node.y,
+        neighbors = [],
+        <span class="hljs-built_in">s0</span> = false, <span class="hljs-built_in">d0</span> = false,
+        <span class="hljs-built_in">s1</span> = false, <span class="hljs-built_in">d1</span> = false,
+        <span class="hljs-built_in">s2</span> = false, <span class="hljs-built_in">d2</span> = false,
+        <span class="hljs-built_in">s3</span> = false, <span class="hljs-built_in">d3</span> = false,
+        nodes = this.nodes<span class="hljs-comment">;</span>
+
+    // ↑
+    <span class="hljs-meta">if</span> (this.isWalkableAt(x, y - <span class="hljs-number">1</span>)) {
+        neighbors.<span class="hljs-keyword">push(nodes[y </span>- <span class="hljs-number">1</span>][x])<span class="hljs-comment">;</span>
+        <span class="hljs-built_in">s0</span> = true<span class="hljs-comment">;</span>
+    }
+    // →
+    <span class="hljs-meta">if</span> (this.isWalkableAt(x + <span class="hljs-number">1</span>, y)) {
+        neighbors.<span class="hljs-keyword">push(nodes[y][x </span>+ <span class="hljs-number">1</span>])<span class="hljs-comment">;</span>
+        <span class="hljs-built_in">s1</span> = true<span class="hljs-comment">;</span>
+    }
+    // ↓
+    <span class="hljs-meta">if</span> (this.isWalkableAt(x, y + <span class="hljs-number">1</span>)) {
+        neighbors.<span class="hljs-keyword">push(nodes[y </span>+ <span class="hljs-number">1</span>][x])<span class="hljs-comment">;</span>
+        <span class="hljs-built_in">s2</span> = true<span class="hljs-comment">;</span>
+    }
+    // ←
+    <span class="hljs-meta">if</span> (this.isWalkableAt(x - <span class="hljs-number">1</span>, y)) {
+        neighbors.<span class="hljs-keyword">push(nodes[y][x </span>- <span class="hljs-number">1</span>])<span class="hljs-comment">;</span>
+        <span class="hljs-built_in">s3</span> = true<span class="hljs-comment">;</span>
+    }
+
+    <span class="hljs-meta">if</span> (diagonalMovement === DiagonalMovement.Never) {
+        return neighbors<span class="hljs-comment">;</span>
+    }
+
+    <span class="hljs-meta">if</span> (diagonalMovement === DiagonalMovement.OnlyWhenNoObstacles) {
+        <span class="hljs-built_in">d0</span> = <span class="hljs-built_in">s3</span> &amp;&amp; <span class="hljs-built_in">s0</span><span class="hljs-comment">;</span>
+        <span class="hljs-built_in">d1</span> = <span class="hljs-built_in">s0</span> &amp;&amp; <span class="hljs-built_in">s1</span><span class="hljs-comment">;</span>
+        <span class="hljs-built_in">d2</span> = <span class="hljs-built_in">s1</span> &amp;&amp; <span class="hljs-built_in">s2</span><span class="hljs-comment">;</span>
+        <span class="hljs-built_in">d3</span> = <span class="hljs-built_in">s2</span> &amp;&amp; <span class="hljs-built_in">s3</span><span class="hljs-comment">;</span>
+    } <span class="hljs-meta">else</span> <span class="hljs-meta">if</span> (diagonalMovement === DiagonalMovement.IfAtMostOneObstacle) {
+        <span class="hljs-built_in">d0</span> = <span class="hljs-built_in">s3</span> <span class="hljs-title">||</span> <span class="hljs-built_in">s0</span><span class="hljs-comment">;</span>
+        <span class="hljs-built_in">d1</span> = <span class="hljs-built_in">s0</span> <span class="hljs-title">||</span> <span class="hljs-built_in">s1</span><span class="hljs-comment">;</span>
+        <span class="hljs-built_in">d2</span> = <span class="hljs-built_in">s1</span> <span class="hljs-title">||</span> <span class="hljs-built_in">s2</span><span class="hljs-comment">;</span>
+        <span class="hljs-built_in">d3</span> = <span class="hljs-built_in">s2</span> <span class="hljs-title">||</span> <span class="hljs-built_in">s3</span><span class="hljs-comment">;</span>
+    } <span class="hljs-meta">else</span> <span class="hljs-meta">if</span> (diagonalMovement === DiagonalMovement.Always) {
+        <span class="hljs-built_in">d0</span> = true<span class="hljs-comment">;</span>
+        <span class="hljs-built_in">d1</span> = true<span class="hljs-comment">;</span>
+        <span class="hljs-built_in">d2</span> = true<span class="hljs-comment">;</span>
+        <span class="hljs-built_in">d3</span> = true<span class="hljs-comment">;</span>
+    } <span class="hljs-meta">else</span> {
+        throw new Error(<span class="hljs-string">'Incorrect value of diagonalMovement'</span>)<span class="hljs-comment">;</span>
+    }
+
+    // ↖
+    <span class="hljs-meta">if</span> (<span class="hljs-built_in">d0</span> &amp;&amp; this.isWalkableAt(x - <span class="hljs-number">1</span>, y - <span class="hljs-number">1</span>)) {
+        neighbors.<span class="hljs-keyword">push(nodes[y </span>- <span class="hljs-number">1</span>][x - <span class="hljs-number">1</span>])<span class="hljs-comment">;</span>
+    }
+    // ↗
+    <span class="hljs-meta">if</span> (<span class="hljs-built_in">d1</span> &amp;&amp; this.isWalkableAt(x + <span class="hljs-number">1</span>, y - <span class="hljs-number">1</span>)) {
+        neighbors.<span class="hljs-keyword">push(nodes[y </span>- <span class="hljs-number">1</span>][x + <span class="hljs-number">1</span>])<span class="hljs-comment">;</span>
+    }
+    // ↘
+    <span class="hljs-meta">if</span> (<span class="hljs-built_in">d2</span> &amp;&amp; this.isWalkableAt(x + <span class="hljs-number">1</span>, y + <span class="hljs-number">1</span>)) {
+        neighbors.<span class="hljs-keyword">push(nodes[y </span>+ <span class="hljs-number">1</span>][x + <span class="hljs-number">1</span>])<span class="hljs-comment">;</span>
+    }
+    // ↙
+    <span class="hljs-meta">if</span> (<span class="hljs-built_in">d3</span> &amp;&amp; this.isWalkableAt(x - <span class="hljs-number">1</span>, y + <span class="hljs-number">1</span>)) {
+        neighbors.<span class="hljs-keyword">push(nodes[y </span>+ <span class="hljs-number">1</span>][x - <span class="hljs-number">1</span>])<span class="hljs-comment">;</span>
+    }
+
+    return neighbors<span class="hljs-comment">;</span>
+}<span class="hljs-comment">;</span>
+</code></pre><h2><a name="启发函数" class="anchor" href="#启发函数"><span class="header-link"></span></a>启发函数</h2><ul>
+<li>manhattan(曼哈顿)<ul>
+<li>不允许对角线移动</li>
+</ul>
+</li>
+<li>euclidean(欧几里德)</li>
+<li>octile<ul>
+<li>计算简答</li>
+</ul>
+</li>
+<li>chebyshev(切比雪夫)</li>
+</ul>
+<pre><code><span class="hljs-symbol">manhattan:</span> function(<span class="hljs-built_in">dx</span>, <span class="hljs-built_in">dy</span>) {
+  return <span class="hljs-built_in">dx</span> + <span class="hljs-built_in">dy</span><span class="hljs-comment">;</span>
+},
+<span class="hljs-symbol">
+euclidean:</span> function(<span class="hljs-built_in">dx</span>, <span class="hljs-built_in">dy</span>) {
+  return Math.sqrt(<span class="hljs-built_in">dx</span> * <span class="hljs-built_in">dx</span> + <span class="hljs-built_in">dy</span> * <span class="hljs-built_in">dy</span>)<span class="hljs-comment">;</span>
+},
+
+// min(<span class="hljs-built_in">dx</span>, <span class="hljs-built_in">dy</span>)*SQRT2 + <span class="hljs-built_in">abs</span>(<span class="hljs-built_in">dx</span> - <span class="hljs-built_in">dy</span>)
+// min(<span class="hljs-built_in">dx</span>, <span class="hljs-built_in">dy</span>)*(SQRT2-<span class="hljs-number">1</span>) + max(<span class="hljs-built_in">dx</span>, <span class="hljs-built_in">dy</span>)
+<span class="hljs-symbol">octile:</span> function(<span class="hljs-built_in">dx</span>, <span class="hljs-built_in">dy</span>) {
+  var F = Math.SQRT2 - <span class="hljs-number">1</span><span class="hljs-comment">;</span>
+  return (<span class="hljs-built_in">dx</span> &lt; <span class="hljs-built_in">dy</span>) ? F * <span class="hljs-built_in">dx</span> + <span class="hljs-built_in">dy</span> : F * <span class="hljs-built_in">dy</span> + <span class="hljs-built_in">dx</span><span class="hljs-comment">;</span>
+},
+<span class="hljs-symbol">
+chebyshev:</span> function(<span class="hljs-built_in">dx</span>, <span class="hljs-built_in">dy</span>) {
+  return Math.max(<span class="hljs-built_in">dx</span>, <span class="hljs-built_in">dy</span>)<span class="hljs-comment">;</span>
+}
+</code></pre><p>当不允许对角移动的时候，默认选择曼哈顿，当允许对角移动时默认选择Octile.</p>
+<pre><code><span class="hljs-comment">// When diagonal movement is allowed the manhattan heuristic is not</span>
+<span class="hljs-comment">//admissible. It should be octile instead</span>
+<span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.diagonalMovement === DiagonalMovement.Never) {
+    <span class="hljs-keyword">this</span>.heuristic = opt.heuristic || Heuristic.manhattan;
+} <span class="hljs-keyword">else</span> {
+    <span class="hljs-keyword">this</span>.heuristic = opt.heuristic || Heuristic.octile;
+}
+</code></pre><h2><a name="a*" class="anchor" href="#a*"><span class="header-link"></span></a>A*</h2><p>维护一个根据f排序的OpenList(PriorityQueue, MinHeap，桶排序)，初始将起点加入OpenList。每次从OpenList中取出一个节点Node，
+如果Node等于终点，则回溯起点构造路径并返回，否则设置Node为Closed，得到Node的相邻节点，遍历相邻节点，如果节点已经Open，重新计算f，
+如果得到更小的g，则更新OpenList中的节点信息，如果已经Close，则跳过。如果没有Open也没有Close则计算新的f值，加入OpenList。
+直到OpenList为空，说明终点不可达。上下左右相邻格子距离为1，对角格子距离为SQRT2。</p>
+<h2><a name="best-first-search" class="anchor" href="#best-first-search"><span class="header-link"></span></a>Best First Search</h2><p>跟A<em>的区别在于对评估函数的定义。A</em>算是一种BFS的一种特殊情况。如果不考虑g，只考虑h评估函数，则成为贪心BFS或者纯启发搜索。</p>
+<pre><code><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">BestFirstFinder</span><span class="hljs-params">(opt)</span> </span>{
+    AStarFinder.call(<span class="hljs-keyword">this</span>, opt);
+
+    <span class="hljs-keyword">var</span> orig = <span class="hljs-keyword">this</span>.heuristic;
+    <span class="hljs-keyword">this</span>.heuristic = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(dx, dy)</span> </span>{
+        <span class="hljs-keyword">return</span> orig(dx, dy) * <span class="hljs-number">1000000</span>; <span class="hljs-comment">// 放大h的权重</span>
+    };
+}
+</code></pre><h2><a name="双向a*搜索" class="anchor" href="#双向a*搜索"><span class="header-link"></span></a>双向A*搜索</h2><p>同时从起点和终点出发，相遇的时候构造路径，不能保证是最短路径，但能保证找到最短路径。</p>
+<ul>
+<li>opened :: BY_START | BY_END</li>
+<li>closed :: true | undefined</li>
+<li>g</li>
+<li>h</li>
+<li>f = g + h</li>
+<li>parent</li>
+</ul>
+<h2><a name="breadth-first-search" class="anchor" href="#breadth-first-search"><span class="header-link"></span></a>Breadth First Search</h2><p>宽度有限搜索，效率不高。搜索空间太大，双向会好一点，实用价值不大。</p>
+<h2><a name="dijstra-search" class="anchor" href="#dijstra-search"><span class="header-link"></span></a>Dijstra Search</h2><p>算是A*的特殊形式。不考虑启发函数，只考虑g。效率太差，基本相当于暴力搜索，实用价值不大。
+跟宽度优先搜索相比，多了一个对角距离的的考虑。</p>
+<h2><a name="jps" class="anchor" href="#jps"><span class="header-link"></span></a>JPS</h2><blockquote>
+<p>avoid redundant paths on grids</p>
+</blockquote>
+<p>2011年由Daniel Harabor和Alban Grastien两人提出，相比A<em>，JPS能够将性能提升10倍左右。
+2014年，Daniel Harabor和Alban Grastien又提出了JPS+，又将JPS性能提升了10倍左右。
+巧合的是GAME AI PRO(1,2,3)的作者Steve Rabin也独立提出了同样的算法。Steve在15thGDC上提出了JPS+ GB算法，
+能够将A</em>的性能提升1000倍以上。</p>
+<p>JPS的核心思想是减少网格地图的冗余等效路径。我们不需要找到所有的最佳路径，只需要一条就够了。
+加入开放列表的节点为跳点。</p>
+<h2><a name="jps+" class="anchor" href="#jps+"><span class="header-link"></span></a>JPS+</h2><p>JPS 加上预处理。提前计算每个节点八个方向上的跳点。</p>
+<p>straight jump points
+diagonal jump points</p>
+<p>wall distances</p>
+<p>fast stack and unsorted open list</p>
+<h2><a name="goal-bouding" class="anchor" href="#goal-bouding"><span class="header-link"></span></a>Goal Bouding</h2><blockquote>
+<p>avoid wrong directions on any kind of map</p>
+</blockquote>
+<p>避免错误的方向。O(n2)的预处理时间。</p>
+<h2><a name="jps+-goal-bouding" class="anchor" href="#jps+-goal-bouding"><span class="header-link"></span></a>JPS+ Goal Bouding</h2><p>目前应该是最快的寻路算法。</p>
+<h2><a name="寻路架构优化" class="anchor" href="#寻路架构优化"><span class="header-link"></span></a>寻路架构优化</h2><p>同样是A*算法，最好的实现与最差的实现速度相差了百倍。所以，算法的优化也相当关键。</p>
+<ul>
+<li>高质量的启发函数<ul>
+<li>提前计算好路径保存起来。（Floyd-Warshall）</li>
+<li>无损压缩</li>
+<li>有损压缩 Euclidean embedding</li>
+</ul>
+</li>
+<li>搜索空间<ul>
+<li>格子，路点，导航网格</li>
+</ul>
+</li>
+<li>提前分配好需要的内存</li>
+<li>Overestimating the Heuristic<ul>
+<li>如果要最优路径，那么启发函数不能大于实际距离</li>
+<li>然而使用大一点的启发函数，可以更快速的得到一个次优路径</li>
+<li>f(x) = g(x) + (h(x) * weight)<ul>
+<li>weight = 0, Dijstra, 保证最优路径，但是效率堪忧</li>
+<li>weight = 1, 经典A*</li>
+<li>weight &gt; 1, Gready Best-First search，非最优，侧重于尽快的找到目标</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>更好的启发函数<ul>
+<li>Euclidean</li>
+<li>octile: max(dx, dy) + 0.41 * min(dx, dy), 对角距离为1.41 = sqrt(2)</li>
+<li>Manhattan</li>
+</ul>
+</li>
+<li>Open List Sorting<ul>
+<li>PriorityQueue, Heap</li>
+<li>weak heap</li>
+<li>f-cost lists fifo</li>
+<li>array for short list, 尾部加入，移除时跟尾部交换</li>
+</ul>
+</li>
+<li>搜索过程中不回溯 visited JPS</li>
+</ul>
+<h2><a name="参考文献" class="anchor" href="#参考文献"><span class="header-link"></span></a>参考文献</h2><ul>
+<li><a href="http://theory.stanford.edu/~amitp/GameProgramming/index.html">http://theory.stanford.edu/~amitp/GameProgramming/index.html</a></li>
+<li><a href="https://zerowidth.com/2013/05/05/jump-point-search-explained.html">https://zerowidth.com/2013/05/05/jump-point-search-explained.html</a></li>
+<li><a href="http://www.gdcvault.com/play/1022094/JPS-Over-100x-Faster-than">http://www.gdcvault.com/play/1022094/JPS-Over-100x-Faster-than</a></li>
+<li><a href="https://github.com/SteveRabin/JPSPlusWithGoalBounding">https://github.com/SteveRabin/JPSPlusWithGoalBounding</a></li>
+<li><a href="http://qiao.github.io/PathFinding.js/visual/">http://qiao.github.io/PathFinding.js/visual/</a></li>
+<li><a href="http://web.cs.du.edu/~sturtevant/ai-s11/Lecture01.pdf">http://web.cs.du.edu/~sturtevant/ai-s11/Lecture01.pdf</a></li>
+<li><a href="http://web.cs.du.edu/~sturtevant/ai-s11/Lecture05.pdf">http://web.cs.du.edu/~sturtevant/ai-s11/Lecture05.pdf</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Best-first_search">https://en.wikipedia.org/wiki/Best-first_search</a></li>
+<li><a href="http://users.cecs.anu.edu.au/~dharabor/data/papers/harabor-grastien-aaai11.pdf">http://users.cecs.anu.edu.au/~dharabor/data/papers/harabor-grastien-aaai11.pdf</a></li>
+<li><a href="http://www.policyalmanac.org/games/aStarTutorial.htm">http://www.policyalmanac.org/games/aStarTutorial.htm</a></li>
+<li><a href="http://users.cecs.anu.edu.au/~dharabor/data/papers/harabor-grastien-icaps14.pdf">Improving Jump Point Search</a></li>
+<li><a href="http://www.gad.qq.com/article/detail/10044">http://www.gad.qq.com/article/detail/10044</a></li>
+<li>GameAI Pro by SteveRabin &amp; Nathan R. Sturtevant</li>
+</ul>
+</div>
+
+    </div>
+
+</div>
+</body>
+</html>

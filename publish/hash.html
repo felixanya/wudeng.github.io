@@ -1,0 +1,162 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h1>一致性哈希</h1><ul>
+<li><a href="#一般方案">一般方案</a></li>
+<li><a href="#一致性哈希-consistent-hashing">一致性哈希 Consistent hashing</a></li>
+</ul>
+<h2><a name="一般方案" class="anchor" href="#一般方案"><span class="header-link"></span></a>一般方案</h2><p>hash(key) % N</p>
+<p>分布式缓存，节点的增删导致几乎所有key重新映射，对后端服务器造成巨大压力。
+而且会发生数据不一致。比方说修改了A缓存服务器上的数据尚未写回数据库，这时映射变化了，客户端发起了读取该记录的请求，通过另外的缓存服务器读取这时读到的就是老的内容。</p>
+<p>解决节点动态变化的难点：一致性Hash。</p>
+<h2><a name="一致性哈希-consistent-hashing" class="anchor" href="#一致性哈希-consistent-hashing"><span class="header-link"></span></a>一致性哈希 Consistent hashing</h2><ul>
+<li>请求分流与负载均衡</li>
+<li>分布式缓存</li>
+<li>分布式存储</li>
+</ul>
+<p>每个节点有唯一ID，于Key同构。映射到一个环上。根据Key在环上的位置顺时钟查找Node.</p>
+<pre><code><span class="hljs-keyword">package</span> consistent_hashing
+<span class="hljs-keyword">import</span> (
+    <span class="hljs-string">"crypto/md5"</span>
+    <span class="hljs-string">"hash/crc32"</span>
+    <span class="hljs-string">"strconv"</span>
+    <span class="hljs-string">"sort"</span>
+    <span class="hljs-string">"sync"</span>
+)
+<span class="hljs-keyword">type</span> Node <span class="hljs-keyword">struct</span> {
+    Id      <span class="hljs-keyword">string</span>
+    Address <span class="hljs-keyword">string</span>
+}
+<span class="hljs-keyword">type</span> ConsistentHashing <span class="hljs-keyword">struct</span> {
+    mutex    sync.RWMutex
+    nodes    <span class="hljs-keyword">map</span>[<span class="hljs-keyword">int</span>]Node
+    replicas <span class="hljs-keyword">int</span>
+}
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">NewConsistentHashing</span><span class="hljs-params">(nodes []Node, replicas <span class="hljs-keyword">int</span>)</span> *<span class="hljs-title">ConsistentHashing</span></span> {
+    ch := &amp;ConsistentHashing{nodes: <span class="hljs-built_in">make</span>(<span class="hljs-keyword">map</span>[<span class="hljs-keyword">int</span>]Node), replicas: replicas}
+    <span class="hljs-keyword">for</span> _, node := <span class="hljs-keyword">range</span> nodes {
+        ch.AddNode(node)
+    }
+    <span class="hljs-keyword">return</span> ch
+}
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(ch *ConsistentHashing)</span> <span class="hljs-title">AddNode</span><span class="hljs-params">(node Node)</span></span> {
+    ch.mutex.Lock()
+    <span class="hljs-keyword">defer</span> ch.mutex.Unlock()
+    <span class="hljs-keyword">for</span> i := <span class="hljs-number">0</span>; i &lt; ch.replicas; i++ {
+        k := hash(node.Id + <span class="hljs-string">"_"</span> + strconv.Itoa(i))
+        ch.nodes[k] = node
+    }
+}
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(ch *ConsistentHashing)</span> <span class="hljs-title">RemoveNode</span><span class="hljs-params">(node Node)</span></span> {
+    ch.mutex.Lock()
+    <span class="hljs-keyword">defer</span> ch.mutex.Unlock()
+    <span class="hljs-keyword">for</span> i := <span class="hljs-number">0</span>; i &lt; ch.replicas; i++ {
+        k := hash(node.Id + <span class="hljs-string">"_"</span> + strconv.Itoa(i))
+        <span class="hljs-built_in">delete</span>(ch.nodes, k)
+    }
+}
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(ch *ConsistentHashing)</span> <span class="hljs-title">GetNode</span><span class="hljs-params">(outerKey <span class="hljs-keyword">string</span>)</span> <span class="hljs-title">Node</span></span> {
+    key := hash(outerKey)
+    nodeKey := ch.findNearestNodeKeyClockwise(key)
+    <span class="hljs-keyword">return</span> ch.nodes[nodeKey]
+}
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(ch *ConsistentHashing)</span> <span class="hljs-title">findNearestNodeKeyClockwise</span><span class="hljs-params">(key <span class="hljs-keyword">int</span>)</span> <span class="hljs-title">int</span></span> {
+    ch.mutex.RLock()
+    sortKeys := sortKeys(ch.nodes)
+    ch.mutex.RUnlock()
+    <span class="hljs-keyword">for</span> _, k := <span class="hljs-keyword">range</span> sortKeys {
+        <span class="hljs-keyword">if</span> key &lt;= k {
+            <span class="hljs-keyword">return</span> k
+        }
+    }
+    <span class="hljs-keyword">return</span> sortKeys[<span class="hljs-number">0</span>]
+}
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">sortKeys</span><span class="hljs-params">(m <span class="hljs-keyword">map</span>[<span class="hljs-keyword">int</span>]Node)</span> []<span class="hljs-title">int</span></span> {
+    <span class="hljs-keyword">var</span> sortedKeys []<span class="hljs-keyword">int</span>
+    <span class="hljs-keyword">for</span> k := <span class="hljs-keyword">range</span> m {
+        sortedKeys = <span class="hljs-built_in">append</span>(sortedKeys, k)
+    }
+    sort.Ints(sortedKeys)
+    <span class="hljs-keyword">return</span> sortedKeys
+}
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">hash</span><span class="hljs-params">(key <span class="hljs-keyword">string</span>)</span> <span class="hljs-title">int</span></span> {
+    md5Chan := <span class="hljs-built_in">make</span>(<span class="hljs-keyword">chan</span> []<span class="hljs-keyword">byte</span>, <span class="hljs-number">1</span>)
+    md5Sum := md5.Sum([]<span class="hljs-keyword">byte</span>(key))
+    md5Chan &lt;- md5Sum[:]
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">int</span>(crc32.ChecksumIEEE(&lt;-md5Chan))
+}
+</code></pre><pre><code><span class="hljs-keyword">package</span> main
+<span class="hljs-keyword">import</span> (
+    <span class="hljs-string">"consistent_hashing"</span>
+    <span class="hljs-string">"net/http"</span>
+    <span class="hljs-string">"net/http/httputil"</span>
+    <span class="hljs-string">"net/url"</span>
+)
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> {
+    nodes := []consistent_hashing.Node{
+        {<span class="hljs-string">"0"</span>, <span class="hljs-string">"http://10.10.1.10/"</span>},
+        {<span class="hljs-string">"1"</span>, <span class="hljs-string">"http://10.10.1.11/"</span>},
+        {<span class="hljs-string">"2"</span>, <span class="hljs-string">"http://10.10.1.12/"</span>},
+    }
+    ch := consistent_hashing.NewConsistentHashing(nodes, <span class="hljs-number">100</span>)
+    http.HandleFunc(<span class="hljs-string">"/"</span>, <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(w http.ResponseWriter, r *http.Request)</span></span> {
+        sign := r.Header.Get(<span class="hljs-string">"sign"</span>)
+        node := ch.GetNode(sign)
+        uri, _ := url.Parse(node.Address)
+        httputil.NewSingleHostReverseProxy(uri)
+    })
+    http.ListenAndServe(<span class="hljs-string">":8080"</span>, <span class="hljs-literal">nil</span>)
+}
+</code></pre><p>怎样创建多个虚拟节点：
+    replicas
+    for i := 0; i &lt; replicas; i++ {
+        k := hash(node.id + &quot;_&quot; + strconv:Itoa(i))
+        nodes[id] = node
+    }</p>
+<p>怎样找到key对应的节点
+    排序，遍历</p>
+<ul>
+<li><a href="http://www.zsythink.net/archives/1182">http://www.zsythink.net/archives/1182</a></li>
+<li><a href="https://leileiluoluo.com/posts/consistent-hashing-and-high-available-cluster-proxy.html">https://leileiluoluo.com/posts/consistent-hashing-and-high-available-cluster-proxy.html</a></li>
+</ul>
+</div>
+
+    </div>
+
+</div>
+</body>
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_site_pv"><span id="busuanzi_value_site_pv"></span></span>
+</html>

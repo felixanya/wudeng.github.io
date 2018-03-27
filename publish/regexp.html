@@ -1,0 +1,80 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><p>regexp</p>
+<p>text: <code>&#39;Speed&#39;,6.0,</code>
+查找Speed后面的速度：positive lookbehind</p>
+<pre><code><span class="hljs-keyword">grep</span> -oP <span class="hljs-string">"(?&lt;=Speed',)[^,]*"</span> <span class="hljs-keyword">file</span>
+</code></pre><p>-o 仅显示匹配的字符
+-P perl-like regexp
+里面要匹配单引号，所以外面用双引号。<code>[^,]</code>表示除了<code>,</code>外的其他符号。
+<code>(?&lt;=pattern)</code> positive lookbehind</p>
+<p>(?:pattern) 非获取匹配</p>
+<ul>
+<li>匹配 pattern 但不获取匹配结果，也就是说这是一个非获取匹配，不进行存储供以后使用。这在使用 &quot;或&quot; 字符 (|) 来组合一个模式的各个部分是很有用。
+例如， &#39;industr(?:y|ies) 就是一个比 &#39;industry|industries&#39; 更简略的表达式。</li>
+</ul>
+<p>(?=pattern) look ahead positive assert</p>
+<ul>
+<li>正向肯定预查（look ahead positive assert），在任何匹配pattern的字符串开始处匹配查找字符串。这是一个非获取匹配，也就是说，该匹配不需要获取供以后使用。
+例如，&quot;Windows(?=95|98|NT|2000)&quot;能匹配&quot;Windows2000&quot;中的&quot;Windows&quot;，但不能匹配&quot;Windows3.1&quot;中的&quot;Windows&quot;。
+预查不消耗字符，也就是说，在一个匹配发生后，在最后一次匹配之后立即开始下一次匹配的搜索，而不是从包含预查的字符之后开始。</li>
+</ul>
+<p>(?!pattern) look ahead negative assert</p>
+<ul>
+<li>正向否定预查(negative assert)，在任何不匹配pattern的字符串开始处匹配查找字符串。这是一个非获取匹配，也就是说，该匹配不需要获取供以后使用。
+例如&quot;Windows(?!95|98|NT|2000)&quot;能匹配&quot;Windows3.1&quot;中的&quot;Windows&quot;，但不能匹配&quot;Windows2000&quot;中的&quot;Windows&quot;。
+预查不消耗字符，也就是说，在一个匹配发生后，在最后一次匹配之后立即开始下一次匹配的搜索，而不是从包含预查的字符之后开始。</li>
+</ul>
+<p>(?&lt;=pattern) look behind positive assert 查找pattern后面的内容，需要先匹配上pattern，但是pattern并不会返回</p>
+<ul>
+<li>反向(look behind)肯定预查，与正向肯定预查类似，只是方向相反。例如，&quot;(?&lt;=95|98|NT|2000)Windows&quot;能匹配&quot;2000Windows&quot;中的&quot;Windows&quot;，但不能匹配&quot;3.1Windows&quot;中的&quot;Windows&quot;。</li>
+</ul>
+<p>(?&lt;!pattern) look behind negative assert</p>
+<ul>
+<li>反向否定预查，与正向否定预查类似，只是方向相反。例如&quot;(?&lt;!95|98|NT|2000)Windows&quot;能匹配&quot;3.1Windows&quot;中的&quot;Windows&quot;，但不能匹配&quot;2000Windows&quot;中的&quot;Windows&quot;。</li>
+</ul>
+<p><code>=</code> positive: 需要匹配该模式
+<code>!</code> negative: 不匹配该模式，否定该模式，比如查找不是xxx</p>
+<p><code>&lt;</code> look behind 否则 Look ahead</p>
+</div>
+
+    </div>
+
+</div>
+</body>
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_site_pv"><span id="busuanzi_value_site_pv"></span></span>
+</html>

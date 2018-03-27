@@ -1,0 +1,124 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h1>Install samba on CentOS 6</h1><ul>
+<li><a href="#安装samba">安装Samba</a></li>
+<li><a href="#配置匿名共享">配置匿名共享</a></li>
+<li><a href="#配置用户和组">配置用户和组</a></li>
+<li><a href="#参考文档">参考文档</a></li>
+</ul>
+<h2><a name="安装samba" class="anchor" href="#安装samba"><span class="header-link"></span></a>安装Samba</h2><p>安装:</p>
+<pre><code>sudo yum install samba samba-<span class="hljs-keyword">client</span> samba-<span class="hljs-keyword">common</span>
+</code></pre><p>检查版本:</p>
+<pre><code>smbd <span class="hljs-comment">--version</span>
+</code></pre><p>配置开机启动:</p>
+<pre><code>sudo chkconfig<span class="hljs-built_in"> smb </span>on
+sudo chkconfig nmb on
+</code></pre><p>禁用SELinux，修改<code>/etc/selinux/config</code>:</p>
+<pre><code><span class="hljs-attr">SELinux</span>=disabled
+</code></pre><p>samba使用137,138, 139, 445端口：
+(Old system)</p>
+<ul>
+<li>Port 137 – UDP NetBIOS name service (WINS)</li>
+<li>Port 138 – UDP NetBIOS datagram</li>
+<li>Port 139 – TCP NetBIOS Session (TCP), Windows File and Printer Sharing (this is the most insecure port)</li>
+</ul>
+<p>(Active Directory)</p>
+<ul>
+<li>Port 445 - Microsoft-DS Active Directory, Windows shares (TCP)</li>
+<li>Port 445 - Microsoft-DS SMB file sharing (UDP)</li>
+</ul>
+<p>配置防火墙:</p>
+<pre><code>sudo iptables -I INPUT <span class="hljs-number">4</span> -m <span class="hljs-keyword">state</span> --state NEW -m udp -p udp --dport <span class="hljs-number">137</span> -j ACCEPT
+sudo iptables -I INPUT <span class="hljs-number">5</span> -m <span class="hljs-keyword">state</span> --state NEW -m udp -p udp --dport <span class="hljs-number">138</span> -j ACCEPT
+sudo iptables -I INPUT <span class="hljs-number">6</span> -m <span class="hljs-keyword">state</span> --state NEW -m tcp -p tcp --dport <span class="hljs-number">139</span> -j ACCEPT
+
+sudo iptables -I INPUT <span class="hljs-number">7</span> -m <span class="hljs-keyword">state</span> --state NEW -m tcp -p tcp --dport <span class="hljs-number">445</span> -j ACCEPT
+sudo iptables -I INPUT <span class="hljs-number">8</span> -m <span class="hljs-keyword">state</span> --state NEW -m udp -p udp --dport <span class="hljs-number">445</span> -j ACCEPT
+sudo service iptables save
+</code></pre><h2><a name="配置匿名共享" class="anchor" href="#配置匿名共享"><span class="header-link"></span></a>配置匿名共享</h2><p>建立匿名共享文件夹，设置所有人可读写。</p>
+<pre><code><span class="hljs-title">mkdir</span> -p /<span class="hljs-class"><span class="hljs-keyword">data</span>/share</span>
+<span class="hljs-title">chmod</span> <span class="hljs-number">0777</span> /<span class="hljs-class"><span class="hljs-keyword">data</span>/share</span>
+</code></pre><p>检查windows的工作组：</p>
+<pre><code>net<span class="hljs-built_in"> config </span>workstation
+</code></pre><p>一般都是WORKGROUP。</p>
+<p>备份<code>/etc/samba/smb.conf</code>, 编辑内容如下:</p>
+<pre><code>[global]
+workgroup = WORKGROUP
+security = share
+map <span class="hljs-keyword">to</span> guest = bad<span class="hljs-built_in"> user
+</span>
+[MyShare]
+path = /data/share
+browsable = <span class="hljs-literal">yes</span>
+writeable = <span class="hljs-literal">yes</span>
+guest ok = <span class="hljs-literal">yes</span>
+read only = <span class="hljs-literal">no</span>
+</code></pre><p>重启服务：</p>
+<pre><code>service<span class="hljs-built_in"> smb </span>restart<span class="hljs-built_in">
+service </span>nmb restart
+</code></pre><h2><a name="配置用户和组" class="anchor" href="#配置用户和组"><span class="header-link"></span></a>配置用户和组</h2><pre><code><span class="hljs-attribute">sudo groupadd smbgrp</span>
+</code></pre><pre><code><span class="hljs-keyword">cd</span> /data/
+sudo <span class="hljs-built_in">mkdir</span> secure
+sudo chown -R arba<span class="hljs-variable">b:smbgrp</span> secure/ 
+<span class="hljs-keyword">ls</span> -<span class="hljs-keyword">l</span> 
+sudo chmod -R <span class="hljs-number">0770</span> secure/
+<span class="hljs-keyword">ls</span> -<span class="hljs-keyword">l</span>
+</code></pre><p>新增用户，设置密码</p>
+<pre><code>sudo usermod -<span class="hljs-selector-tag">a</span> -G smbgrp ts
+sudo smbpasswd -<span class="hljs-selector-tag">a</span> ts
+</code></pre><p>编辑配置文件：</p>
+<pre><code>[Secure]
+path = /samba/secure
+valid<span class="hljs-built_in"> users </span>= @smbgrp
+guest ok = <span class="hljs-literal">no</span>
+writable = <span class="hljs-literal">yes</span>
+browsable = <span class="hljs-literal">yes</span>
+</code></pre><p>检查语法：</p>
+<pre><code><span class="hljs-attribute">testparm</span>
+</code></pre><p>重启服务。</p>
+<p>Windows上面可以通过配置网络驱动器来访问共享文件夹。</p>
+<h2><a name="参考文档" class="anchor" href="#参考文档"><span class="header-link"></span></a>参考文档</h2><ul>
+<li><a href="https://rbgeek.wordpress.com/2012/05/25/how-to-install-samba-server-on-centos-6/">https://rbgeek.wordpress.com/2012/05/25/how-to-install-samba-server-on-centos-6/</a></li>
+<li><a href="https://wiki.centos.org/HowTos/SetUpSamba">https://wiki.centos.org/HowTos/SetUpSamba</a></li>
+</ul>
+</div>
+
+    </div>
+
+</div>
+</body>
+</html>

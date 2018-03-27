@@ -1,0 +1,72 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><p>回源</p>
+<p>强缓存: 不发请求到服务器
+    Expire : http 1.0，返回GMT的绝对时间
+        expires: thu, 02 feb 2017 08:00:00 GMT
+    Cache-Control : http 1.1，返回秒为单位的过期时间
+        max-age=128000</p>
+<p>协商缓存：发请求到服务器
+    Last-Modified, If-Modified-Since
+    ETag, If-None-Match
+    304 NOT CHANGED</p>
+<p>实现方案：
+    服务器语言直接在返回头中加上相应头字段
+    修改服务器配置，全局设置或者添加响应头字段
+        mod_expires</p>
+<p>资源重新命名，如index.js -&gt; index_a083082f.js
+    优点：可用性好。新的资源文件不会覆盖正在运行的资源文件。
+    缺点：大量无效的旧版文件存在于CDN或版本管理服务器</p>
+<p>资源链接添加变化的参数：index.js -&gt; index.js?hash=a083082f
+    资源更新日期或者文件内容的hash值。</p>
+<p>gulp-hash-list 读取资源，计算hash值，按指定的格式生成一个清单文件。
+gulp-asset-revision 读取资源列表的清单文件，替换html中的js，css等资源引用地址。
+    同时支持新文件名以及参数的形式刷新资源版本号</p>
+<p>gulp 原生的gulp-rev + gulp-rev-collector
+    只支持新的文件名，不支持添加参数的形式</p>
+<p><a href="https://www.jianshu.com/p/fbc519d43924">https://www.jianshu.com/p/fbc519d43924</a></p>
+<p>新文件名：index.53214.js
+    webpack
+    HtmlWebpackPlugin 将新生成的js自动加入html中</p>
+</div>
+
+    </div>
+
+</div>
+</body>
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_site_pv"><span id="busuanzi_value_site_pv"></span></span>
+</html>

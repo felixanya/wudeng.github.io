@@ -1,0 +1,191 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><p>计算机图形学第一准则：近似原则</p>
+<ul>
+<li><a href="#坐标系">坐标系</a></li>
+<li><a href="#多坐标系">多坐标系</a></li>
+<li><a href="#向量">向量</a><ul>
+<li><a href="#点积-dot-product">点积 dot product</a></li>
+<li><a href="#叉乘-cross-product">叉乘 cross product</a></li>
+</ul>
+</li>
+<li><a href="#矩阵">矩阵</a></li>
+<li><a href="#矩阵和线性变换">矩阵和线性变换</a><ul>
+<li><a href="#旋转">旋转</a></li>
+<li><a href="#缩放">缩放</a></li>
+<li><a href="#变换分类">变换分类</a></li>
+</ul>
+</li>
+<li><a href="#齐次坐标-homogeneous-coordinates-projective-coordinates">齐次坐标 Homogeneous coordinates, Projective coordinates</a></li>
+<li><p><a href="#方位orientation与角位移">方位orientation与角位移</a></p>
+<p>  如果它看上去是对的它就是对的。</p>
+</li>
+</ul>
+<h2><a name="坐标系" class="anchor" href="#坐标系"><span class="header-link"></span></a>坐标系</h2><p>两种不同的3D坐标系：左手坐标系，右手坐标系
+    拇指x右方，食指y上方，其余三指z前方
+    没有好坏之分
+    传统计算机图形学使用左手坐标系, Unity3D中使用的就是左手坐标系。
+    线性代数倾向于使用右手坐标系</p>
+<p>Unity3D中
+    世界坐标系World
+        左手坐标
+        transform.position
+    屏幕坐标系Sceen
+        左下(0,0)，右上(Screen.width, Screen.height)
+        Screen.width = Camera.pixelWidth
+        Screen.height = Camera.pixelHeight
+        Input.mousePosition
+        WorldToScreenPoint: 世界坐标转换为屏幕坐标
+    视口坐标系Viewport
+        标准化后的屏幕坐标
+        (0, 0) -&gt; (1, 1)
+        WorldToViewportPoint</p>
+<h2><a name="多坐标系" class="anchor" href="#多坐标系"><span class="header-link"></span></a>多坐标系</h2><p>在不同的场合下使用不同的坐标系。</p>
+<ul>
+<li>世界坐标系 World Space 东西南北</li>
+<li>物体坐标系 Object Space 模型坐标系 上下左右</li>
+<li>摄像机坐标系 Camara Space 摄像机在原点，x右，z前，y上，通过投影转换到2D屏幕</li>
+<li>惯性坐标系 Inertial Space 远点与物体坐标系远点重合，但惯性坐标系的轴平行于世界坐标系的轴，物体坐标系转换到惯性坐标系只需要旋转，从惯性坐标系到世界坐标系只需要平移。</li>
+</ul>
+<p>坐标变换</p>
+<h2><a name="向量" class="anchor" href="#向量"><span class="header-link"></span></a>向量</h2><h3><a name="点积-dot-product" class="anchor" href="#点积-dot-product"><span class="header-link"></span></a>点积 dot product</h3><p>对应分量乘积的和，其结果为一个标量。
+两个向量相似的程度，结果越大，越相似。</p>
+<p><img src="http://chart.googleapis.com/chart?cht=tx&amp;chl=\vec{u}\cdot%20\vec{v}=|\vec{u}|\cdot%20|\vec{v}|\cdot%20cos(\theta" alt="">)</p>
+<ul>
+<li><code>&gt;0</code>, 锐角;</li>
+<li><code>=0</code>, 正交;</li>
+<li><code>&lt;0</code>, 钝角</li>
+</ul>
+<p>用途：</p>
+<ul>
+<li>判断两个矢量的角度，是相同，还是相反，是前方还是后方（如点到直线的投影是否在线段上），是顺时针还是逆时针（要用到垂直法矢量）。</li>
+<li>求点到直线或者点到平面的距离：用直线或者平面上的任意一点，跟点连接成矢量，求该矢量于直线或者平面的法矢量的点积的绝对值。</li>
+</ul>
+<h3><a name="叉乘-cross-product" class="anchor" href="#叉乘-cross-product"><span class="header-link"></span></a>叉乘 cross product</h3><p>结果为向量，且不满足交换律
+垂直于原来的两个向量
+仅可应用于3D向</p>
+<p><img src="http://chart.googleapis.com/chart?cht=tx&amp;chl=\vec{u}\cdot%20\vec{v}=|\vec{u}|\cdot%20|\vec{v}|\cdot%20sin(\theta" alt="">)</p>
+<p>用途：</p>
+<ul>
+<li>求平面的法矢量</li>
+</ul>
+<h2><a name="矩阵" class="anchor" href="#矩阵"><span class="header-link"></span></a>矩阵</h2><pre><code>矩阵乘法
+    不满足交换律
+    满足结合律
+    (A*<span class="hljs-keyword">B)T </span>= <span class="hljs-built_in">AT</span> * <span class="hljs-keyword">BT
+</span>    行向量：
+        vABC
+        <span class="hljs-keyword">DirectX使用行向量
+</span>    列向量
+        CBAv
+        OpenGL使用列向量
+方阵：线性变换
+</code></pre><h2><a name="矩阵和线性变换" class="anchor" href="#矩阵和线性变换"><span class="header-link"></span></a>矩阵和线性变换</h2><p>变换物体，物体上的点变化了，在同一坐标系描述变换前后点的位置。</p>
+<p>变换坐标系，物体上的点并没有移动，只是在不同坐标系中描述他的位置。</p>
+<p>两种变换在某种意义上是等价的，将物理变换一个量等价于将坐标系变换一个相反的量。</p>
+<p>当有多个变换时，需要以相反的顺序变换相反的量。</p>
+<h3><a name="旋转" class="anchor" href="#旋转"><span class="header-link"></span></a>旋转</h3><p>旋转正方向：左手坐标系左手法则，右手坐标系右手法则。</p>
+<p>2D中绕远点旋转，
+3D中绕向量n旋转，n是基向量时比较简单，如果是n是任意轴，将向量分解成平行向量和垂直向量，平行向量不变，垂直向量与n求叉积得到第三个垂直向量。</p>
+<h3><a name="缩放" class="anchor" href="#缩放"><span class="header-link"></span></a>缩放</h3><h3><a name="变换分类" class="anchor" href="#变换分类"><span class="header-link"></span></a>变换分类</h3><ul>
+<li>线性变换：F(a + b) = F(a) + F(b), F(ka) = kF(a)</li>
+<li>仿射变换：线性变换后平移，线性变换的超集，v&#39; = vM + b</li>
+<li>可逆变换：基本变换除了投影都是可逆的</li>
+<li>等角变换</li>
+<li>正交变换</li>
+<li>刚体变换</li>
+</ul>
+<h2><a name="齐次坐标-homogeneous-coordinates,-projective-coordinates" class="anchor" href="#齐次坐标-homogeneous-coordinates,-projective-coordinates"><span class="header-link"></span></a>齐次坐标 Homogeneous coordinates, Projective coordinates</h2><p>n维的向量用一个n+1维向量来表示。点的w分量设为1，方向的w分量设为0，方向要忽略平移效果。</p>
+<p>合并矩阵运算中的乘法和加法。</p>
+<p>笛卡尔坐标的平移和透视投影不能表示成矩阵相乘。</p>
+<p>Affine Transform 引入额外的一维，一个矩阵搞定平移。</p>
+<ul>
+<li>左上的3X3矩阵代表旋转及缩放</li>
+<li>下面的1X3平移矢量</li>
+<li>右边3X1零矢量</li>
+<li>右下角标量1
+最右列必然是[0,0,0,1]的转置。</li>
+</ul>
+<p>Affine transformation 仿射变换</p>
+<ul>
+<li>平移 Translation</li>
+<li>缩放 Scale</li>
+<li>翻转 Flip</li>
+<li>旋转 Rotation</li>
+<li>错切 Shear</li>
+</ul>
+<h2><a name="方位orientation与角位移" class="anchor" href="#方位orientation与角位移"><span class="header-link"></span></a>方位orientation与角位移</h2><p>位置：相对于参考点的位移
+方位：从惯性坐标系到物体坐标系的角位移。相对已知方位的旋转，旋转的量称为角位移。
+方位和角位移的区别就像点和向量的区别一样，数学上等价，该你上不同。第一个描述一种状态，第二个描述两个状态的差别。
+矩阵和四元数表示角位移，用欧拉角表示方位。</p>
+<ul>
+<li>方向 direction</li>
+<li>角位移</li>
+<li>旋转</li>
+</ul>
+<p>描述方法：</p>
+<ul>
+<li>矩阵</li>
+<li>欧拉角 Euler Angles 万向锁问题
+heading-pitch-bank,<ul>
+<li>heading: y轴旋转，此时物体坐标系和惯性坐标系的y轴重合。</li>
+<li>pitch：物体坐标系的x轴</li>
+<li>bank: 物体坐标系的z轴
+roll-pitch-yaw</li>
+</ul>
+</li>
+<li>四元数 Quaternion<ul>
+<li>轴角定义旋转 <code>(\vec{n}, \theta)</code> 绕<code>\vec{n}</code>指定的轴旋转<code>\theta</code>角</li>
+<li><code>q = [cos(\theta / 2), sin(\theta / 2)\vec{n}]</code></li>
+<li>q 与 -q 代表的角位移相同</li>
+<li>单位四元数 <code>[1, \vec{0}]</code></li>
+<li><code>[w, \vec{v}]</code> 的共轭 <code>[w, -\vec{v}]</code></li>
+<li>叉乘满足结合律，不满足交换律</li>
+<li>平滑插值，slerp, squad</li>
+<li>快速连接和角位移求逆</li>
+<li>能与矩阵形式快速转换</li>
+</ul>
+</li>
+</ul>
+</div>
+
+    </div>
+
+</div>
+</body>
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_site_pv"><span id="busuanzi_value_site_pv"></span></span>
+</html>

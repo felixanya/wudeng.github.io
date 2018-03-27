@@ -28,6 +28,8 @@ docker-machine 支持的命令主要有：
 * ls
 * ip 查看boot2docker虚拟机的ip地址，通常是`192.168.99.100`。
 
+虚拟机的默认账号是docker, 密码是tcuser。docker用户是sudoers, 直接执行sudo -i就能切换为root账号。
+
 ## 文件夹挂载
 
 跟linux系统不一样，windows下的宿主系统并不是windows本身，而是运行在虚拟机中的boot2docker，
@@ -42,14 +44,28 @@ docker-machine 支持的命令主要有：
 
 直接用打开VirtualBox，能看到一个名为default的虚拟机，这个虚拟机就是docker的宿主机，
 在这个虚拟机中创建一个共享文件夹，比如把`D:\`挂载到`/d`目录下。
+通过`docker-machine restart`重启虚拟机。
 
 `docker run --rm -it -v /d/projects:/apps -w /apps erlang:19.3.3 ./rebar3 as prod tar`
 
 这条命令会把windows下的`D:\projects`目录通过宿主机的`/d/projects`挂载到容器的`/apps`目录下。并且把`/apps`作为容器的工作目录。
-这样就能实现通过docker来实现跨平台的编译。
+这样就能实现通过docker来实现跨平台的编译。顺便说一句，如果只需要支持特定平台的编译，用Jenkins实现目标环境的编译更加方便。
 
 
 ## 端口映射
 
 容器的端口也是映射到宿主机中而不是windows中。这一点也要注意，windows中访问端口的时候要使用宿主机的ip，而不是自身的ip。
 宿主机的ip可以通过`docker-machine ip`来查看。一般是`192.168.99.100`.
+
+
+### 配置加速器
+
+由于DockerHub默认使用的国外的镜像地址，在国内使用的速度感人，需要配置国内的加速。
+我本人使用的是[DaoCloud](https://www.daocloud.io/mirror)的加速服务，注册账号以后会分配一个私有的加速地址。
+也可以直接用https://www.docker-cn.com/registry-mirror。
+修改方法如下：
+首先通过`docker-machine ssh <machine-name>`登录虚拟机，默认名字为default.
+然后修改/var/lib/boot2docker/profile文件，
+`sudo vi /var/lib/boot2docker/profile`
+将--registry-mirror=<your accelerate address>添加到EXTRA_ARGS中
+最后sudo /etc/init.d/docker restart重启Docker服务就可以了。

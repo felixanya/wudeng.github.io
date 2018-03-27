@@ -1,0 +1,141 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h1>LVS - Linux Virtual Server</h1><p>IP负载均衡</p>
+<ul>
+<li><a href="#lvs负载均衡方式">LVS负载均衡方式</a><ul>
+<li><a href="#virtual-server-via-network-address-translation-vsnat">Virtual Server via Network Address Translation (VS/NAT)</a></li>
+<li><a href="#virtual-server-via-ip-tunneling-vstun">Virtual Server via Ip Tunneling (VS/TUN)</a></li>
+<li><a href="#virtual-server-via-direct-routing-vsdr">Virtual Server via Direct Routing (VS/DR)</a></li>
+</ul>
+</li>
+<li><a href="#健康检查">健康检查</a></li>
+</ul>
+<p>基于内容请求分发
+组成部分
+    负载调度器load balancer / Director
+    服务器池server pool / Realserver
+    共享存储shared storage</p>
+<p>LVS = ipvs + ipvsadm</p>
+<p>ipvs是核心，工作于内核空间。
+ipvsadm定义规则，用户空间。ipvsadm与ipvs的关系就好比iptables和netfilter的关系。</p>
+<p>ipvsadm
+    -A 添加一条虚拟服务器记录，即创建一个LVS集群。
+    -t VIP:port  tcp
+    -s Scheduling
+        rr - 轮询 round robin
+        wrr - 加权轮询 weight rr
+        lc - 最少链接
+        wlc - 加权最少链接
+        lblc - 基于局部性的最少链接调度算法
+        lblcr4
+        dh - 目标地址散列调度
+        sh - 源地址散列
+        sed
+        nq
+    -a 添加一个RealServer到集群中
+    -r 要添加的RealServer的IP地址
+    -m 工作模式为LVS-NAT</p>
+<h2><a name="lvs负载均衡方式" class="anchor" href="#lvs负载均衡方式"><span class="header-link"></span></a>LVS负载均衡方式</h2><h3><a name="virtual-server-via-network-address-translation-(vs/nat)" class="anchor" href="#virtual-server-via-network-address-translation-(vs/nat)"><span class="header-link"></span></a>Virtual Server via Network Address Translation (VS/NAT)</h3><p>Realserver的网关指向Director</p>
+<p>Director上：</p>
+<pre><code>yum install -y ipvsadm
+echo &lt;&lt;EOF
+<span class="hljs-comment">#!/bin/bash</span>
+<span class="hljs-comment"># director服务器上开启路由转发功能:</span>
+echo 1 &gt; /proc/sys/net/ipv4/ip_forward
+<span class="hljs-comment"># 关闭 icmp 的重定向</span>
+echo 0 &gt; /proc/sys/net/ipv4/conf/all/send_redirects
+echo 0 &gt; /proc/sys/net/ipv4/conf/default/send_redirects
+echo 0 &gt; /proc/sys/net/ipv4/conf/eth0/send_redirects
+echo 0 &gt; /proc/sys/net/ipv4/conf/eth1/send_redirects
+<span class="hljs-comment"># director设置 nat 防火墙</span>
+iptables -t<span class="hljs-built_in"> nat </span>-F
+iptables -t<span class="hljs-built_in"> nat </span>-X
+iptables -t<span class="hljs-built_in"> nat </span>-A POSTROUTING -s 192.168.0.0/24 -j MASQUERADE
+<span class="hljs-comment"># director设置 ipvsadm</span>
+<span class="hljs-attribute">IPVSADM</span>=<span class="hljs-string">'/sbin/ipvsadm'</span>
+<span class="hljs-variable">$IPVSADM</span> -C
+<span class="hljs-variable">$IPVSADM</span> -A -t 172.16.254.200:80 -s wrr
+<span class="hljs-variable">$IPVSADM</span> -a -t 172.16.254.200:80 -r 192.168.0.18:80 -m -w 1
+<span class="hljs-variable">$IPVSADM</span> -a -t 172.16.254.200:80 -r 192.168.0.28:80 -m -w 1
+EOF &gt; /user/local/sbin/lvs_nat.sh
+
+/bin/bash /user/local/sbin/lvs_nat.sh
+<span class="hljs-comment">## 查看配置的规则</span>
+ipvsadm -ln
+ipvsadm -Ln
+</code></pre><p>service ipvsadm save
+/etc/sysconfig/ipvsadm
+service ipvsadm reload</p>
+<p>ipvsadm -S &gt; /testdir/lvsrules
+ipvsadm -R &lt; /testdir/lvsrules</p>
+<h3><a name="virtual-server-via-ip-tunneling-(vs/tun)" class="anchor" href="#virtual-server-via-ip-tunneling-(vs/tun)"><span class="header-link"></span></a>Virtual Server via Ip Tunneling (VS/TUN)</h3><h3><a name="virtual-server-via-direct-routing-(vs/dr)" class="anchor" href="#virtual-server-via-direct-routing-(vs/dr)"><span class="header-link"></span></a>Virtual Server via Direct Routing (VS/DR)</h3><p>Director:</p>
+<pre><code><span class="hljs-comment"># vim /usr/local/sbin/lvs_dr.sh</span>
+<span class="hljs-comment">#! /bin/bash</span>
+echo 1 &gt; /proc/sys/net/ipv4/ip_forward
+<span class="hljs-attribute">ipv</span>=/sbin/ipvsadm
+<span class="hljs-attribute">vip</span>=192.168.0.38
+<span class="hljs-attribute">rs1</span>=192.168.0.18
+<span class="hljs-attribute">rs2</span>=192.168.0.28
+ifconfig eth0:0 down
+ifconfig eth0:0 <span class="hljs-variable">$vip</span> broadcast <span class="hljs-variable">$vip</span> netmask 255.255.255.255 up<span class="hljs-built_in">
+route </span><span class="hljs-builtin-name">add</span> -host <span class="hljs-variable">$vip</span> dev eth0:0
+<span class="hljs-variable">$ipv</span> -C
+<span class="hljs-variable">$ipv</span> -A -t <span class="hljs-variable">$vip</span>:80 -s wrr 
+<span class="hljs-variable">$ipv</span> -a -t <span class="hljs-variable">$vip</span>:80 -r <span class="hljs-variable">$rs1</span>:80 -g -w 3
+<span class="hljs-variable">$ipv</span> -a -t <span class="hljs-variable">$vip</span>:80 -r <span class="hljs-variable">$rs2</span>:80 -g -w 1
+</code></pre><p>RS:</p>
+<pre><code><span class="hljs-comment"># vim /usr/local/sbin/lvs_dr_rs.sh</span>
+<span class="hljs-comment">#! /bin/bash</span>
+<span class="hljs-attribute">vip</span>=192.168.0.38
+ifconfig lo:0 <span class="hljs-variable">$vip</span> broadcast <span class="hljs-variable">$vip</span> netmask 255.255.255.255 up<span class="hljs-built_in">
+route </span><span class="hljs-builtin-name">add</span> -host <span class="hljs-variable">$vip</span> lo:0
+echo <span class="hljs-string">"1"</span> &gt;/proc/sys/net/ipv4/conf/lo/arp_ignore
+echo <span class="hljs-string">"2"</span> &gt;/proc/sys/net/ipv4/conf/lo/arp_announce
+echo <span class="hljs-string">"1"</span> &gt;/proc/sys/net/ipv4/conf/all/arp_ignore
+echo <span class="hljs-string">"2"</span> &gt;/proc/sys/net/ipv4/conf/all/arp_announce
+</code></pre><h2><a name="健康检查" class="anchor" href="#健康检查"><span class="header-link"></span></a>健康检查</h2><p>keepalived</p>
+<ul>
+<li><a href="https://www.cnblogs.com/liwei0526vip/p/6370103.html">https://www.cnblogs.com/liwei0526vip/p/6370103.html</a></li>
+<li><a href="http://www.linuxvirtualserver.org/zh/lvs1.html">http://www.linuxvirtualserver.org/zh/lvs1.html</a></li>
+</ul>
+</div>
+
+    </div>
+
+</div>
+</body>
+</html>

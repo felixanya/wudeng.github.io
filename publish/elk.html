@@ -1,0 +1,145 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h2><a name="elk" class="anchor" href="#elk"><span class="header-link"></span></a>ELK</h2><ul>
+<li><a href="#beats">Beats</a></li>
+<li><a href="#logstash">Logstash</a></li>
+<li><a href="#elasticsearch">Elasticsearch</a></li>
+<li><a href="#kibana">kibana</a></li>
+</ul>
+<h2><a name="beats" class="anchor" href="#beats"><span class="header-link"></span></a>Beats</h2><p>数据传输
+    FileBeat</p>
+<h2><a name="logstash" class="anchor" href="#logstash"><span class="header-link"></span></a>Logstash</h2><p>9301
+JRuby语言编写。Jordan Sissel 2.1.1
+5000</p>
+<p>Shipper - 发送日志数据(agent)
+Broker - 收集数据，缺省内置Redis
+Indexer - 数据写入</p>
+<p>logstash-forwarder (lumberjack)</p>
+<p>input
+    lumberjack
+        port
+        type
+        ssl_certificate
+        ssl_key
+filter
+    grok
+        match
+            message
+    date
+        match
+            timestamp
+output
+    elasticsearch
+        hosts
+        host
+    stdout
+        codec =&gt; rubydebug
+    redis
+        host
+        data_type
+        key</p>
+<h2><a name="elasticsearch" class="anchor" href="#elasticsearch"><span class="header-link"></span></a>Elasticsearch</h2><p>实时
+分布式
+搜索分析引擎，开源，Lucene</p>
+<p>全文检索
+结构化搜索
+分析</p>
+<p>面向文档</p>
+<p>启动：
+cd elasticsearch-&lt;version&gt;
+./bin/elasticsearch 
+    -d 守护进程
+    9200 RESTful API: curl -i -X&lt;VERB&gt; &#39;&lt;PROTOCOL&gt;://&lt;HOST&gt;:&lt;PORT&gt;/&lt;PATH&gt;?&lt;QUERY_STRING&gt;&#39; -d &#39;&lt;BODY&gt;&#39;
+        _cluster/stats
+        _nodes/stats/jvm
+        _count
+    9300 集群</p>
+<p>集群
+    elasticsearch.yml
+    cluster.name</p>
+<p>Java API 9300
+    Node Client
+    Transport Client</p>
+<p><code>curl http://localhost:9200/?pretty</code>
+<code>curl http://localhost:9200/_search?pretty</code></p>
+<blockquote>
+<p>= Java 7</p>
+</blockquote>
+<p>192.168.50.10:9200
+{
+    name: &quot;6A-ZHRO&quot;,
+    cluster_name: &quot;docker-cluster&quot;,
+    cluster_uuid: &quot;Da9Rhcg9Rm2wv5uUfS21bA&quot;,
+    version: {
+        number: &quot;6.0.0&quot;,
+        build_hash: &quot;8f0685b&quot;,
+        build_date: &quot;2017-11-10T18:41:22.859Z&quot;,
+        build_snapshot: false,
+        lucene_version: &quot;7.0.1&quot;,
+        minimum_wire_compatibility_version: &quot;5.6.0&quot;,
+        minimum_index_compatibility_version: &quot;5.0.0&quot;
+    },
+    tagline: &quot;You Know, for Search&quot;
+}</p>
+<h2><a name="kibana" class="anchor" href="#kibana"><span class="header-link"></span></a>kibana</h2><p>Sense 交互式控制台
+./bin/kibana plugin --install elastic/sense</p>
+<p>./bin/kibana</p>
+<p><code>http://localhost:5601/app/sense</code></p>
+<p>5601
+4.3.0
+JavaScript语言编写，
+<a href="http://192.168.50.10:5601">http://192.168.50.10:5601</a>
+kibana.yml</p>
+<p>index pattern
+    identify the elasticsearch to run and analytics against
+    configue fields
+        logstash-*</p>
+<p>curl -XPUT -D- &#39;<a href="http://localhost:9200/.kibana/doc/index-pattern:docker-elk">http://localhost:9200/.kibana/doc/index-pattern:docker-elk</a>&#39; \
+    -H &#39;Content-Type: application/json&#39; \
+    -d &#39;{&quot;type&quot;: &quot;index-pattern&quot;, &quot;index-pattern&quot;: {&quot;title&quot;: &quot;logstash-*&quot;, &quot;timeFieldName&quot;: &quot;@timestamp&quot;}}&#39;   </p>
+<p>nc localhost 5000 &lt; /path/to/logfile.log
+也可以直接输入</p>
+<ul>
+<li><a href="https://www.ibm.com/developerworks/cn/opensource/os-cn-elk/">https://www.ibm.com/developerworks/cn/opensource/os-cn-elk/</a></li>
+</ul>
+</div>
+
+    </div>
+
+</div>
+</body>
+</html>

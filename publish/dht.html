@@ -1,0 +1,98 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h1>分布式哈希表 DHT</h1><p>Kademlia(Kad)</p>
+<ul>
+<li><a href="#chord">Chord</a></li>
+<li><a href="#kademliakad-协议">Kademlia(Kad) 协议</a></li>
+<li><a href="#mainline-dht">Mainline DHT</a></li>
+</ul>
+<p>Chord</p>
+<p>分布式系统的关键基础设施。</p>
+<p>P2P技术三代：</p>
+<ul>
+<li>单点故障</li>
+<li>广播风暴</li>
+<li>DHT</li>
+</ul>
+<p>使用场景：</p>
+<ul>
+<li>分布式文件系统IPFS</li>
+<li>分布式缓存</li>
+<li>暗网比如I2P，FreeNet</li>
+<li>无中心的聊天工具，如TOX</li>
+<li>无中心的微博客，如Twister</li>
+<li>无中心的社交网络</li>
+</ul>
+<p>难点：</p>
+<ul>
+<li>无中心</li>
+<li>海量数据</li>
+<li>节点动态变化</li>
+<li>快速定位节点的挑战</li>
+</ul>
+<p>散列算法的选择：大于等于128位
+node分配唯一id，与数据key同构。</p>
+<p>拓扑接口，路由算法 key-based routing
+覆盖网络：Overlay Network，网络之上的网络，DHT，基于互联网之上的覆盖网络。
+设计拓扑结构和路由算法时，只需要考虑node id，不需要考虑下层网络属性。</p>
+<p>每个节点只知道少数一些节点的信息。路由算法直接决定了DHT的速度和资源消耗。</p>
+<p>路由表越大，可以实现越短的路由，但是路由表的维护成本越高。</p>
+<p>距离算法：节点之间的距离，数据之间的距离，节点与数据之间的距离</p>
+<p>数据定位：
+最关键的功能：保存数据，获取数据；</p>
+<p>递归处理。</p>
+<p>保存数据：计算节点与数据的距离，找出自己知道的跟数据最短的距离的节点。
+获取数据：</p>
+<h2><a name="chord" class="anchor" href="#chord"><span class="header-link"></span></a>Chord</h2><p>诞生于2001年。第一批DHT协议。CAN、Tapestry、Pastry。</p>
+<p>简单。</p>
+<p>Consistent Hashing 一致散列</p>
+<p>路由机制：</p>
+<ul>
+<li>基本路由，低效，复杂度O(N)</li>
+<li>高级路由，基于Finger Table, O(logN)</li>
+</ul>
+<h2><a name="kademlia(kad)-协议" class="anchor" href="#kademlia(kad)-协议"><span class="header-link"></span></a>Kademlia(Kad) 协议</h2><p><a href="http://pdos.csail.mit.edu/~petar/papers/maymounkov-kademlia-lncs.pdf">http://pdos.csail.mit.edu/~petar/papers/maymounkov-kademlia-lncs.pdf</a></p>
+<h2><a name="mainline-dht" class="anchor" href="#mainline-dht"><span class="header-link"></span></a>Mainline DHT</h2><p>Standard DHT used by BitTorrent</p>
+<p><a href="https://en.wikipedia.org/wiki/Distributed_hash_table">https://en.wikipedia.org/wiki/Distributed_hash_table</a></p>
+</div>
+
+    </div>
+
+</div>
+</body>
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_site_pv"><span id="busuanzi_value_site_pv"></span></span>
+</html>

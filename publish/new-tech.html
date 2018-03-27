@@ -1,0 +1,71 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><ul>
+<li><a href="#分布式">分布式</a></li>
+</ul>
+<h2><a name="分布式" class="anchor" href="#分布式"><span class="header-link"></span></a>分布式</h2><p>zookeeper =&gt; etcd (centos 标配, writen by go)</p>
+<p>hadoop (java) =&gt; YARN
+Mesos (c++, twitter) 
+Borg(c++,google, 201407开源了go版本kubernetes)
+kubernetes(go)</p>
+<p>服务注册中心 
+    分布式，支持持久化存储
+    变更通知
+        加入：如何注册？暴露zk接口，其他服务向zk接口注册自己?
+        如何检测变化？维持到其他服务的心跳？
+            答案： 通过Registrator自动注册: Go编写，针对docker使用的，通过检测容器在线或者停止状态自动注册和去注册服务的工具
+            只需要启动Registrator,就能发现本地docker的在线状态，然后通知对应的注册中心
+    zookeeper
+        统一命名服务
+        状态同步服务
+        集群管理
+        分布式应用配置项管理
+    etcd
+    consul</p>
+<p>服务提供者</p>
+<p>服务发现
+    客户端发现
+    服务端发现</p>
+<p><a href="https://github.com/jasonGeng88/blog">https://github.com/jasonGeng88/blog</a></p>
+</div>
+
+    </div>
+
+</div>
+</body>
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_site_pv"><span id="busuanzi_value_site_pv"></span></span>
+</html>

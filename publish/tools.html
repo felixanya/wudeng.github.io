@@ -1,0 +1,126 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h1>工具</h1><ul>
+<li><a href="#tar">tar</a></li>
+<li><a href="#linux">linux</a><ul>
+<li><a href="#network">network</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><a href="https://httpie.org/">HTTPie</a> http命令行客户端，比curl更好用</li>
+<li><a href="https://mitmproxy.org/">mitmproxy</a> HTTPS proxy，可以拦截http请求</li>
+</ul>
+<h2><a name="tar" class="anchor" href="#tar"><span class="header-link"></span></a>tar</h2><ul>
+<li>tar cvzf result.tar.gz -C /path/to/dir1/ . -C /path/to/dir2/ .</li>
+</ul>
+<h2><a name="linux" class="anchor" href="#linux"><span class="header-link"></span></a>linux</h2><ul>
+<li>tcpdump<ul>
+<li>tcpdump -i eth0 port 80</li>
+</ul>
+</li>
+<li>lsof</li>
+<li>nc<ul>
+<li>nc ip port</li>
+</ul>
+</li>
+<li>strace<ul>
+<li>-c，统计每个系统调用执行时间，执行次数和出错次数。</li>
+<li>-f，跟踪由fork调用生成的子进程。</li>
+<li>-t，在输出的每一行信息前加上时间信息。</li>
+<li>-e，指定一个表达式，用来控制如何跟踪系统调用<ul>
+<li>[qualifier=] [!] value1[,value2]...</li>
+<li>trace/abbrev/verbose/raw/signal/read/write</li>
+<li>-e trace=open,close,read,write，只跟踪这四种系统调用</li>
+<li>-e trace=file，只跟踪与文件操作相关的系统调用</li>
+<li>-e trace=process，进程控制相关</li>
+<li>-e trace=network</li>
+<li>-e trace=signal</li>
+<li>-e trace=ipc</li>
+<li>-e signal=!SIGIO</li>
+<li>-e read=3,5</li>
+</ul>
+</li>
+<li>-o，将strace的输出写入指定文件。</li>
+</ul>
+</li>
+<li>netstat<ul>
+<li>netstat -nltp</li>
+<li>可以打印本地网卡接口上的全部连接、路由表信息(-r)、网卡接口信息(-i)，主要利用第一个。</li>
+<li>-n，使用ip地址表示主机而不是主机名；使用数字表示端口而不是服务名称。</li>
+<li>-a，显示结果中也包含监听socket。</li>
+<li>-t，仅显示tcp连接。</li>
+<li>-r，显示路由信息。</li>
+<li>-i，显示网卡接口的数据流量。</li>
+<li>-c，每隔1秒输出一次。</li>
+<li>-p，显示socket所属进程的PID和名字。</li>
+</ul>
+</li>
+<li>vmstat<ul>
+<li>可以实时输出系统的各种资源的使用情况，比如进程信息、内存使用、CPU使用率以及IO使用情况。</li>
+<li>-f，显示系统自启动以来执行的fork次数。</li>
+<li>-s，显示内存相关的统计信息以及多种系统活动的数量（比如CPU上下文切换次数）</li>
+<li>-d，显示磁盘相关的统计信息。</li>
+<li>-p，显示磁盘分区的统计信息。</li>
+</ul>
+</li>
+<li>ifstat<ul>
+<li>interface statistics</li>
+</ul>
+</li>
+<li>mpstat<ul>
+<li>multi-processor statistics</li>
+</ul>
+</li>
+<li>man.linuxde.net</li>
+</ul>
+<h1>network</h1><ul>
+<li>curl ifconfig.me
+  -i 显示头部信息
+  -d BODY
+  -F &quot;name=joe&quot; 表单
+  -F &quot;avatar=@/path/to/avatar.png&quot; 传文件</li>
+<li>ping.pe</li>
+</ul>
+</div>
+
+    </div>
+
+</div>
+</body>
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_site_pv"><span id="busuanzi_value_site_pv"></span></span>
+</html>

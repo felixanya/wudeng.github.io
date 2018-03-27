@@ -1,0 +1,63 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><ul>
+<li><a href="#apt-get">apt-get</a></li>
+<li><a href="#sudoers">sudoers</a></li>
+<li><a href="#manage-docker-as-a-non-root-user">manage docker as a non-root user</a></li>
+<li><a href="#时区">时区</a></li>
+</ul>
+<h2><a name="apt-get" class="anchor" href="#apt-get"><span class="header-link"></span></a>apt-get</h2><p>sudo apt-get update
+sudo apt-get install -y docker.io</p>
+<h2><a name="sudoers" class="anchor" href="#sudoers"><span class="header-link"></span></a>sudoers</h2><ul>
+<li>visudo</li>
+<li>重启服务器 shutdown -r now</li>
+</ul>
+<h2><a name="manage-docker-as-a-non-root-user" class="anchor" href="#manage-docker-as-a-non-root-user"><span class="header-link"></span></a>manage docker as a non-root user</h2><p>sudo gpasswd -a $USER docker
+newgrp docker
+docker run hello-world</p>
+<h2><a name="时区" class="anchor" href="#时区"><span class="header-link"></span></a>时区</h2><ul>
+<li>dpkg-reconfigure tzdata</li>
+<li>zdump /etc/localtime</li>
+<li>zdump /usr/share/timezone/Asia/Shanghai</li>
+</ul>
+</div>
+
+    </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h1>EPMD</h1><p>Erlang Port Mapper Deamon</p>
+<p>监听4369</p>
+<p>ps -ef | grep beam</p>
+<p>erl_epmd:names().
+epmd -names</p>
+<p>查看beam打开的文件和端口：</p>
+<pre><code>
+[ts@ts ~]$ lsof -p17395
+COMMAND    PID USER   FD   TYPE  DEVICE SIZE/OFF     NODE NAME
+beam<span class="hljs-selector-class">.smp</span> <span class="hljs-number">17395</span>   ts  cwd    DIR   <span class="hljs-number">253</span>,<span class="hljs-number">0</span>     <span class="hljs-number">4096</span>  <span class="hljs-number">3671627</span> /data/server/cross_server/tools
+beam<span class="hljs-selector-class">.smp</span> <span class="hljs-number">17395</span>   ts  rtd    DIR   <span class="hljs-number">253</span>,<span class="hljs-number">0</span>     <span class="hljs-number">4096</span>        <span class="hljs-number">2</span> /
+beam<span class="hljs-selector-class">.smp</span> <span class="hljs-number">17395</span>   ts  txt    REG   <span class="hljs-number">253</span>,<span class="hljs-number">0</span> <span class="hljs-number">13618570</span> <span class="hljs-number">20971632</span> /usr/local/lib/erlang/lib/erlang/erts-<span class="hljs-number">5.10</span>.<span class="hljs-number">4</span>/bin/beam<span class="hljs-selector-class">.smp</span>
+beam<span class="hljs-selector-class">.smp</span> <span class="hljs-number">17395</span>   ts  mem    REG   <span class="hljs-number">253</span>,<span class="hljs-number">0</span>   <span class="hljs-number">157072</span> <span class="hljs-number">40632740</span> /lib64/ld-<span class="hljs-number">2.12</span><span class="hljs-selector-class">.so</span>
+beam<span class="hljs-selector-class">.smp</span> <span class="hljs-number">17395</span>   ts  mem    REG   <span class="hljs-number">253</span>,<span class="hljs-number">0</span>    <span class="hljs-number">22536</span> <span class="hljs-number">40632746</span> /lib64/libdl-<span class="hljs-number">2.12</span><span class="hljs-selector-class">.so</span>
+beam<span class="hljs-selector-class">.smp</span> <span class="hljs-number">17395</span>   ts  mem    REG   <span class="hljs-number">253</span>,<span class="hljs-number">0</span>  <span class="hljs-number">1926480</span> <span class="hljs-number">40632741</span> /lib64/libc-<span class="hljs-number">2.12</span><span class="hljs-selector-class">.so</span>
+beam<span class="hljs-selector-class">.smp</span> <span class="hljs-number">17395</span>   ts  mem    REG   <span class="hljs-number">253</span>,<span class="hljs-number">0</span>   <span class="hljs-number">145896</span> <span class="hljs-number">40632745</span> /lib64/libpthread-<span class="hljs-number">2.12</span><span class="hljs-selector-class">.so</span>
+beam<span class="hljs-selector-class">.smp</span> <span class="hljs-number">17395</span>   ts  mem    REG   <span class="hljs-number">253</span>,<span class="hljs-number">0</span>    <span class="hljs-number">47112</span> <span class="hljs-number">40632755</span> /lib64/librt-<span class="hljs-number">2.12</span><span class="hljs-selector-class">.so</span>
+beam<span class="hljs-selector-class">.smp</span> <span class="hljs-number">17395</span>   ts  mem    REG   <span class="hljs-number">253</span>,<span class="hljs-number">0</span>   <span class="hljs-number">599392</span> <span class="hljs-number">40632747</span> /lib64/libm-<span class="hljs-number">2.12</span><span class="hljs-selector-class">.so</span>
+beam<span class="hljs-selector-class">.smp</span> <span class="hljs-number">17395</span>   ts  mem    REG   <span class="hljs-number">253</span>,<span class="hljs-number">0</span>   <span class="hljs-number">142224</span> <span class="hljs-number">40632424</span> /lib64/libncurses<span class="hljs-selector-class">.so</span>.<span class="hljs-number">5.7</span>
+beam<span class="hljs-selector-class">.smp</span> <span class="hljs-number">17395</span>   ts  mem    REG   <span class="hljs-number">253</span>,<span class="hljs-number">0</span>    <span class="hljs-number">17520</span> <span class="hljs-number">40632458</span> /lib64/libutil-<span class="hljs-number">2.12</span><span class="hljs-selector-class">.so</span>
+beam<span class="hljs-selector-class">.smp</span> <span class="hljs-number">17395</span>   ts  mem    REG   <span class="hljs-number">253</span>,<span class="hljs-number">0</span>   <span class="hljs-number">134792</span> <span class="hljs-number">40632538</span> /lib64/libtinfo<span class="hljs-selector-class">.so</span>.<span class="hljs-number">5.7</span>
+beam<span class="hljs-selector-class">.smp</span> <span class="hljs-number">17395</span>   ts  mem    REG   <span class="hljs-number">253</span>,<span class="hljs-number">0</span>    <span class="hljs-number">16545</span> <span class="hljs-number">20974726</span> /usr/local/lib/erlang/lib/erlang/lib/crypto-<span class="hljs-number">3.2</span>/priv/lib/crypto_callback<span class="hljs-selector-class">.so</span>
+beam<span class="hljs-selector-class">.smp</span> <span class="hljs-number">17395</span>   ts  mem    REG   <span class="hljs-number">253</span>,<span class="hljs-number">0</span>  <span class="hljs-number">1614556</span> <span class="hljs-number">20974724</span> /usr/local/lib/erlang/lib/erlang/lib/crypto-<span class="hljs-number">3.2</span>/priv/lib/crypto<span class="hljs-selector-class">.so</span>
+beam<span class="hljs-selector-class">.smp</span> <span class="hljs-number">17395</span>   ts    <span class="hljs-number">0</span>r   CHR     <span class="hljs-number">1</span>,<span class="hljs-number">3</span>      <span class="hljs-number">0</span>t0     <span class="hljs-number">3857</span> /dev/null
+beam<span class="hljs-selector-class">.smp</span> <span class="hljs-number">17395</span>   ts    <span class="hljs-number">1</span>w   CHR     <span class="hljs-number">1</span>,<span class="hljs-number">3</span>      <span class="hljs-number">0</span>t0     <span class="hljs-number">3857</span> /dev/null
+beam<span class="hljs-selector-class">.smp</span> <span class="hljs-number">17395</span>   ts    <span class="hljs-number">2</span>w   CHR     <span class="hljs-number">1</span>,<span class="hljs-number">3</span>      <span class="hljs-number">0</span>t0     <span class="hljs-number">3857</span> /dev/null
+beam<span class="hljs-selector-class">.smp</span> <span class="hljs-number">17395</span>   ts    <span class="hljs-number">3</span>u   REG     <span class="hljs-number">0</span>,<span class="hljs-number">9</span>        <span class="hljs-number">0</span>     <span class="hljs-number">3853</span> [eventpoll]
+beam<span class="hljs-selector-class">.smp</span> <span class="hljs-number">17395</span>   ts    <span class="hljs-number">4</span>r  FIFO     <span class="hljs-number">0</span>,<span class="hljs-number">8</span>      <span class="hljs-number">0</span>t0  <span class="hljs-number">1013779</span> pipe
+beam<span class="hljs-selector-class">.smp</span> <span class="hljs-number">17395</span>   ts    <span class="hljs-number">5</span>w  FIFO     <span class="hljs-number">0</span>,<span class="hljs-number">8</span>      <span class="hljs-number">0</span>t0  <span class="hljs-number">1013779</span> pipe
+beam<span class="hljs-selector-class">.smp</span> <span class="hljs-number">17395</span>   ts    <span class="hljs-number">6</span>r  FIFO     <span class="hljs-number">0</span>,<span class="hljs-number">8</span>      <span class="hljs-number">0</span>t0  <span class="hljs-number">1013780</span> pipe
+beam<span class="hljs-selector-class">.smp</span> <span class="hljs-number">17395</span>   ts    <span class="hljs-number">7</span>w  FIFO     <span class="hljs-number">0</span>,<span class="hljs-number">8</span>      <span class="hljs-number">0</span>t0  <span class="hljs-number">1013780</span> pipe
+beam<span class="hljs-selector-class">.smp</span> <span class="hljs-number">17395</span>   ts    <span class="hljs-number">8</span>u  IPv4 <span class="hljs-number">1013788</span>      <span class="hljs-number">0</span>t0      TCP *:<span class="hljs-number">48832</span> (LISTEN)
+beam<span class="hljs-selector-class">.smp</span> <span class="hljs-number">17395</span>   ts    <span class="hljs-number">9</span>u  IPv4 <span class="hljs-number">1013790</span>      <span class="hljs-number">0</span>t0      TCP localhost:<span class="hljs-number">37799</span>-&gt;localhost:epmd (ESTABLISHED)
+beam<span class="hljs-selector-class">.smp</span> <span class="hljs-number">17395</span>   ts   <span class="hljs-number">10</span>w   REG   <span class="hljs-number">253</span>,<span class="hljs-number">0</span>      <span class="hljs-number">121</span>  <span class="hljs-number">3672117</span> /data/server/cross_server/log/crash<span class="hljs-selector-class">.log</span>.<span class="hljs-number">0</span>
+beam<span class="hljs-selector-class">.smp</span> <span class="hljs-number">17395</span>   ts   <span class="hljs-number">11</span>w   REG   <span class="hljs-number">253</span>,<span class="hljs-number">0</span>      <span class="hljs-number">113</span>  <span class="hljs-number">3672016</span> /data/server/cross_server/log/error<span class="hljs-selector-class">.log</span>
+beam<span class="hljs-selector-class">.smp</span> <span class="hljs-number">17395</span>   ts   <span class="hljs-number">12</span>w   REG   <span class="hljs-number">253</span>,<span class="hljs-number">0</span>    <span class="hljs-number">60794</span>  <span class="hljs-number">3671033</span> /data/server/cross_server/log/info<span class="hljs-selector-class">.log</span>
+beam<span class="hljs-selector-class">.smp</span> <span class="hljs-number">17395</span>   ts   <span class="hljs-number">13</span>w   REG   <span class="hljs-number">253</span>,<span class="hljs-number">0</span>    <span class="hljs-number">60794</span>  <span class="hljs-number">3671007</span> /data/server/cross_server/log/console<span class="hljs-selector-class">.log</span>
+beam<span class="hljs-selector-class">.smp</span> <span class="hljs-number">17395</span>   ts   <span class="hljs-number">14</span>r  FIFO     <span class="hljs-number">0</span>,<span class="hljs-number">8</span>      <span class="hljs-number">0</span>t0  <span class="hljs-number">1023715</span> pipe
+beam<span class="hljs-selector-class">.smp</span> <span class="hljs-number">17395</span>   ts   <span class="hljs-number">15</span>u  IPv4 <span class="hljs-number">1013804</span>      <span class="hljs-number">0</span>t0      TCP <span class="hljs-number">192.168</span>.<span class="hljs-number">4.168</span>:<span class="hljs-number">48832</span>-&gt;<span class="hljs-number">192.168</span>.<span class="hljs-number">4.168</span>:<span class="hljs-number">37409</span> (ESTABLISHED)
+beam<span class="hljs-selector-class">.smp</span> <span class="hljs-number">17395</span>   ts   <span class="hljs-number">16</span>u  IPv4 <span class="hljs-number">1051313</span>      <span class="hljs-number">0</span>t0      TCP <span class="hljs-number">192.168</span>.<span class="hljs-number">4.168</span>:<span class="hljs-number">48832</span>-&gt;<span class="hljs-number">192.168</span>.<span class="hljs-number">4.135</span>:<span class="hljs-number">51710</span> (ESTABLISHED)
+beam<span class="hljs-selector-class">.smp</span> <span class="hljs-number">17395</span>   ts   <span class="hljs-number">17</span>u  IPv4 <span class="hljs-number">1050335</span>      <span class="hljs-number">0</span>t0      TCP <span class="hljs-number">192.168</span>.<span class="hljs-number">4.168</span>:<span class="hljs-number">35163</span>-&gt;<span class="hljs-number">192.168</span>.<span class="hljs-number">4.116</span>:<span class="hljs-number">63645</span> (ESTABLISHED)
+beam<span class="hljs-selector-class">.smp</span> <span class="hljs-number">17395</span>   ts   <span class="hljs-number">18</span>u  IPv4 <span class="hljs-number">1054566</span>      <span class="hljs-number">0</span>t0      TCP <span class="hljs-number">192.168</span>.<span class="hljs-number">4.168</span>:<span class="hljs-number">48832</span>-&gt;<span class="hljs-number">192.168</span>.<span class="hljs-number">4.122</span>:<span class="hljs-number">50880</span> (ESTABLISHED)
+beam<span class="hljs-selector-class">.smp</span> <span class="hljs-number">17395</span>   ts   <span class="hljs-number">19</span>u  IPv4 <span class="hljs-number">1054838</span>      <span class="hljs-number">0</span>t0      TCP <span class="hljs-number">192.168</span>.<span class="hljs-number">4.168</span>:<span class="hljs-number">48832</span>-&gt;<span class="hljs-number">192.168</span>.<span class="hljs-number">4.246</span>:<span class="hljs-number">65311</span> (ESTABLISHED)
+beam<span class="hljs-selector-class">.smp</span> <span class="hljs-number">17395</span>   ts   <span class="hljs-number">20</span>u  IPv4 <span class="hljs-number">1056297</span>      <span class="hljs-number">0</span>t0      TCP <span class="hljs-number">192.168</span>.<span class="hljs-number">4.168</span>:<span class="hljs-number">48832</span>-&gt;<span class="hljs-number">192.168</span>.<span class="hljs-number">4.136</span>:<span class="hljs-number">50646</span> (ESTABLISHED)
+beam<span class="hljs-selector-class">.smp</span> <span class="hljs-number">17395</span>   ts   <span class="hljs-number">21</span>w  FIFO     <span class="hljs-number">0</span>,<span class="hljs-number">8</span>      <span class="hljs-number">0</span>t0  <span class="hljs-number">1023716</span> pipe
+beam<span class="hljs-selector-class">.smp</span> <span class="hljs-number">17395</span>   ts   <span class="hljs-number">22</span>u  IPv4 <span class="hljs-number">1056599</span>      <span class="hljs-number">0</span>t0      TCP <span class="hljs-number">192.168</span>.<span class="hljs-number">4.168</span>:<span class="hljs-number">48832</span>-&gt;<span class="hljs-number">192.168</span>.<span class="hljs-number">4.168</span>:<span class="hljs-number">59150</span> (ESTABLISHED)
+</code></pre><p>/etc/syslog.conf</p>
+<pre><code>!epmd
+*.*&lt;TABs&gt;/<span class="hljs-built_in">var</span>/<span class="hljs-keyword">log</span>/epmd.<span class="hljs-keyword">log</span>
+</code></pre><p>源码</p>
+<p><a href="https://github.com/erlang/epmd">https://github.com/erlang/epmd</a></p>
+</div>
+
+    </div>
+
+</div>
+</body>
+</html>

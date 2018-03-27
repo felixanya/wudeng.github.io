@@ -1,0 +1,114 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h1>Mysql字符集和字符排序</h1><p>4 levels:</p>
+<ul>
+<li>server<ul>
+<li>character-set-server </li>
+<li>collation-server</li>
+<li>如果创建数据库的时候没有指定字符集，则用服务器字符集作为默认的数据库字符集</li>
+</ul>
+</li>
+<li>database<ul>
+<li><code>use db_name;</code> 
+<code>select @@character_set_database, @@collation_database;</code></li>
+</ul>
+</li>
+<li>table</li>
+<li>column</li>
+</ul>
+<p>CHARACTER SET == CHARSET
+COLLATION</p>
+<ul>
+<li><p>string</p>
+<ul>
+<li>introducer: _charset_name
+<code>[_charset_name]&#39;string&#39;[COLLATE collation_name]</code>
+<code>SELECT _utf8&#39;abc&#39; COLLATE utf8_danish_ci;</code></li>
+</ul>
+</li>
+<li><p>data storage</p>
+</li>
+<li>communication</li>
+</ul>
+<p><code>set names chaset_name;</code>
+等价于</p>
+<pre><code><span class="hljs-keyword">SET</span> character_set_client <span class="hljs-comment">= charset_name</span>;
+<span class="hljs-keyword">SET</span> character_set_results <span class="hljs-comment">= charset_name</span>;
+<span class="hljs-keyword">SET</span> character_set_connection <span class="hljs-comment">= charset_name</span>;
+</code></pre><p>charset utf8;</p>
+<p>COLLATION</p>
+<table>
+<thead>
+<tr>
+<th>Suffix</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>_ai</td>
+<td>accent insensitive</td>
+</tr>
+<tr>
+<td>_as</td>
+<td>accent sensitive</td>
+</tr>
+<tr>
+<td>_ci</td>
+<td>case insensitive</td>
+</tr>
+<tr>
+<td>_cs</td>
+<td>case sensitive</td>
+</tr>
+<tr>
+<td>_bin</td>
+<td>Binary</td>
+</tr>
+</tbody>
+</table>
+<p>show variables like &#39;character%&#39;;
+show variables like &#39;collation%&#39;;</p>
+<p>utf8
+utf8mb4</p>
+</div>
+
+    </div>
+
+</div>
+</body>
+</html>
