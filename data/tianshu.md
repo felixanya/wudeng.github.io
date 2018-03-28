@@ -1,5 +1,23 @@
 # 天书
 
+
+## 心跳
+cs_heartbeat
+    tcp_client:heartbeat()
+sc_heartbeat
+
+
+连接进程每10秒钟检测一次，进程字典里面dic_heartbeat_time存的是上一次客户端发心跳的时间。
+如果上一次客户端心跳时间超过了1分钟。说明客户端已经不活跃，主动断开连接。
+
+
+TODO：
+- remove cs_login_role_heartbeat
+- remove cs_login_role_list
+
+cs_role_heartbeat：玩家进入选角界面以后发送一次，防止玩家在选角界面停留太长时间。不超过5分钟。
+    tcp_client:heartbeat(self()): 修改role_list_ui_active_time，服务器不回应。
+
 经验丹 61-64
 
 gm命令：max_hp，max_def，max_att
