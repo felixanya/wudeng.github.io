@@ -119,7 +119,18 @@ BIOS -> MBR(GRUB) -> Kernel -> Init -> Runlevel
 
 
 ## 网络
-静态ip：/etc/sysconfig/network.scripts/ifcfg-eth0
+
+Mac地址：more /sys/class/net/eth1/address
+
+
+* ifdown eth0
+* ifup eth0
+这两个命令都是找到/etc/sysconfig/network-scripts/ifcfg-eth0的内容进行设定。如果以ifconfig eth0 ...
+来设定或者修改了网络接口以后，就无法再以ifdown eth0的方式来关闭了。因为ifdown会分析对比目前的网络参数
+与ifcfg-eth0是否相符，不符合的话就会放弃该次动作。因此使用ifconfig修改完毕后，应该要以ifconfig eth0 down才能够关闭接口。
+
+
+静态ip：/etc/sysconfig/network-scripts/ifcfg-eth0
 service network restart
 
 修改ip：
