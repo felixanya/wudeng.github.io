@@ -35,7 +35,47 @@
         </div>
 
         <!-- auto complete by template replacement -->
-        <div class="summary-list"><div class="summary" id="2018-02-27-docker-on-windows7" style="background-color: #ECECEC;">
+        <div class="summary-list"><div class="summary" id="2018-03-29-erlang-time" style="background-color: #ECECEC;">
+    <div class="markdown-body content">
+        <h2><a name="erlang时间系统" class="anchor" href="#erlang时间系统"><span class="header-link"></span></a>Erlang时间系统</h2>
+<ul>
+<li><a href="#基本概念">基本概念</a></li>
+<li><a href="#time-warp-mode">Time Warp Mode</a></li>
+<li><a href="#time-correction">Time Correction</a></li>
+<li><a href="#os-system-time">OS System Time</a></li>
+<li><a href="#erlang-system-time">Erlang System Time</a></li>
+<li><a href="#使用指南">使用指南</a><ul>
+<li><a href="#获取系统时间">获取系统时间</a></li>
+<li><a href="#测量时间差">测量时间差</a></li>
+<li><a href="#事件的顺序">事件的顺序</a></li>
+<li><a href="#唯一名字">唯一名字</a></li>
+<li><a href="#随机数种子">随机数种子</a></li>
+</ul>
+</li>
+<li><a href="#参考文档">参考文档</a></li>
+</ul>
+<p>Erlang系统中有两套时间系统。一个是操作系统时间，一个是虚拟机时间。我们知道，操作系统时间是非常不可靠的，
+它依靠ntp跟网络上服服务器同步，也有可能被人为修改。如果依赖操作系统时间，程序可能出现异常的行为。
+比如游戏中一个设定是每天0点进行结算，如果结算完一次这时操作系统时间调整回去了，结果又会结算一次。
+因此ERTS在操作系统时间的基础之上引入了虚拟机时间。</p>
+<p>在Erlang/OTP 18(ERTS 7.0)之前，获取时间的接口主要是两个：</p>
+<ul>
+<li>erlang:now()返回虚拟机时间</li>
+<li>os:timestamp()返回操作系统时间。</li>
+</ul>
+
+    </div>
+    <div class="toolbar">
+        <div class="markdown-body">
+            <a href="publish/2018-03-29-erlang-time.html">阅读全文 >> </a>
+        </div>
+        <hr>
+        <time datetime="2018-3-29">2018-3-29</time>
+    </div>
+</div>
+
+
+<div class="summary" id="2018-02-27-docker-on-windows7" style="background-color: #F9EDED;">
     <div class="markdown-body content">
         <a href="publish/2018-02-27-docker-on-windows7.html"><h1>docker on windows7</h1>
 </a><ul>
@@ -63,7 +103,7 @@
 </div>
 
 
-<div class="summary" id="2018-01-15-kcp" style="background-color: #F9EDED;">
+<div class="summary" id="2018-01-15-kcp" style="background-color: #ECECEC;">
     <div class="markdown-body content">
         <a href="publish/2018-01-15-kcp.html"><h1>kcp源码解析</h1>
 </a><ul>
@@ -94,7 +134,7 @@
 </div>
 
 
-<div class="summary" id="2017-11-23-skill-area" style="background-color: #ECECEC;">
+<div class="summary" id="2017-11-23-skill-area" style="background-color: #F9EDED;">
     <div class="markdown-body content">
         <a href="publish/2017-11-23-skill-area.html"><h1>技能伤害区域计算</h1>
 </a><ul>
@@ -123,7 +163,7 @@
 </div>
 
 
-<div class="summary" id="2017-10-09-tcp" style="background-color: #F9EDED;">
+<div class="summary" id="2017-10-09-tcp" style="background-color: #ECECEC;">
     <div class="markdown-body content">
         <a href="publish/2017-10-09-tcp.html"><h1>TCP那些事儿</h1>
 </a><ul>
@@ -162,7 +202,7 @@
 </div>
 
 
-<div class="summary" id="2017-09-30-ssh-key-auth" style="background-color: #ECECEC;">
+<div class="summary" id="2017-09-30-ssh-key-auth" style="background-color: #F9EDED;">
     <div class="markdown-body content">
         <a href="publish/2017-09-30-ssh-key-auth.html"><h1>ssh key auth</h1>
 </a><ul>
@@ -193,7 +233,7 @@
 </div>
 
 
-<div class="summary" id="2017-09-25-bresenham" style="background-color: #F9EDED;">
+<div class="summary" id="2017-09-25-bresenham" style="background-color: #ECECEC;">
     <div class="markdown-body content">
         <a href="publish/2017-09-25-bresenham.html"><h1>bresemham直线算法</h1>
 </a><ul>
@@ -221,7 +261,7 @@
 </div>
 
 
-<div class="summary" id="2017-09-09-special-process" style="background-color: #ECECEC;">
+<div class="summary" id="2017-09-09-special-process" style="background-color: #F9EDED;">
     <div class="markdown-body content">
         <a href="publish/2017-09-09-special-process.html"><h1>Erlang特殊进程</h1>
 </a><ul>
@@ -256,7 +296,7 @@
 </div>
 
 
-<div class="summary" id="2017-09-07-ranch" style="background-color: #F9EDED;">
+<div class="summary" id="2017-09-07-ranch" style="background-color: #ECECEC;">
     <div class="markdown-body content">
         <a href="publish/2017-09-07-ranch.html"><h1>Ranch源码分析</h1>
 </a><ul>
@@ -293,7 +333,7 @@ Ref是负责处理这个端口连接的监控树的名字，有了这个名字�
 </div>
 
 
-<div class="summary" id="2017-09-06-device-wake-up-computer" style="background-color: #ECECEC;">
+<div class="summary" id="2017-09-06-device-wake-up-computer" style="background-color: #F9EDED;">
     <div class="markdown-body content">
         <a href="publish/2017-09-06-device-wake-up-computer.html"><h1>Windows自动唤醒问题</h1>
 </a><ul>
@@ -314,7 +354,7 @@ Ref是负责处理这个端口连接的监控树的名字，有了这个名字�
 </div>
 
 
-<div class="summary" id="2017-09-01-monster-steering-behavior" style="background-color: #F9EDED;">
+<div class="summary" id="2017-09-01-monster-steering-behavior" style="background-color: #ECECEC;">
     <div class="markdown-body content">
         <a href="publish/2017-09-01-monster-steering-behavior.html"><h1>怪物包围算法</h1>
 </a><ul>
@@ -340,7 +380,7 @@ Ref是负责处理这个端口连接的监控树的名字，有了这个名字�
 </div>
 
 
-<div class="summary" id="2017-08-26-erlang-memory-management" style="background-color: #ECECEC;">
+<div class="summary" id="2017-08-26-erlang-memory-management" style="background-color: #F9EDED;">
     <div class="markdown-body content">
         <a href="publish/2017-08-26-erlang-memory-management.html"><h1>Erlang Memory Management</h1>
 </a><ul>
@@ -373,7 +413,7 @@ Ref是负责处理这个端口连接的监控树的名字，有了这个名字�
 </div>
 
 
-<div class="summary" id="2017-07-15-erlang-code-loading" style="background-color: #F9EDED;">
+<div class="summary" id="2017-07-15-erlang-code-loading" style="background-color: #ECECEC;">
     <div class="markdown-body content">
         <a href="publish/2017-07-15-erlang-code-loading.html"><h1>Erlang代码加载模式</h1>
 </a><ul>
@@ -401,7 +441,7 @@ Ref是负责处理这个端口连接的监控树的名字，有了这个名字�
 </div>
 
 
-<div class="summary" id="2017-07-11-database-transaction" style="background-color: #ECECEC;">
+<div class="summary" id="2017-07-11-database-transaction" style="background-color: #F9EDED;">
     <div class="markdown-body content">
         <a href="publish/2017-07-11-database-transaction.html"><h1>数据库事务</h1>
 </a><ul>
@@ -437,7 +477,7 @@ Ref是负责处理这个端口连接的监控树的名字，有了这个名字�
 </div>
 
 
-<div class="summary" id="2017-07-05-beam-virtual-machine" style="background-color: #F9EDED;">
+<div class="summary" id="2017-07-05-beam-virtual-machine" style="background-color: #ECECEC;">
     <div class="markdown-body content">
         <a href="publish/2017-07-05-beam-virtual-machine.html"><h1>Beam虚拟机</h1>
 </a><ul>
@@ -464,7 +504,7 @@ Ref是负责处理这个端口连接的监控树的名字，有了这个名字�
 </div>
 
 
-<div class="summary" id="2017-06-21-selective-receive" style="background-color: #ECECEC;">
+<div class="summary" id="2017-06-21-selective-receive" style="background-color: #F9EDED;">
     <div class="markdown-body content">
         <a href="publish/2017-06-21-selective-receive.html"><h1>Erlang的Selective Receive机制</h1>
 </a><ul>
@@ -509,7 +549,7 @@ end
 </div>
 
 
-<div class="summary" id="2017-06-08-behavior-tree" style="background-color: #F9EDED;">
+<div class="summary" id="2017-06-08-behavior-tree" style="background-color: #ECECEC;">
     <div class="markdown-body content">
         <a href="publish/2017-06-08-behavior-tree.html"><h1>基于Erlang的行为树实现</h1>
 </a><ul>

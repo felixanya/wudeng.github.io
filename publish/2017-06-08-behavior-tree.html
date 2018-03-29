@@ -75,14 +75,14 @@
 <li>close_cb 跟open_cb对应，只有结束节点的时候执行。意味着跨越多个tick的runing节点这个函数只会执行一次。一般用来关闭节点。</li>
 <li>exit_cb 每个tick都会执行。</li>
 </ul>
-<pre><code class="lang--erlang">execute(<span class="hljs-comment">#node{id = Id} = Node, #tick{blackboard = Blackboard} = Tick) -&gt;</span>
+<pre><code class="lang-erlang">execute(<span class="hljs-comment">#node{id = Id} = Node, #tick{blackboard = Blackboard} = Tick) -&gt;</span>
     Tick1 = enter_cb(<span class="hljs-keyword">Node</span><span class="hljs-title">, Tick</span>),
-    Tick2 = case get_key({is_open, Id}, Blackboard, <span class="hljs-literal">false</span>) of 
+    Tick2 = case get_key({is_open, Id}, Blackboard, <span class="hljs-literal">false</span>) of
         <span class="hljs-literal">false</span> -&gt; open_cb(<span class="hljs-keyword">Node</span><span class="hljs-title">, Tick1</span>);
         <span class="hljs-literal">true</span> -&gt; Tick1
     end,
     {Status, Tick3} = tick_cb(<span class="hljs-keyword">Node</span><span class="hljs-title">, Tick2</span>),
-    Tick4 = case Status of 
+    Tick4 = case Status of
         running -&gt; Tick3;
         _ -&gt; close_cb(<span class="hljs-keyword">Node</span><span class="hljs-title">, Tick3</span>)
     end,
@@ -94,41 +94,43 @@
 如果子节点返回运行则该节点也返回运行。</p>
 <p>如果需要记住上次运行的节点，下次直接从该运行子节点开始执行，可以使用mem_priority类型的节点。
 如果子节点包含两个以上可能返回运行的子节点，则需要考虑是否使用mem_priority版本。</p>
-<pre><code>priority<span class="hljs-function"><span class="hljs-params">([], Tick)</span> -&gt;</span>
+<pre><code class="lang-erlang">priority<span class="hljs-function"><span class="hljs-params">([], Tick)</span> -&gt;</span>
     {<span class="hljs-literal">false</span>, Tick};
 priority<span class="hljs-function"><span class="hljs-params">([C|Children], Tick)</span> -&gt;</span>
     <span class="hljs-keyword">case</span> execute(C, Tick) <span class="hljs-keyword">of</span>
-        {<span class="hljs-literal">true</span>, NewTick}<span class="hljs-function"> -&gt;</span> 
+        {<span class="hljs-literal">true</span>, NewTick}<span class="hljs-function"> -&gt;</span>
             {<span class="hljs-literal">true</span>, NewTick};
         {running, NewTick}<span class="hljs-function"> -&gt;</span>
             {running, NewTick};
         {<span class="hljs-literal">false</span>, NewTick}<span class="hljs-function"> -&gt;</span>
             priority(Children, NewTick)
     end.
-</code></pre><p>顺序节点，顺序执行子节点，如果子节点返回失败则返回失败，跳过后续子节点。
+</code></pre>
+<p>顺序节点，顺序执行子节点，如果子节点返回失败则返回失败，跳过后续子节点。
 如果子节点返回成功，则继续执行后续子节点，直到有节点返回失败或者运行为止。如果所有子节点都成功，则返回成功，
 如果子节点返回运行，则该节点也返回运行。</p>
 <p>类似mem_priority, 顺序节点也有一个mem_sequence节点，如果有两个以上子节点可能返回运行状态，则需要考虑是否使用mem_sequence.
 比如，怪物执行巡逻，顺序节点有两个子节点，分别执行移动到A点，和移动到B点，那么必须使用mem_sequence，
 每次tick从上次运行的地方继续运行。否则怪物只会在A点附近反复移动，无法移动到B点。</p>
-<pre><code>sequence<span class="hljs-function"><span class="hljs-params">([], Tick)</span> -&gt;</span>
+<pre><code class="lang-erlang">sequence<span class="hljs-function"><span class="hljs-params">([], Tick)</span> -&gt;</span>
     {<span class="hljs-literal">true</span>, Tick};
 sequence<span class="hljs-function"><span class="hljs-params">([C|Children], Tick)</span> -&gt;</span>
     <span class="hljs-keyword">case</span> execute(C, Tick) <span class="hljs-keyword">of</span>
         {running, NewTick}<span class="hljs-function"> -&gt;</span>
             {running, NewTick};
-        {<span class="hljs-literal">false</span>, NewTick}<span class="hljs-function"> -&gt;</span> 
+        {<span class="hljs-literal">false</span>, NewTick}<span class="hljs-function"> -&gt;</span>
             {<span class="hljs-literal">false</span>, NewTick};
         {<span class="hljs-literal">true</span>, NewTick}<span class="hljs-function"> -&gt;</span>
             sequence(Children, NewTick)
     end.
-</code></pre><p>要注意的一个问题是，当出现高优先级的行为B1打断低优先级行为B2时，因为每次从根节点开始tick，B2的无法从内部正常的关闭。这时候需要在主逻辑上额外处理一下上上次打开的节点，
+</code></pre>
+<p>要注意的一个问题是，当出现高优先级的行为B1打断低优先级行为B2时，因为每次从根节点开始tick，B2的无法从内部正常的关闭。这时候需要在主逻辑上额外处理一下上上次打开的节点，
 即调用一下这些节点的close函数。Behavior3的实现中通过比较本次的开放节点列表和上次的开放节点列表，找出上次开放，本次没有开放的节点来关闭，这样可能存在一个问题。
 也就是当上次开放的节点在本次tick正常结束的情况下，仍然会被重新关闭一次，即一个节点关闭了两次。 Behavior3的实现就存在这样的bug。
 解决的办法是，在判断节点是否需要关闭的时候，检测一下节点是否开放，如果是开放，则关闭，否则不予处理。
 Erlang版本的实现中通过遍历行为树节点来找到未正常关闭的节点，考虑到行为树通常不会很大，性能上也可以接受。</p>
 <p>遍历行为树关闭未能正常关闭的节点的实现：</p>
-<pre><code><span class="hljs-function"><span class="hljs-title">close_nodes</span><span class="hljs-params">(_, _, [], Tick)</span> -&gt;</span> Tick;
+<pre><code class="lang-erlang"><span class="hljs-function"><span class="hljs-title">close_nodes</span><span class="hljs-params">(_, _, [], Tick)</span> -&gt;</span> Tick;
 <span class="hljs-function"><span class="hljs-title">close_nodes</span><span class="hljs-params">(undefined, _, _, Tick)</span> -&gt;</span> Tick;
 <span class="hljs-function"><span class="hljs-title">close_nodes</span><span class="hljs-params">(#node{children = [], child = undefined} = Node, CurOpenNodes, LastOpenNodes, Tick)</span> -&gt;</span>
     close_node(Node, CurOpenNodes, LastOpenNodes, Tick);
@@ -145,16 +147,17 @@ Erlang版本的实现中通过遍历行为树节点来找到未正常关闭的�
     NewTick = close_node(Node, CurOpenNodes, LastOpenNodes, Tick),
     close_nodes(Child, CurOpenNodes, LastOpenNodes, NewTick).
 <span class="hljs-function"><span class="hljs-title">close_node</span><span class="hljs-params">(#node{id = Id} = Node, CurOpenNodes, LastOpenNodes, #tick{blackboard = Blackboard} = Tick)</span> -&gt;</span>
-    <span class="hljs-keyword">case</span> lists:member(Id, LastOpenNodes) <span class="hljs-keyword">andalso</span> 
-         <span class="hljs-keyword">not</span> lists:member(Id, CurOpenNodes) <span class="hljs-keyword">andalso</span> 
+    <span class="hljs-keyword">case</span> lists:member(Id, LastOpenNodes) <span class="hljs-keyword">andalso</span>
+         <span class="hljs-keyword">not</span> lists:member(Id, CurOpenNodes) <span class="hljs-keyword">andalso</span>
          get_key({is_open, Id}, Blackboard, false) <span class="hljs-keyword">of</span>
-        <span class="hljs-literal">true</span> -&gt; 
+        <span class="hljs-literal">true</span> -&gt;
             <span class="hljs-comment">%%?DEBUG("close_node ~p", [Node]),</span>
             close_cb_(Node, Tick#tick{blackboard = dict:store({is_open, Id}, false, Blackboard)});
-        <span class="hljs-literal">false</span> -&gt; 
+        <span class="hljs-literal">false</span> -&gt;
             Tick
     <span class="hljs-keyword">end</span>.
-</code></pre><h2><a name="参考文档" class="anchor" href="#参考文档"><span class="header-link"></span></a>参考文档</h2><ul>
+</code></pre>
+<h2><a name="参考文档" class="anchor" href="#参考文档"><span class="header-link"></span></a>参考文档</h2><ul>
 <li><a href="http://guineashots.com/2014/07/25/an-introduction-to-behavior-trees-part-1/">An Introduction to Behavior Tree - Part 1</a></li>
 <li><a href="http://guineashots.com/2014/08/10/an-introduction-to-behavior-trees-part-2/">An Introduction to Behavior Tree - Part 1</a></li>
 <li><a href="http://guineashots.com/2014/08/15/an-introduction-to-behavior-trees-part-3/">An Introduction to Behavior Tree - Part 3</a></li>

@@ -36,6 +36,7 @@
 
         <!-- auto complete by template replacement -->
         <div class="main-content markdown-body"><h1>天书</h1><ul>
+<li><a href="#心跳">心跳</a></li>
 <li><a href="#充值相关">充值相关</a></li>
 <li><a href="#svn">svn</a></li>
 <li><a href="#登录">登录</a></li>
@@ -69,6 +70,18 @@
 <li><a href="#内测问题">内测问题</a></li>
 <li><a href="#疑难杂症">疑难杂症</a></li>
 </ul>
+<h2><a name="心跳" class="anchor" href="#心跳"><span class="header-link"></span></a>心跳</h2><p>cs_heartbeat
+    tcp_client:heartbeat()
+sc_heartbeat</p>
+<p>连接进程每10秒钟检测一次，进程字典里面dic_heartbeat_time存的是上一次客户端发心跳的时间。
+如果上一次客户端心跳时间超过了1分钟。说明客户端已经不活跃，主动断开连接。</p>
+<p>TODO：</p>
+<ul>
+<li>remove cs_login_role_heartbeat</li>
+<li>remove cs_login_role_list</li>
+</ul>
+<p>cs_role_heartbeat：玩家进入选角界面以后发送一次，防止玩家在选角界面停留太长时间。不超过5分钟。
+    tcp_client:heartbeat(self()): 修改role_list_ui_active_time，服务器不回应。</p>
 <p>经验丹 61-64</p>
 <p>gm命令：max_hp，max_def，max_att
 加防：12,16

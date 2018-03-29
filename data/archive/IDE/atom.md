@@ -32,10 +32,10 @@ ctrl+n 新建文件
 
 
 
-上面插入行: ctrl+shift+enter, cmd+shift+enter 
+上面插入行: ctrl+shift+enter, cmd+shift+enter
 
 ctrl+D 多处编辑，跟sublime一样
-ctrl+鼠标左键 列编辑
+ctrl+鼠标左键点击（拖动无效） 列编辑
 ctrl+enter 下面插入行
 ctrl+shift+k 删除行
 ctrl+shift+d 复制行
