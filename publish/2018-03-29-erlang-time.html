@@ -1,0 +1,216 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script> 
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h2><a name="erlang时间系统" class="anchor" href="#erlang时间系统"><span class="header-link"></span></a>Erlang时间系统</h2><ul>
+<li><a href="#基本概念">基本概念</a></li>
+<li><a href="#time-warp-mode">Time Warp Mode</a></li>
+<li><a href="#time-correction">Time Correction</a></li>
+<li><a href="#os-system-time">OS System Time</a></li>
+<li><a href="#erlang-system-time">Erlang System Time</a></li>
+<li><a href="#使用指南">使用指南</a><ul>
+<li><a href="#获取系统时间">获取系统时间</a></li>
+<li><a href="#测量时间差">测量时间差</a></li>
+<li><a href="#事件的顺序">事件的顺序</a></li>
+<li><a href="#唯一名字">唯一名字</a></li>
+<li><a href="#随机数种子">随机数种子</a></li>
+</ul>
+</li>
+<li><a href="#参考文档">参考文档</a></li>
+</ul>
+<p>Erlang系统中有两套时间系统。一个是操作系统时间，一个是虚拟机时间。我们知道，操作系统时间是非常不可靠的，
+它依靠ntp跟网络上服服务器同步，也有可能被人为修改。如果依赖操作系统时间，程序可能出现异常的行为。
+比如游戏中一个设定是每天0点进行结算，如果结算完一次这时操作系统时间调整回去了，结果又会结算一次。
+因此ERTS在操作系统时间的基础之上引入了虚拟机时间。</p>
+<p>在Erlang/OTP 18(ERTS 7.0)之前，获取时间的接口主要是两个：</p>
+<ul>
+<li>erlang:now()返回虚拟机时间</li>
+<li>os:timestamp()返回操作系统时间。</li>
+</ul>
+<p>erlang:now()存在性能问题，因此很多软件被迫使用os:timestamp()来代替。但是操作系统时间又存在时间回退的问题。</p>
+<p>18之前，操作系统时间变化时，只能通过时间纠正来慢慢系统时间对齐，这个调整的过程可能是非常漫长的。
+1分钟的差异需要100分钟才能调整完。这段时间内的时间间隔，定时器都会受到影响，大约存在1%的偏差。</p>
+<p>从OTP 18以后，把虚拟机时间分为了两个部分，time_offset和monotonic_time。前者用来跟操作系统对齐，
+后者用来实现稳定的时间频率。同时引入了三种time warp mode。time correction加上time warp mode，
+更好的处理系统时间的跳变。</p>
+<h2><a name="基本概念" class="anchor" href="#基本概念"><span class="header-link"></span></a>基本概念</h2><ul>
+<li>UT1：世界时</li>
+<li>UTC：Coordinated Universal Time，协调世界时，对秒的定义跟UT1有差异，包含闰秒。UTC的一天可能为86399, 86400, 86401秒。</li>
+<li>POSIX Time(aka Unix/Epoch time): Time since EPOCH (UTC 1970-01-01 00:00:00)，POSIX Time的一天刚好为86400秒。奇怪的是EPOCH被定义为UTC时间。</li>
+<li><code>OS System Time</code>：操作系统视角的POSIX time。存在时间跳跃。</li>
+<li><code>Erlang System Time</code>: Erlang运行时视角的POSIX time。跟操作系统时间可能有偏差。</li>
+<li>Erlang monotonic time: events, timers, time interval, 单调，但是不严格单调递增。</li>
+<li>Time offset: 通过时间偏移来同步操作系统时间，无需修改单调时间的频率。</li>
+</ul>
+<p>时间单位：每秒多少个单位:</p>
+<ul>
+<li>second，1</li>
+<li>millisecond，1000</li>
+<li>microsecond，1000000</li>
+<li>nanosecond，1000000000</li>
+<li>native，Erlang runtime system使用的单位，不同的操作系统会不一样。我的电脑里面，Windows下为1024000，CentOS下为1000000000。</li>
+</ul>
+<p>时间单位之间的转化可以通过函数实现：
+<code>erlang:convert_time_unit(Time, FromUnit, ToUnit)</code>。</p>
+<h2><a name="time-warp-mode" class="anchor" href="#time-warp-mode"><span class="header-link"></span></a>Time Warp Mode</h2><ul>
+<li><code>no_time_warp</code> 默认方式，系统启动的时候就决定了time offset，以后也不会改变。
+跟之前的系统兼容。因为offset不会变。所以只能通过调整monotonic_time的频率来接近系统时间。
+这会造成monotonic_time的时间频率存在1%的误差。</li>
+<li><code>multi_time_warp</code> 直接改变offset来同步时间，monotonic_time保持相对的稳定，当系统时间发生跳变的时候，
+可以通过<code>erlang:monitor(time_offset, clock_service)</code>来获得通知。</li>
+<li><code>single_time_warp</code> 主要用于嵌入式系统。</li>
+<li>可以通过虚拟机标记<code>+C no_time_mode | multi_time_warp | single_time_warp</code>来配置。</li>
+</ul>
+<h2><a name="time-correction" class="anchor" href="#time-correction"><span class="header-link"></span></a>Time Correction</h2><ul>
+<li>可以通过虚拟机标记来配置是否开启：<code>+c true | false</code></li>
+<li>如果设置为true，Erlang通过加速和减速来跟操作系统时间同步。幅度最大是1%，也就是说，VM经历1秒实际上可能是0.99秒或者1.01秒。
+当系统时间改变了1分钟，erlang会花100分钟来慢慢校正，并最终与系统时间同步。</li>
+<li>如果设置为false，当操作系统时间落后时，虚拟机时间会停滞。直到操作系统时间追上来为止。这意味着重复调用erlang:monotonic_time()会返回相同的值。
+当操作系统时间领先时，monotonic_time前跳。</li>
+</ul>
+<p>可以通过函数<code>erlang:system_info(time_correction).</code>来查看时间纠正是否开启。
+关闭这个选项不会获得任何好处，而且当发生时间跳变时，Erlang monotonic time可能向前跳或者停止。
+所以这个选项一般都是打开的。</p>
+<p>一般常用到的配置：</p>
+<ul>
+<li><code>+c true +C no_time_warp</code> offset保持不变，mono改变%1来追赶OS时间。跟18之前表现是一样的。</li>
+<li><code>+c true +C multi_time_warp</code> offset随着OS时间而变化，mono保持相对稳定的频率。</li>
+</ul>
+<h2><a name="os-system-time" class="anchor" href="#os-system-time"><span class="header-link"></span></a>OS System Time</h2><p>操作系统时间不是单调递增的。系统时间随时可以修改。比如我取了一个操作系统时间t1，
+然后将系统时间改为1天前，再取一个系统时间t2，t2-t1的出来是个负值。</p>
+<p>新API主要提供这三个接口来获取操作系统时间。</p>
+<ul>
+<li><code>os:system_time()</code> 返回native时间单位的操作系统时间<code>os system time</code></li>
+<li><code>os:system_time(Unit)</code> 将操作系统时间转化为Unit时间单位。等价于 <code>erlang:convert_time_unit(os:system_time(), native, Unit)</code>。</li>
+<li><code>os:timestamp() -&gt; {MegaSecs, Secs, MicroSecs}</code><ul>
+<li><code>calendar:now_to_universal_time/1</code></li>
+<li><code>calendar:now_to_local_time/1</code></li>
+</ul>
+</li>
+</ul>
+<p>比如计算年月日：    </p>
+<pre><code class="lang-erlang">format_utc_timestamp() -&gt;
+    TS = {_,_,Micro} = <span class="hljs-symbol">os:ti</span>mestamp(),
+    {{<span class="hljs-built_in">Year</span>,<span class="hljs-built_in">Month</span>,<span class="hljs-built_in">Day</span>},{<span class="hljs-built_in">Hour</span>,<span class="hljs-built_in">Minute</span>,<span class="hljs-built_in">Second</span>}} = calend<span class="hljs-symbol">ar:no</span>w_to_universal_time(TS),
+    Mstr = element(<span class="hljs-built_in">Month</span>,{<span class="hljs-string">"Jan"</span>,<span class="hljs-string">"Feb"</span>,<span class="hljs-string">"Mar"</span>,<span class="hljs-string">"Apr"</span>,<span class="hljs-string">"May"</span>,<span class="hljs-string">"Jun"</span>,<span class="hljs-string">"Jul"</span>,<span class="hljs-string">"Aug"</span>,<span class="hljs-string">"Sep"</span>,<span class="hljs-string">"Oct"</span>,<span class="hljs-string">"Nov"</span>,<span class="hljs-string">"Dec"</span>}),
+    io_l<span class="hljs-symbol">ib:fo</span>rmat(<span class="hljs-string">"~2w ~s ~4w ~2w:~2..0w:~2..0w.~6..0w"</span>,[<span class="hljs-built_in">Day</span>,Mstr,<span class="hljs-built_in">Year</span>,<span class="hljs-built_in">Hour</span>,<span class="hljs-built_in">Minute</span>,<span class="hljs-built_in">Second</span>,Micro]).
+</code></pre>
+<p>另外，erlang:date()，erlang:localtime()等函数都是通过操作系统时间算出来的。
+通过下面的接口可以看到操作系统接口调用的底层接口，比如Windows下面是这样的：</p>
+<pre><code class="lang-erlang">&gt; erlang:system_info(os_system_time_source).
+[{function,<span class="hljs-string">'GetSystemTime'</span>},
+ {resolution,<span class="hljs-number">100</span>},
+ {parallel,yes},
+ {time,<span class="hljs-number">1558773547665408</span>}]
+
+&gt; erlang:system_info(os_monotonic_time_source).
+[{function,<span class="hljs-string">'GetTickCount64'</span>},
+ {resolution,<span class="hljs-number">100</span>},
+ {extended,no},
+ {parallel,yes},
+ {time,<span class="hljs-number">1191373658112</span>}]
+</code></pre>
+<h2><a name="erlang-system-time" class="anchor" href="#erlang-system-time"><span class="header-link"></span></a>Erlang System Time</h2><p>正是因为操作系统时间如此不可靠，我们需要一个经过纠正的虚拟机时间。
+这个纠正的虚拟机时间具有以下特性：</p>
+<ul>
+<li>Never jumps backwards or forwards</li>
+<li>Never differs more than 1% in speed from OS Monotonic time</li>
+<li>Attemps to be as close as possible to OS system time</li>
+</ul>
+<p>jumping from 1970 to 2015 will take 4500 years to recover, which means all relative time will happen 1% faster for many years.</p>
+<p>新API提供以下接口用于获取虚拟机时间：</p>
+<ul>
+<li>erlang:system_time() 返回native时间单位的虚拟机时间<code>erlang system time</code>，虚拟机时间由两部分构成：time_offset和monotonic_time。
+erlang:system_time() 等价于 erlang:monotonic_time() + erlang:time_offset()</li>
+<li>erlang:system_time(Unit) 将erlang系统时间转化为Unit时间单位。等价于<code>erlang:convert_time_unit(erlang:system_time(), native, Unit)</code></li>
+<li>erlang:monotonic_time() 虚拟机内部的时间引擎。定时器、receive after定时器、BIF定时器、timer模块定时器都是由这个时间触发。</li>
+<li>erlang:time_offset()</li>
+<li>erlang:timestamp() -&gt; {MegaSecs, Secs, MicroSecs} <code>Erlang system time</code>，这个函数的存在只是为了兼容现有的代码的时间格式。
+<code>Erlang system time</code>可以通过上面的函数erlang:system_time/1更加高效的获取。这个函数等价于：</li>
+</ul>
+<pre><code><span class="hljs-function"><span class="hljs-title">timestamp</span><span class="hljs-params">()</span></span> -&gt;
+    ErlangSystemTime = erlang:system_time(microsecond),
+    MegaSecs = ErlangSystemTime <span class="hljs-selector-tag">div</span> <span class="hljs-number">1000000000000</span>,
+    Secs = ErlangSystemTime <span class="hljs-selector-tag">div</span> <span class="hljs-number">1000000</span> - MegaSecs*<span class="hljs-number">1000000</span>,
+    MicroSecs = ErlangSystemTime rem <span class="hljs-number">1000000</span>,
+    {MegaSecs, Secs, MicroSecs}.
+</code></pre><h2><a name="使用指南" class="anchor" href="#使用指南"><span class="header-link"></span></a>使用指南</h2><p>一个总的原则就是：不要使用<code>erlang:now/0</code>。根据不同的目的，选择不同的接口。</p>
+<h3><a name="获取系统时间" class="anchor" href="#获取系统时间"><span class="header-link"></span></a>获取系统时间</h3><p>使用erlang:system_time/1获取系统时间。如果需要erlang:now/0返回的数据格式，可以用erlang:timestamp/0。</p>
+<h3><a name="测量时间差" class="anchor" href="#测量时间差"><span class="header-link"></span></a>测量时间差</h3><p>使用erlang:monotonic_time/0之差来测量时间，结果是native时间单位，可以用erlang:convert_time_unit/3来转化为其他时间单位。
+也可以直接使用erlang:monotonic_time/1之差来测量时间，不过这种方式会损失一定的精度。</p>
+<h3><a name="事件的顺序" class="anchor" href="#事件的顺序"><span class="header-link"></span></a>事件的顺序</h3><p>erlang:unique_integer([monotonic]). 严格单调递增。</p>
+<h3><a name="唯一名字" class="anchor" href="#唯一名字"><span class="header-link"></span></a>唯一名字</h3><ul>
+<li>erlang:unique_integer/0</li>
+<li>erlang:unique_integer([positive])</li>
+</ul>
+<h3><a name="随机数种子" class="anchor" href="#随机数种子"><span class="header-link"></span></a>随机数种子</h3><ul>
+<li>erlang:monotonic_time()</li>
+<li>erlang:time_offset()</li>
+<li>erlang:unique_integer()</li>
+</ul>
+<h2><a name="参考文档" class="anchor" href="#参考文档"><span class="header-link"></span></a>参考文档</h2><ul>
+<li><a href="http://learnyousomeerlang.com/time">http://learnyousomeerlang.com/time</a></li>
+<li>erts-9.2/doc/html/time_correction.html</li>
+</ul>
+</div>
+
+    </div>
+
+    <div id="disqus_thread"></div>
+    <script>
+    /**
+    *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+    *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+    var disqus_config = function () {
+        this.page.url = "https://wudeng.github.io//publish/2018-03-29-erlang-time.html"; 
+        this.page.identifier = "/publish/2018-03-29-erlang-time.html";
+    };
+    (function() { // DON'T EDIT BELOW THIS LINE
+    var d = document, s = d.createElement('script');
+    s.src = 'https://wudeng.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+</div>
+</body>
+    <span id="busuanzi_container_page_pv"><span id="busuanzi_value_page_pv"></span></span>,
+    <span id="busuanzi_container_site_uv"><span id="busuanzi_value_site_uv"></span></span>,
+    <span id="busuanzi_container_site_pv"><span id="busuanzi_value_site_pv"></span></span>
+</span>
+</html>

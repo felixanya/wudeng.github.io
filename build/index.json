@@ -110,5 +110,11 @@
         "link": "../publish/2018-02-27-docker-on-windows7.html",
         "summary": "<a href=\"publish/2018-02-27-docker-on-windows7.html\"><h1>docker on windows7</h1>\n</a><ul>\n<li><a href=\"#安装virtualbox\">安装VirtualBox</a></li>\n<li><a href=\"#docker-machine\">docker-machine</a></li>\n<li><a href=\"#文件夹挂载\">文件夹挂载</a></li>\n<li><a href=\"#端口映射\">端口映射</a><ul>\n<li><a href=\"#配置加速器\">配置加速器</a></li>\n</ul>\n</li>\n</ul>\n<p>windows 7以前的系统需要通过虚拟机软件运行boot2docker来支持docker,\n一般使用VirtualBox来运行boot2docker。boot2docker是一个支持docker的linux环境。</p>\n<h2><a name=\"安装virtualbox\" class=\"anchor\" href=\"#安装virtualbox\"><span class=\"header-link\"></span></a>安装VirtualBox</h2>\n<p>windows上安装虚拟机需要先开启cpu的虚拟化支持，否则会有报错：</p>\n",
         "title": "docker on windows7"
+    },
+    "2018-03-29-erlang-time": {
+        "name": "2018-03-29-erlang-time",
+        "stamp": "2018-3-29",
+        "link": "../publish/2018-03-29-erlang-time.html",
+        "summary": "<h2><a name=\"erlang时间系统\" class=\"anchor\" href=\"#erlang时间系统\"><span class=\"header-link\"></span></a>Erlang时间系统</h2>\n<ul>\n<li><a href=\"#基本概念\">基本概念</a></li>\n<li><a href=\"#time-warp-mode\">Time Warp Mode</a></li>\n<li><a href=\"#time-correction\">Time Correction</a></li>\n<li><a href=\"#os-system-time\">OS System Time</a></li>\n<li><a href=\"#erlang-system-time\">Erlang System Time</a></li>\n<li><a href=\"#使用指南\">使用指南</a><ul>\n<li><a href=\"#获取系统时间\">获取系统时间</a></li>\n<li><a href=\"#测量时间差\">测量时间差</a></li>\n<li><a href=\"#事件的顺序\">事件的顺序</a></li>\n<li><a href=\"#唯一名字\">唯一名字</a></li>\n<li><a href=\"#随机数种子\">随机数种子</a></li>\n</ul>\n</li>\n<li><a href=\"#参考文档\">参考文档</a></li>\n</ul>\n<p>Erlang系统中有两套时间系统。一个是操作系统时间，一个是虚拟机时间。我们知道，操作系统时间是非常不可靠的，\n它依靠ntp跟网络上服服务器同步，也有可能被人为修改。如果依赖操作系统时间，程序可能出现异常的行为。\n比如游戏中一个设定是每天0点进行结算，如果结算完一次这时操作系统时间调整回去了，结果又会结算一次。\n因此ERTS在操作系统时间的基础之上引入了虚拟机时间。</p>\n<p>在Erlang/OTP 18(ERTS 7.0)之前，获取时间的接口主要是两个：</p>\n<ul>\n<li>erlang:now()返回虚拟机时间</li>\n<li>os:timestamp()返回操作系统时间。</li>\n</ul>\n"
     }
 }
