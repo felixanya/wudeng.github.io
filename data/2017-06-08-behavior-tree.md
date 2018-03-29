@@ -45,20 +45,20 @@ Erlang版行为树的具体实现参考了Behavior3的版本。每个节点的�
 - close_cb 跟open_cb对应，只有结束节点的时候执行。意味着跨越多个tick的runing节点这个函数只会执行一次。一般用来关闭节点。
 - exit_cb 每个tick都会执行。
 
-``` -erlang
+```erlang
 execute(#node{id = Id} = Node, #tick{blackboard = Blackboard} = Tick) ->
     Tick1 = enter_cb(Node, Tick),
-    Tick2 = case get_key({is_open, Id}, Blackboard, false) of 
+    Tick2 = case get_key({is_open, Id}, Blackboard, false) of
         false -> open_cb(Node, Tick1);
         true -> Tick1
     end,
     {Status, Tick3} = tick_cb(Node, Tick2),
-    Tick4 = case Status of 
+    Tick4 = case Status of
         running -> Tick3;
         _ -> close_cb(Node, Tick3)
     end,
     Tick5 = exit_cb(Node, Tick4),
-    {Status, Tick5}. 
+    {Status, Tick5}.
 ```
 
 选择节点priority，顺序执行子节点，如果子节点返回成功则返回成功，跳过后续子节点。
@@ -68,12 +68,12 @@ execute(#node{id = Id} = Node, #tick{blackboard = Blackboard} = Tick) ->
 如果需要记住上次运行的节点，下次直接从该运行子节点开始执行，可以使用mem_priority类型的节点。
 如果子节点包含两个以上可能返回运行的子节点，则需要考虑是否使用mem_priority版本。
 
-```
+```erlang
 priority([], Tick) ->
     {false, Tick};
 priority([C|Children], Tick) ->
     case execute(C, Tick) of
-        {true, NewTick} -> 
+        {true, NewTick} ->
             {true, NewTick};
         {running, NewTick} ->
             {running, NewTick};
@@ -90,14 +90,14 @@ priority([C|Children], Tick) ->
 比如，怪物执行巡逻，顺序节点有两个子节点，分别执行移动到A点，和移动到B点，那么必须使用mem_sequence，
 每次tick从上次运行的地方继续运行。否则怪物只会在A点附近反复移动，无法移动到B点。
 
-```
+```erlang
 sequence([], Tick) ->
     {true, Tick};
 sequence([C|Children], Tick) ->
     case execute(C, Tick) of
         {running, NewTick} ->
             {running, NewTick};
-        {false, NewTick} -> 
+        {false, NewTick} ->
             {false, NewTick};
         {true, NewTick} ->
             sequence(Children, NewTick)
@@ -113,7 +113,7 @@ Erlang版本的实现中通过遍历行为树节点来找到未正常关闭的�
 遍历行为树关闭未能正常关闭的节点的实现：
 
 
-```
+```erlang
 close_nodes(_, _, [], Tick) -> Tick;
 close_nodes(undefined, _, _, Tick) -> Tick;
 close_nodes(#node{children = [], child = undefined} = Node, CurOpenNodes, LastOpenNodes, Tick) ->
@@ -131,13 +131,13 @@ close_nodes(#node{children = [], child = Child} = Node, CurOpenNodes, LastOpenNo
     NewTick = close_node(Node, CurOpenNodes, LastOpenNodes, Tick),
     close_nodes(Child, CurOpenNodes, LastOpenNodes, NewTick).
 close_node(#node{id = Id} = Node, CurOpenNodes, LastOpenNodes, #tick{blackboard = Blackboard} = Tick) ->
-    case lists:member(Id, LastOpenNodes) andalso 
-         not lists:member(Id, CurOpenNodes) andalso 
+    case lists:member(Id, LastOpenNodes) andalso
+         not lists:member(Id, CurOpenNodes) andalso
          get_key({is_open, Id}, Blackboard, false) of
-        true -> 
+        true ->
             %%?DEBUG("close_node ~p", [Node]),
             close_cb_(Node, Tick#tick{blackboard = dict:store({is_open, Id}, false, Blackboard)});
-        false -> 
+        false ->
             Tick
     end.
 ```

@@ -37,7 +37,7 @@ loop() ->
     receive
         {smoke, Smoker, AvailableMaterials} ->
             Smoker ! smoke,
-            receive 
+            receive
                 doneSmoke ->
                     loop()
             end
@@ -46,11 +46,11 @@ loop() ->
 以及：
 ```erlang
 loop() ->
-    receive 
+    receive
         {high_prio, Msg} ->
             process_high;
         after 0 ->
-            receive 
+            receive
                 {low_prio, Msg} ->
                     process_low;
                 _ ->
@@ -61,10 +61,10 @@ loop() ->
 ```
 串联的receive：
 ```erlang
-    receive 
+    receive
         foo -> ok
     end,
-    receive 
+    receive
         bar -> ok
     end
 ```
@@ -80,7 +80,7 @@ true
 
 向shell进程发消息，并进入匹配。
 
-```
+```erlang
 (foo@deng)2> self() ! c, self() ! d, self() ! a.
 a
 (foo@deng)3> process_info(self(),messages).     
@@ -95,7 +95,7 @@ ok
 
 这时候shell进入了receive的等待过程，按照之前的说法，这时候shell的消息队列应该为空，我们通过远程shell连上来查看shell的消息队列。
 
-```
+```erlang
 (foo@deng)3> process_info(whereis(shell),messages).
 {messages,[c,d]}
 ```
@@ -108,9 +108,9 @@ ok
 在官网上找到一段对receive的描述：
 
 > Each process has its own input queue for messages it receives. New messages received are put at the end of the queue. When a process executes a receive, the first message in the queue is matched against the first pattern in the receive. If this matches, the message is removed from the queue and the actions corresponding to the pattern are executed.
-> 
+>
 > However, if the first pattern does not match, the second pattern is tested. If this matches, the message is removed from the queue and the actions corresponding to the second pattern are executed. If the second pattern does not match, the third is tried and so on until there are no more patterns to test. If there are no more patterns to test, the first message is **kept in the queue** and the second message is tried instead. If this matches any pattern, the appropriate actions are executed and the second message is removed from the queue (keeping the first message and any other messages in the queue). If the second message does not match, the third message is tried, and so on, until the end of the queue is reached. If the end of the queue is reached, the process blocks (stops execution) and waits until a new message is received and this procedure is repeated.
-> 
+>
 > The Erlang implementation is "clever" and minimizes the number of times each message is tested against the patterns in each receive.
 
 并没有提到save queue，消息没有被匹配的时候是留在消息队列中的。
@@ -166,7 +166,7 @@ beam_receive.erl文件中有这么一段：
 beam_emu.c文件中画出了receive语句的执行流程如下：
 ```
 Skeleton for receive statement:
-                                                      
+
             recv_mark L1                     Optional
             call make_ref/monitor            Optional
             ...
@@ -183,12 +183,12 @@ Skeleton for receive statement:
      L2:          <---------------+   |
    	wait L1  -----------------+      or wait_timeout
 	timeout
-                                                      
+
  L3:    Code after receive...
 ```
 erl_process.h定义了process结构，包含两个队列，一个公共队列，对于支持SMP的进程，可能存在多个进程同时向一个进程写消息的情况，这种情况下需要给消息队列加锁，这意味着进程自己处理消息的时候也需要加锁。
 为了提高效率，引入了一个ErlMessageInQueue，其他进程先把消息写入这个进程，进程自己通过ErlMessageQueue来读取消息。这里我们重点关注ErlMessageQueue.
-```
+```c
 struct process {
 #ifdef ERTS_SMP
     ErlMessageInQueue msg_inq;
@@ -222,7 +222,7 @@ typedef struct{
 
 
 下面我们通过汇编文件来分析receive的过程，先编辑一个源文件：
-```
+```erlang
 -module(test).
 
 -compile(export_all).
@@ -241,16 +241,16 @@ ok
 ```
 在目录下找到`test.dis`文件，找到函数t的实现：
 ```
-08235938: i_func_info_IaaI 0 test t 0 
-0823594C: i_loop_rec_fr f(08235974) x(0) 
-08235954: i_is_eq_exact_immed_frc f(0823596C) x(0) ok 
-08235960: remove_message 
-08235964: move_return_cr ok x(0) 
-0823596C: loop_rec_end_f test:t/0 
-08235974: wait_locked_f test:t/0 
+08235938: i_func_info_IaaI 0 test t 0
+0823594C: i_loop_rec_fr f(08235974) x(0)
+08235954: i_is_eq_exact_immed_frc f(0823596C) x(0) ok
+08235960: remove_message
+08235964: move_return_cr ok x(0)
+0823596C: loop_rec_end_f test:t/0
+08235974: wait_locked_f test:t/0
 ```
 实现在`beam_emu.c`中:
-* i_loop_rec_fr: Pick up the next message and place it in x(0),  If no message, jump to a wait or wait_timeout instruction. 
+* i_loop_rec_fr: Pick up the next message and place it in x(0),  If no message, jump to a wait or wait_timeout instruction.
 * loop_rec_end_f: Advance the save pointer to the next message (the current message didn't match), then jump to the loop_rec instruction.
 
 结论

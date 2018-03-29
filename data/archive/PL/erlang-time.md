@@ -1,12 +1,16 @@
-## Erlang时间相关
+## Erlang时间系统
+
+Erlang系统中有两套时间系统。一个是操作系统时间，一个是虚拟机时间。我们知道，操作系统时间是非常不可靠的，
+它依靠ntp跟网络上服服务器同步，也有可能被人为修改。如果依赖操作系统时间，程序可能出现异常的行为。
+比如游戏中一个设定是每天0点进行结算，如果结算完一次这时操作系统时间调整回去了，结果又会结算一次。
+因此ERTS在操作系统时间的基础之上建立了虚拟机时间，来处理这种时间的突然变化。在不引入time warp mode机制的时候，
+这种纠正是通过改变虚拟机时间的频率来完成的。
 
 在Erlang/OTP 18(ERTS 7.0)之前，时间接口主要是两个：erlang:now()返回虚拟机时间，os:timestamp()返回操作系统时间。
-erlang:now()存在性能问题，被迫使用os:timestamp()又存在时间回退的问题。
-从OTP 18以后，引入了很多新的时间接口。
-
-18之前支持时间纠正。
-18之后支持之间纠正和时间跳跃。
-
+erlang:now()存在性能问题，被迫使用os:timestamp()又存在时间回退的问题。18之前，发生time warp的时候只能通过时间纠正来慢慢系统时间对齐，
+这个调整的过程可能是非常漫长的。1分钟的差异需要100分钟才能调整完。这段时间内的时间间隔，定时器都会受到影响，大约存在1%的偏差。
+从OTP 18以后，把虚拟机时间分为了两个部分，time_offset和monotonic_time, 同时引入multi_time_warp mode来处理time warp问题。
+同时引入了no_time_warp、single_time_warp两种模式兼容之前的系统。
 
 
 ## 基本概念
@@ -33,7 +37,7 @@ erlang:now()存在性能问题，被迫使用os:timestamp()又存在时间回退
 ## Time Warp
 * no_time_warp 默认方式，系统启动的时候就决定了time offset，以后也不会改变。
 跟之前的系统兼容。因为offset不会变。所以只能通过调整mono time的频率来接近系统时间。mono的时间频率存在1%的误差。
-* multi_time_warp
+* multi_time_warp 直接改变offset来同步时间，erlang:monitor(time_offset, clock_service).
 * single_time_warp Multi-time warp mode in combination with time correction is the preferred configuration.
 
 
@@ -47,11 +51,16 @@ monitor(time_offset, clock_service)
 - 如果设置为false，当操作系统时间落后时，虚拟机时间会停滞。直到操作系统时间追上来为止。这意味着重复调用erlang:monotonic_time()会返回相同的值。
 当操作系统时间领先时，monotonic_time前跳。
 
+OS时间变化时:
+* +c true +C no_time_warp offset保持不变，mono改变%1来追赶OS时间。跟18之前表现是一样的。
+* +c true +C multi_time_warp offset随着OS时间而变化，mono保持相对稳定的频率。
+
+
 ## OS System Time
 
 操作系统时间不是单调递增的。系统时间随时可以修改。比如我去了一个操作系统时间t1，然后将系统时间改为1天前，再取一个系统时间t2，
 t2-t1的出来是个负值。
-```
+```erlang
 > erlang:system_info(os_system_time_source).
 [{function,'GetSystemTime'},
  {resolution,100},
@@ -72,13 +81,14 @@ t2-t1的出来是个负值。
     - calendar:now_to_universal_time/1
     - calendar:now_to_local_time/1
 
-```
+```erlang
 format_utc_timestamp() ->
     TS = {_,_,Micro} = os:timestamp(),
     {{Year,Month,Day},{Hour,Minute,Second}} = calendar:now_to_universal_time(TS),
     Mstr = element(Month,{"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"}),
     io_lib:format("~2w ~s ~4w ~2w:~2..0w:~2..0w.~6..0w",[Day,Mstr,Year,Hour,Minute,Second,Micro]).
 ```
+erlang:date()，erlang:localtime()什么的，都是通过操作系统时间算出来的。
 
 ## Erlang System Time
 
@@ -128,7 +138,12 @@ timestamp() ->
 
 ### 事件的顺序
 
-erlang:unique_integer([monotonic]).
+erlang:unique_integer([monotonic]). 严格单调递增。
+
+### 唯一名字
+
+* erlang:unique_integer/0
+* erlang:unique_integer([positive])
 
 ### 随机数种子
 
@@ -138,3 +153,4 @@ erlang:unique_integer([monotonic]).
 
 ## 参考文档
 * http://learnyousomeerlang.com/time
+* erts-9.2/doc/html/time_correction.html
