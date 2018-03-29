@@ -5,8 +5,9 @@
 <link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
 <link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
 <link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/atom-one-dark.min.css">
 <script src="https://use.fontawesome.com/74835083f1.js"></script>
-<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script> 
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 <title>Deng的梦呓</title>
 </head>
 
@@ -121,10 +122,10 @@
 </ul>
 </li>
 </ul>
-<p>比如计算年月日：    </p>
+<p>比如计算年月日：</p>
 <pre><code class="lang-erlang">format_utc_timestamp() -&gt;
     TS = {_,_,Micro} = <span class="hljs-symbol">os:ti</span>mestamp(),
-    {{<span class="hljs-built_in">Year</span>,<span class="hljs-built_in">Month</span>,<span class="hljs-built_in">Day</span>},{<span class="hljs-built_in">Hour</span>,<span class="hljs-built_in">Minute</span>,<span class="hljs-built_in">Second</span>}} = calend<span class="hljs-symbol">ar:no</span>w_to_universal_time(TS),
+    { {<span class="hljs-built_in">Year</span>,<span class="hljs-built_in">Month</span>,<span class="hljs-built_in">Day</span>},{<span class="hljs-built_in">Hour</span>,<span class="hljs-built_in">Minute</span>,<span class="hljs-built_in">Second</span>} } = calend<span class="hljs-symbol">ar:no</span>w_to_universal_time(TS),
     Mstr = element(<span class="hljs-built_in">Month</span>,{<span class="hljs-string">"Jan"</span>,<span class="hljs-string">"Feb"</span>,<span class="hljs-string">"Mar"</span>,<span class="hljs-string">"Apr"</span>,<span class="hljs-string">"May"</span>,<span class="hljs-string">"Jun"</span>,<span class="hljs-string">"Jul"</span>,<span class="hljs-string">"Aug"</span>,<span class="hljs-string">"Sep"</span>,<span class="hljs-string">"Oct"</span>,<span class="hljs-string">"Nov"</span>,<span class="hljs-string">"Dec"</span>}),
     io_l<span class="hljs-symbol">ib:fo</span>rmat(<span class="hljs-string">"~2w ~s ~4w ~2w:~2..0w:~2..0w.~6..0w"</span>,[<span class="hljs-built_in">Day</span>,Mstr,<span class="hljs-built_in">Year</span>,<span class="hljs-built_in">Hour</span>,<span class="hljs-built_in">Minute</span>,<span class="hljs-built_in">Second</span>,Micro]).
 </code></pre>
@@ -195,7 +196,7 @@ erlang:system_time() 等价于 erlang:monotonic_time() + erlang:time_offset()</l
     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
     var disqus_config = function () {
-        this.page.url = "https://wudeng.github.io//publish/2018-03-29-erlang-time.html"; 
+        this.page.url = "https://wudeng.github.io//publish/2018-03-29-erlang-time.html";
         this.page.identifier = "/publish/2018-03-29-erlang-time.html";
     };
     (function() { // DON'T EDIT BELOW THIS LINE

@@ -5,8 +5,9 @@
 <link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
 <link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
 <link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/atom-one-dark.min.css">
 <script src="https://use.fontawesome.com/74835083f1.js"></script>
-<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script> 
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 <title>Deng的梦呓</title>
 </head>
 
@@ -161,15 +162,15 @@ buff变化 =&gt; 加减值，百分比变化</p>
   切换场景的时候，buff变化需要通知前端？</p>
 <h2><a name="ets表" class="anchor" href="#ets表"><span class="header-link"></span></a>ETS表</h2><ul>
 <li>ets_online<ul>
-<li><h1>ets_online{}</h1></li>
+<li>#ets_online{}</li>
 </ul>
 </li>
 <li>ets_player_pid<ul>
-<li><h1>ets_player_pid{}</h1></li>
+<li>#ets_player_pid{}</li>
 </ul>
 </li>
 <li>ets_player_battle_info<ul>
-<li><h1>battle_info{}</h1></li>
+<li>#battle_info{}</li>
 </ul>
 </li>
 </ul>
@@ -262,7 +263,8 @@ lib_offline_player:create_offline_player(BattleInfo).</p>
 </ul>
 <p><code>lists:filter(fun(Level) -&gt; case lib_offline_player:get_base_monster(Level) of [_] -&gt; false; _ -&gt; true end end, lists:seq(1, 300)).</code></p>
 <p>搭建一个敏感词过滤系统</p>
-<h1>#</h1><p>battle_info存地图进程的理由：
+<p>##</p>
+<p>battle_info存地图进程的理由：
     玩家已经离开场景，但是buff或者技能杀死了怪物，掉落物会导致前端出错</p>
 <pre><code><span class="hljs-function"><span class="hljs-title">dbgon</span><span class="hljs-params">(lib_skill,skill_action)</span></span>,dbgadd(lib_skill,do_shift).
 </code></pre><p>机器人移动：
@@ -327,7 +329,7 @@ lib_offline_player:create_offline_player(BattleInfo).</p>
     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
     var disqus_config = function () {
-        this.page.url = "https://wudeng.github.io//publish/tianshu.html"; 
+        this.page.url = "https://wudeng.github.io//publish/tianshu.html";
         this.page.identifier = "/publish/tianshu.html";
     };
     (function() { // DON'T EDIT BELOW THIS LINE
