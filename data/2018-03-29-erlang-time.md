@@ -76,12 +76,12 @@ erlang:now()存在性能问题，因此很多软件被迫使用os:timestamp()来
     - `calendar:now_to_universal_time/1`
     - `calendar:now_to_local_time/1`
 
-比如计算年月日：    
+比如计算年月日：
 
 ```erlang
 format_utc_timestamp() ->
     TS = {_,_,Micro} = os:timestamp(),
-    {{Year,Month,Day},{Hour,Minute,Second}} = calendar:now_to_universal_time(TS),
+    { {Year,Month,Day},{Hour,Minute,Second} } = calendar:now_to_universal_time(TS),
     Mstr = element(Month,{"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"}),
     io_lib:format("~2w ~s ~4w ~2w:~2..0w:~2..0w.~6..0w",[Day,Mstr,Year,Hour,Minute,Second,Micro]).
 ```
