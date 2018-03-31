@@ -1,4 +1,6 @@
 # rebar3
+
+目录结构：
 ```
 ├── LICENSE
 ├── README.md
@@ -132,20 +134,6 @@ set DEBUG=
 通过
 set DEBUG 就能查看环境变量。
 
-## rebar
-
-http://blog.csdn.net/agiknight/article/details/7248624 测试有效。
-
-escript rebar get-deps
-escript rebar comile eunit
-
-{deps_dir, ["deps"]}.
-{cover_enabled, true}
-
-rebar的目录管理：当前目录下`ebin`，`deps/*/ebin`
-启动程序：
-可以用make来简化操作。
-`start werl -pa ebin deps/*/ebin  -env ERL_MAX_ETS_TABLES 10000 -setcookie abcdeft +A 8 +K true +P 120000   -name galaxy-empire@127.0.0.1 -s slg_model start`
 
 src目录下有app.src文件，编译后会拷贝到ebin目录下。code:priv_dir(App)也是好的。问题在于打包的时候，各个分散的ebin目录。如何部署?
 rebar generate

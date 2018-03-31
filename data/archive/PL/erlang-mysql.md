@@ -26,9 +26,13 @@ mysql：连接池管理进程，每个连接对应一个连接进程，管理进
 如果有一个连接在处理一个长时间的请求，当轮到他处理请求的时候，其他请求依然会交给这个连接来处理。
 
 
-## [emysql](https://github.com/Eonblast/Emysql)
+## [emysql](https://github.com/inaka/Emysql)
 
-`erlang-mysql-driver`的改进版本。
+`erlang-mysql-driver`的改进版本。有两个版本，第一个版本是Enoblast的，但是很久没有维护了，18+以后编译有点问题。
+inaka的版本增加了18+的支持。
+* https://github.com/Eonblast/Emysql
+* https://github.com/inaka/Emysql
+
 
 缺点：
 - spawn一个新的进程出来执行请求。
