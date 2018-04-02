@@ -27,7 +27,7 @@ User switch command
   ? | h             - this message
 ```
 
-windows下erl重启shell。ctrl+c和ctrl+break都会退出shell。
+windows下erl使用ctrl+g都会导致重启shell。ctrl+c和ctrl+break都会退出shell。
 
 使用erl -remsh 连接远程节点时，要通过Ctrl+G,q退出。直接q().会关闭远程节点。
 使用rebar的attach连接节点的时候，用ctrl+D退出。
