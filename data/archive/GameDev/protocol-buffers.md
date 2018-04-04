@@ -43,13 +43,59 @@ backwards-compatible:
 - output_src_dir
 
 编译命令行：
-```
+```shell
 erl -pa ebin \
   -eval 'protobuffs_compile:scan_file("application/network_proto/proto/common.proto",[{imports_dir, ["application/network_proto/proto/"]}, {output_ebin_dir,"ebin"}, {output_include_dir,"include"}]).' \
   -s init stop \
   -noshell \
   -boot start_sasl
 ```
+
+创建一个escript脚本文件gen_proto，因为依赖protobuffs，所以需要将其加入codepath。
+```erlang
+#!/usr/bin/env escript
+
+main(Args) ->
+    Dir = filename:dirname(escript:script_name()),
+    true = code:add_patha(Dir ++ "/deps/protobuffs/ebin"),
+    case Args of
+        [] -> compile_proto();
+        [File] -> compile_file(File)
+    end,
+    halt(0).
+
+compile_proto() ->
+    NetworkProto = "application/network_proto/",
+    ProtoPath = NetworkProto ++ "proto/",
+    IncludePath = NetworkProto ++ "include/",
+    [
+        protobuffs_compile:scan_file(ProtoPath ++ File, [{imports_dir, [ProtoPath]}, {output_ebin_dir,"ebin"}, {output_include_dir,IncludePath}])
+        ||
+        File <- filelib:wildcard("*.proto", ProtoPath)
+    ].
+
+
+compile_file(File) ->
+    ProtoPath = "application/network_proto/proto/",
+    IncludePath = "application/network_proto/include/",
+    protobuffs_compile:scan_file(File, [{imports_dir, [ProtoPath]}, {output_ebin_dir,"ebin"}, {output_include_dir,IncludePath}]),
+    protobuffs_compile:generate_source(File, [{imports_dir, [ProtoPath]}, {output_src_dir,"tmp"}, {output_include_dir,IncludePath}]).
+```
+然后创建一个cmd脚本gen_proto.cmd用于调用这个escript脚本，这样可以直接双击执行了：
+```cmd
+@echo off
+setlocal
+set gen_proto_file=%~f0
+escript.exe %gen_proto_file:.cmd=% %*
+```
+Makefile中增加一个目标：
+```makefile
+$(BEAMS):ebin/%_pb.beam:$(PROTO_DIR)/%.proto $(PROTO_DIR)/unit.proto
+	@gen_proto $<
+g:
+	@gen_proto
+```
+
 
 ### [gpb](https://github.com/basho/gpb)
 bin/protoc-erl 是一段escript脚本。直接调用可以打印帮助。make以后就可以调用这个脚本编译proto文件生成erl文件和头文件。

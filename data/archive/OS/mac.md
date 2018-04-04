@@ -25,3 +25,8 @@ xcrun error: xcode-select --install
 
 ## Chrome
 ⌘ +
+
+
+
+
+## 参考文档 * https://ss64.com/osx/

@@ -2,7 +2,10 @@
 
 Trace可以在生产系统中追踪local和global函数的调用与返回，消息发送与接收，GC等等各种事件。
 这对复杂系统的DEBUG是非常有用的特性。比如你的ETS表里面出现了不该出现的数据，你需要找到是哪个函数插入的。
-Trace能够做到这些。
+Trace能够做到这些。曾经在线上遇到过类似的问题，在某游戏服务器中出现了其他服玩家的空间信息。当时为了定位是哪里
+插入的数据使用了一个很tricky的办法：修改代码，在插入数据的时候如果发现异常就抛出一个异常并使用
+`erlang:get_stacktrace()`打印调用栈，后来发现是玩家给跨服玩家空间点赞导致的。
+其实有了trace，根本用不了那么麻烦。
 
 ## trace BIF
 trace构建于两个最基本的BIF之上。dbg模块是对trace功能的封装，类似的还有redbug，recon_trace等等。
@@ -47,8 +50,6 @@ trace构建于两个最基本的BIF之上。dbg模块是对trace功能的封装�
 消息格式：
 - {trace, Pid, call, {M, F, Args}} 配合arity，后面的部分为{M, F, Arity}
 - {trace, Pid, return_to, {M, F, Args}}
-
-
 
 ## dbg：创建tracer
 
@@ -135,7 +136,9 @@ MatchBody可以是下面这些函数：
 * dbg:stop()
 * dbg:stop_clear()
 
-## trace工具函数
+## 自定义工具函数
+
+自定义的一些工具函数可以放在user_default模块中，可以直接在shell中使用，用起来很方便。
 
 ```erlang
 %% Item:
@@ -159,6 +162,7 @@ dbgon(Item, Module, Fun, N) when is_atom(Module),is_integer(N) ->
 dbgon(Item, Module, Fun, ShellFun, N) when is_atom(Module),is_integer(N),is_function(ShellFun) ->
     MatchSpec = fun_to_ms(ShellFun),
     dbgon(Item, Module, Fun, MatchSpec, N);
+
 dbgon(Item, Module, Fun, MatchSpec, N) when is_atom(Module),is_integer(N),is_list(MatchSpec) ->
     case tracer(N) of
         {ok, _} ->
@@ -169,6 +173,7 @@ dbgon(Item, Module, Fun, MatchSpec, N) when is_atom(Module),is_integer(N),is_lis
             Else
     end.
 
+%% 一个简单的基于count的tracer
 tracer(Total) ->
     dbg:tracer(process, {
         fun

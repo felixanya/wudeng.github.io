@@ -149,7 +149,7 @@ true
 rebar3 shell
 
 windows 系统下建立文件 rebar.cmd，内容如下，那么可以就直接在命令中使用rebar了。
-```
+```cmd
 @echo off
 setlocal
 set rebarscript=%~f0

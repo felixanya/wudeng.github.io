@@ -30,6 +30,9 @@
     - `%ERRORLEVEL%`
     - `%TEMP%` `C:\Users\ADMINI~1\AppData\Local\Temp`
     - `%PATH%`
+* 变量修改、替换
+    - `%variable:StrToFind=NewStr%` 将variable中的StrToFind替换成NewStr，
+    比如`%rebarscript:.cmd=%`会将rebarscript变量中的后缀名.cmd去掉。
 * 分支 if /?
     - `if "%1"=="" (goto WERL) else (goto ERL)`
 * 循环：for /?
@@ -141,3 +144,4 @@ if "%1"=="" (
 * http://steve-jansen.github.io/guides/windows-batch-scripting/index.html
 * https://blogs.msdn.microsoft.com/ben/2007/03/09/path-manipulation-in-a-batch-file/
 * https://stackoverflow.com/questions/6679907/how-do-setlocal-and-enabledelayedexpansion-work
+* https://ss64.com/nt/
