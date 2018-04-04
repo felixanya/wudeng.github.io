@@ -58,7 +58,7 @@ $< : 依赖列表的第一个文件
 
 
 通配符：
-```
+```makefile
 %o :%c
   $(CC) $^ -o $@
 foo.o : foo.c
@@ -67,7 +67,7 @@ main.o : main.c
 ```
 gnumake默认如果.c存在，.o就依赖对应的.c，而.o到.c的rule，是通过宏默认定义的。
 你只要修改CC，LDLIBS这类的宏，就能解决大部分问题了。
-```
+```makefile
 SRC=$(wildcard *.c)
 OBJ=$(SRC:.c=.o)
 ```
@@ -77,7 +77,7 @@ OBJ=$(SRC:.c=.o)
 
 
 存在的问题，如果有proto文件依赖其他proto，这个简单的规则就不适用了。
-```
+```Makefile
 PROTO_DIR=application/network_proto/proto
 PROTOS:=$(wildcard $(PROTO_DIR)/*.proto)
 BEAMS:=$(PROTOS:$(PROTO_DIR)/%.proto=ebin/%_pb.beam)

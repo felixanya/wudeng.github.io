@@ -209,7 +209,7 @@ bin/server_manager attach
 而要用Ctrl+D（EOF）
 
 ## 传统的发布方式
-```
+```makefile
 ## 打包后保留文件夹结构
 ebin:
 	tar czvf ebin.tar.gz -C ./_build/default/ \

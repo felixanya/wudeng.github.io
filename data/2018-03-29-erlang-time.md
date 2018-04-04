@@ -122,7 +122,7 @@ erlang:system_time() 等价于 erlang:monotonic_time() + erlang:time_offset()
 * erlang:timestamp() -> {MegaSecs, Secs, MicroSecs} `Erlang system time`，这个函数的存在只是为了兼容现有的代码的时间格式。
 `Erlang system time`可以通过上面的函数erlang:system_time/1更加高效的获取。这个函数等价于：
 
-```
+```erlang
 timestamp() ->
     ErlangSystemTime = erlang:system_time(microsecond),
     MegaSecs = ErlangSystemTime div 1000000000000,

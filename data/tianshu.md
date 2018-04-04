@@ -1,6 +1,12 @@
 # 天书
 
 
+日志：
+lager_console_backend:74
+
+
+io:572,63
+
 ## 心跳
 cs_heartbeat
     tcp_client:heartbeat()
@@ -26,6 +32,19 @@ gm命令：max_hp，max_def，max_att
 加攻：14,17
 
 从r16b03-1升级到20.2，使用kerl管理多版本。
+
+
+## 断线重连
+PlayerPid: cs_login_reconnection
+cs_login
+
+进程字典：
+- dic_reissue_count 协议补发次数。
+- dic_client_proto_count 客户端计数器
+- dic_server_proto_count 服务端计数器，这个count用来标记后端发送的协议索引id。
+- dic_proto_data_buffer 协议缓存 [{Count,Msg,Bin}]
+
+客户端会通知服务器清除缓存。
 
 
 ## 充值相关
@@ -385,3 +404,14 @@ IDE
 从log上看到确实只接了5次任务。定位到了修改次数的地方，发现是先检查内存，然后cast到另一个进程去修改内存。
 那么如果玩家最后一次攻击造成多个怪物死亡，那么这个地方会被调用两次。第一次的修改由于是异步的，第二次调用的时候很可能还没有修改完毕。
 所以就会出现调用两次。
+
+
+* 在werl shell中按下ctrl+g，前端掉线。进程卡住。
+发现是lagger的原因。
+
+
+* 怪物不攻击.
+AI的cd用了monotonic_time，
+是因为改了用了新的时间API，初始化技能cd的时候给了时间0，结果monotonic_time返回的是负数。所以一直无法选到技能。
+
+* recon_trace 无法打印特定的函数。这是因为默认只打印global的函数，如果需要打印所有函数，需要加上{scope, local}

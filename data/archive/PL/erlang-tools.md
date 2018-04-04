@@ -6,7 +6,7 @@
 ## 反编译
 
 用于确认线上代码是否正确版本。需要在编译的时候加上debug_info选项，btw，加上export_all选项对于线上调试很有帮助。
-```
+```erlang
 decompile(Mod) -> decompile(Mod, undefined).
 decompile(Mod, Dir) ->
     {ok, {_, [{abstract_code, {_, AC}}]}} = beam_lib:chunks(code:which(Mod), [abstract_code]),
@@ -26,7 +26,7 @@ decompile(Mod, Dir) ->
 ## 进程栈
 
 类似jstack，分析异常进程行为。
-```
+```erlang
 pstack(ProcName) when is_atom(ProcName) ->
     case whereis(ProcName) of
         Pid when is_pid(Pid) -> show_stack(Pid);
@@ -42,7 +42,7 @@ pstack(Pid) ->
 ## etop
 
 类似系统top，查询占用资源最多的进程。
-```
+```erlang
 top_mem() -> show_top(20, 5, memory).
 top_msg() -> show_top(20, 5, msg_q).
 top_runtime() -> show_top(20, 5, runtime).
@@ -60,7 +60,7 @@ stop_top() -> etop:stop().
 ## 手动gc
 
 内存占用过高时可以快速见效，属于治标不治本。
-```
+```erlang
 gc() -> gc(erlang:processes()).
 gc(Pid) when is_pid(Pid); is_atom(Pid) -> gc([Pid]);
 gc(PidList) when is_list(PidList) ->
