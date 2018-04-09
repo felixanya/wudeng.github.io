@@ -12,7 +12,7 @@
 * cuticle   the skin at the base of each of your nails
 * prologue  开场白，序言
 * epilogue  结语，收场白
-* machiavellian     不择手段的；狡猾的；马基雅弗利主义的。马基雅维利主义的基本条件就是虚伪。
+* machiavellian     不择手段的；狡猾的；马基雅维利主义的。马基雅维利主义的基本条件就是虚伪。
 > 每一个马基雅维利主义者第一件事都是批驳马基雅维利主义！ —— 伏尔泰
 
 * orbicularis oculi     眼轮匝肌 muscles around the eyes
@@ -34,3 +34,20 @@
 * Duping Delight    Some people get a thrill from lying to others and getting away with it - a phenomenon called 'Duping Delight.'
 * veracity     诚实；精确性 unwillingness to tell lies
 * marginalized 排斥，使边缘化
+* kitchen cabinet  智囊团
+* embellish 装饰 修饰
+* demeanor 风度；举止；行为
+* epidemic 流行的，传染性的
+* treacherous 奸诈的；危险的
+* insurer 保险公司；承保人
+* chameleon 变色龙；善变的人；轻浮的人
+* masculine 男性的；阳性的；男子气概的
+* garner 获得；储存
+* castigate 严惩；苛评
+* whopper 弥天大谎
+* emblem 象征；徽章
+* fidget 烦躁；坐立不安
+* steeple 尖塔；尖顶
+* intuit 由直觉知道
+* dogmatism 武断；教条主义
+* timbre 音色；音质
