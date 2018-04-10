@@ -1,9 +1,70 @@
 # GO
 
+go env [-json] [var ...] 打印环境变量
+
+vim .bashrc
+export GOROOT=/usr/local/go
+export PATH=$PATH:$GOROOT/bin
+export GOPATH=/home/wudeng/golib
+export PATH=$PATH:$GOPATH/bin
+export GOPATH=$GOPATH:/home/wudeng/code
+
+GOPATH的第一部分被当成下载的默认地址，其他部分用于查找。
+
+linux下设置GOPATH：
+```bash
+export GOPATH=`pwd`
+```
+
+windows下设置GOPATH:
+```cmd
+set GOPATH=%cd%
+```
+
+mkdir -p src/github.com
+mkdir pkg
+mkdir bin
+
+go get -u github.com/nsf/gocode
+
+go run src/github.com/wudeng/firstapp/Main.go
+go build github.com/wudeng/firstapp
+go install github.com/wudeng/firstapp
+
+bin/firstapp
+
+
+code.visualstdio.com
+
+```
+all:
+	$(shell \
+		export GOPATH=`pwd`; \
+		export GOARCH=amd64; \
+		export GOOS=linux; \
+		cd bin; \
+		go build -o admins -ldflags "-w -s -X main.version=`date +%s`" ../src/admin.go)
+```
+
+GO runtime: embedded in every executable
+* memory allocation
+* garbage collection: mark-and-sweep
+* stack handling
+* goroutines
+* channels
+* slice
+* maps
+* reflection
+* ...
+
 ## 代码风格
 文件名：小写字母用下划线连起来。
+package: 小写。
 函数Camel风格，需要导出的函数首字母大写。
 变量Camel风格，需要导出的变量首字母大写。局部变量首字母小写。inputFieldName
+
+application由不同的包package构成，每个应用有一个main包。
+一个包含有多个文件
 
 ## 类型转换
 string => int ： strconv:ParseInt(s, base, bits)
@@ -33,10 +94,23 @@ go build -o main .
 导出函数或变量首字母大写
 
 fmt格式
-* %v Value, %+v field names, %#v syntax representation
+* %v Value,
+* %+v instance with field names
+* %#v instance with its fields, syntax representation
 * %T Type
 * %q quot string
 * %g 浮点数
+
+## variable
+var i int
+i = 52
+var j int = 213
+k := 11
+
+scope
+* package
+* global
+* block
 
 # 基本类型
 
