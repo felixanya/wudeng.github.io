@@ -54,7 +54,7 @@ Clues:
 - Duration
 - INTUITION
 
-Five Steps To the Truth
+Five Steps To the Truth：BASIC
 - Baseline Behavior: Obtain a reliable reference point to use for measuring changes in behavior.
 - Ask Open-ended Questions: Obtain unlimited information through expanded verbal replies and facial and behavioral
 slips, avoiding simple “yes” or “no” questions
@@ -85,3 +85,20 @@ is to correct errors in your story.
 Liespotting-Proven-Techniques-to-Detect-Pamela-Meyer-Qwerty80.pdf
 http://liespotting.com/liespotting-basics/quiz/
 http://liespotting.com/
+
+## 克服拖延症
+
+克服拖延症的关键在于，不要一开始就用复杂的东西吓到大脑，比如我要写一本书，我要跑5000米，我要做50个俯卧撑等等
+要说服大脑做一件事情，得是很简单的事情。比如写几个句子，慢跑个200米，做两个俯卧撑。只要你开始了，就会慢慢变成习惯。
+任务分解，时间分解都是这样：不要一开始就用非常难的东西吓住大脑以至于要巨大的勇气来开始。
+
+* 分解任务，每次只关注一小部分。从简单的入手
+* 番茄工作法，投入30分钟，休息5分钟。
+* checklist写下分散你注意力的事情
+
+## the first 20 hours, how to learn anything | josh
+学会一门新技能其实不需要10000小时。20小时足够了。
+* 分解技能
+* 学到能够自我纠正
+* 排除干扰
+* 练习至少20小时
