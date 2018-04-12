@@ -1,5 +1,7 @@
 # word list
 
+* manor 庄园，领地
+* garner 获得；储存
 * stifle    压制，忍住，控制（感情或行为）
 * squelch   压制，镇压；发吧唧声
 * droopy    hanging down (as from exhaustion or weakness)
@@ -42,7 +44,6 @@
 * insurer 保险公司；承保人
 * chameleon 变色龙；善变的人；轻浮的人
 * masculine 男性的；阳性的；男子气概的
-* garner 获得；储存
 * castigate 严惩；苛评
 * whopper 弥天大谎
 * emblem 象征；徽章

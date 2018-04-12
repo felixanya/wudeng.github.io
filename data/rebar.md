@@ -1,5 +1,16 @@
 rebar
 
+rebar编译的时候是通过读取src目录下的app.src文件来进行的。
+
+## 下载
+```bash
+wget --no-check-certificate https://raw.github.com/wiki/rebar/rebar/rebar
+```
+
+## 编译
+```
+rebar help compile
+```
 
 ```
 mkdir project
