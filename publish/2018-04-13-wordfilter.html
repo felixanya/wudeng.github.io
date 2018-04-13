@@ -1,0 +1,161 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/atom-one-dark.min.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h1>敏感词过滤</h1><ul>
+<li><a href="#dfa">DFA</a></li>
+<li><a href="#ac自动机">AC自动机</a></li>
+<li><a href="#erlang实现ac自动机">Erlang实现AC自动机</a></li>
+<li><a href="#binary模块">binary模块</a><ul>
+<li><a href="#参考文档">参考文档</a></li>
+</ul>
+</li>
+</ul>
+<h2><a name="dfa" class="anchor" href="#dfa"><span class="header-link"></span></a>DFA</h2><p>Deterministic Finite Automation 确定有穷自动机。
+我理解其实就是一个简单的Trie树，节点带output，对于结束的节点，把对应的字符串写在output里面。
+对于字符串中的每个字符，查找Trie树中能否走到有单词结束标记的节点。匹配失败的话需要回退。</p>
+<h2><a name="ac自动机" class="anchor" href="#ac自动机"><span class="header-link"></span></a>AC自动机</h2><p>Aho-Corasick算法，在Trie树的基础上加入了fail指针。Unix工具fgrep的底层实现就是用的AC自动机。</p>
+<p>每条边代表一个字符。同一个节点出来的边代表的字符各不相同。每个节点代表一个状态。
+状态的迁移由三个函数决定：goto，failure，output。而failure函数是AC自动机最难也是最关键的一环。</p>
+<p>假设有字符串ABCDE匹配到模式ABC，结果D没匹配上。这说明模式ABCD是不可能的了。这时候按照传统的算法，
+应该从字符串中A的下一个字符也就是B开始重新从根节点进行匹配。但是我们已经知道了B后面是CD，
+最好的情况就是模式中刚好有BCD开头的这个模式，我们一路匹配到BCD。那么如果我们能直接从ABC的C跳到BCD这个D节点就好了。
+failure指针就是干这个的。如果BCD模式也没有，那么我们就退而求其次看看有没有CD，没有CD，那就直接看D，如果都没有，
+那D也不用看了，直接从根节点匹配E吧。失败指针构造就是这么个递归的查找过程，这其中包含了动态规划的思想。
+实际构造失败指针的时候，父节点的失败指针是一层层已经构造好了的，所以其实就是一个自底向上的动态规划过程。
+简单的说失败指针就是用当前模式的后缀去匹配其他模式的前缀。失败指针代表的字符跟节点本身要么是一样的，
+要么是空（也就是根节点）。</p>
+<p>node: children, output, fail point</p>
+<ul>
+<li>build a trie tree with output, when finish, every node only has one output</li>
+<li>build fail point<ul>
+<li>root node&#39;s children fail to the root, add children to a fifo queue</li>
+<li>pop one node out of queue, build fail point for children of that node<ul>
+<li>for every child, find the closest children, starting from the fail node,
+  check if it has the character of the child node ?<ul>
+<li>if true, then point to that node, add the failed node&#39;s output to the current node</li>
+<li>if false, fail to the root</li>
+</ul>
+</li>
+<li>node in queue, already build fail node</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>match<ul>
+<li>if fail, go to the fail node, and continue the match</li>
+</ul>
+</li>
+</ul>
+<p>构造失败指针这部分比较麻烦一点。思路是从父节点的fail node开始，递归的往上找fail node，
+看fail node的子节点是否有包含当前节点相同字符的节点，如果有，将该子节点设为当前节点的
+fail节点，并且将fail节点的output也加到当前节点的output列表中。如果没有，一路递归到根节点。
+构造的过程是一层层往下的，所以处理低层的节点的时候高层的节点都已经处理好了。
+其实就是一个宽度优先的遍历。</p>
+<p>匹配的时候从根节点开始往下找，匹配失败就递归的往上找失败节点。匹配失败目标字符串不需要回退。
+类似KMP的匹配，所以效率很高。</p>
+<h2><a name="erlang实现ac自动机" class="anchor" href="#erlang实现ac自动机"><span class="header-link"></span></a>Erlang实现AC自动机</h2><p>在<a href="https://github.com/josemic/ahocorasick.git">这里</a>找到了一个erlang版本的ac自动机，
+可惜是一个不完整的版本，因为失败指针没有正确的构建，所以有些情况下不能正确匹配。
+比如：词库中有&quot;BC&quot;、&quot;ABCD&quot;这两个违禁词，但是尝试匹配&quot;ABC&quot;的时候发现匹配不到。
+而正常的AC自动机是能够匹配上的。这是因为这里的自动机少了第二步，构造失败指针，
+这样失败指针指向的节点的output也不会加入到当前节点。所以出现上面的问题。</p>
+<p>自己撸了一个Erlang版本的AC自动机，用了map结构，代码很精简，一百来行，基本比较完整实现了
+功能，包括失败指针的构造，<a href="https://github.com/wudeng/aho-corasick.git">代码</a>放在github上了。
+对比了一下之前用re正则模块一个个匹配的方法，AC的性能提升超过1000倍。</p>
+<h2><a name="binary模块" class="anchor" href="#binary模块"><span class="header-link"></span></a>binary模块</h2><blockquote>
+<p>众里寻他千百度，蓦然回首，那人却在灯火阑珊处。</p>
+</blockquote>
+<p>AC自动机的实现有各种语言的版本，唯独Erlang的非常少。
+找到一个纯Erlang实现的还只是实现了一部分。最关键的fail函数没有实现。导致匹配的时候
+会出现上面的问题。</p>
+<p>其实Erlang已经为我们实现了一个AC自动机，就在binary模块中。通过这个模块
+的源码<code>erl_bif_binary.c</code>可以看到这样一段注释：</p>
+<pre><code class="lang-c">/*
+ * The native implementation functions <span class="hljs-keyword">for</span> the <span class="hljs-keyword">module</span> <span class="hljs-keyword">binary</span>.
+ * Searching <span class="hljs-keyword">is</span> implemented <span class="hljs-keyword">using</span> either Boyer-Moore <span class="hljs-keyword">or</span> Aho-Corasick
+ * depending <span class="hljs-keyword">on</span> number <span class="hljs-keyword">of</span> searchstrings (BM <span class="hljs-keyword">if</span> one, AC <span class="hljs-keyword">if</span> more than one).
+ * Native implementation <span class="hljs-keyword">is</span> mostly <span class="hljs-keyword">for</span> efficiency, <span class="hljs-literal">nothing</span>
+ * (except <span class="hljs-keyword">binary</span>:referenced_byte_size) really *needs* <span class="hljs-keyword">to</span> be implemented
+ * <span class="hljs-keyword">in</span> native code.
+ */
+</code></pre>
+<p>可以看出binary的搜索是基于BM和AC算法来实现的。如果模式只有一个就是BM，如果有多个就是AC。因此要实现替换功能，
+只需要直接调用<code>binary:replace(Subject, Pattern, Replacement, Options)</code>方法即可。
+另外binary还提供了一个<code>binary:compie_pattern(Pattern)</code>函数，这样可以把模式存储下来，
+后续的匹配直接使用即可。不过这里每个节点其实不是一个有效的utf8字符，而只是一个字节。</p>
+<pre><code class="lang-erlang">Cp = <span class="hljs-keyword">binary</span>:compile_pattern(Patterns),
+io:<span class="hljs-keyword">format</span>(<span class="hljs-string">"~ts"</span>,[<span class="hljs-keyword">binary</span>:replace(Text,Cp,&lt;&lt;<span class="hljs-string">"*"</span>&gt;&gt;,[<span class="hljs-keyword">global</span>])]).
+</code></pre>
+<h3><a name="参考文档" class="anchor" href="#参考文档"><span class="header-link"></span></a>参考文档</h3><ul>
+<li><a href="https://blog.csdn.net/liangrui1988/article/details/44873331">https://blog.csdn.net/liangrui1988/article/details/44873331</a> Java实现</li>
+<li><a href="https://github.com/importcjj/sensitive">https://github.com/importcjj/sensitive</a> 就是一个简单Trie树，DFA</li>
+<li><a href="https://github.com/gonet2/wordfilter">https://github.com/gonet2/wordfilter</a> go</li>
+<li><a href="https://github.com/observerss/textfilter">https://github.com/observerss/textfilter</a> python</li>
+<li><a href="https://github.com/toolgood/ToolGood.Words">https://github.com/toolgood/ToolGood.Words</a></li>
+<li><a href="http://www.hankcs.com/program/algorithm/aho-corasick-double-array-trie.html">http://www.hankcs.com/program/algorithm/aho-corasick-double-array-trie.html</a></li>
+<li><a href="https://github.com/anknown/ahocorasick">https://github.com/anknown/ahocorasick</a> go ac</li>
+<li><a href="http://www.cs.uku.fi/~kilpelai/BSA05/lectures/slides04.pdf">http://www.cs.uku.fi/~kilpelai/BSA05/lectures/slides04.pdf</a></li>
+</ul>
+</div>
+
+    </div>
+
+    <div id="disqus_thread"></div>
+    <script>
+    /**
+    *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+    *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+    var disqus_config = function () {
+        this.page.url = "https://wudeng.github.io//publish/2018-04-13-wordfilter.html";
+        this.page.identifier = "/publish/2018-04-13-wordfilter.html";
+    };
+    (function() { // DON'T EDIT BELOW THIS LINE
+    var d = document, s = d.createElement('script');
+    s.src = 'https://wudeng.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+</div>
+</body>
+    <span id="busuanzi_container_page_pv"><span id="busuanzi_value_page_pv"></span></span>,
+    <span id="busuanzi_container_site_uv"><span id="busuanzi_value_site_uv"></span></span>,
+    <span id="busuanzi_container_site_pv"><span id="busuanzi_value_site_pv"></span></span>
+</span>
+</html>

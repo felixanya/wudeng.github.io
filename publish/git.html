@@ -37,7 +37,6 @@
 
         <!-- auto complete by template replacement -->
         <div class="main-content markdown-body"><h1>Git</h1><ul>
-<li><a href="#client">client</a></li>
 <li><a href="#分支">分支</a></li>
 <li><a href="#常用命令">常用命令</a></li>
 <li><a href="#branching-model-vicent-driessenhttpnviecompostsa-successful-git-branching-model"><a href="http://nvie.com/posts/a-successful-git-branching-model/">branching model (Vicent Driessen)</a></a></li>
@@ -52,20 +51,34 @@
 <li><a href="#socks代理">socks代理</a></li>
 </ul>
 </li>
-<li><a href="#参考文档">参考文档</a></li>
+<li><p><a href="#参考文档">参考文档</a></p>
+</li>
+<li><p><code>.git</code>文件夹</p>
+</li>
+<li><p><code>.gitignore</code> 忽略文件</p>
+</li>
+<li><p>git help 获取帮助</p>
+</li>
+<li>git init</li>
+<li>git clone</li>
+<li>git add</li>
+<li>git status</li>
+<li>git config</li>
 </ul>
-<h2><a name="client" class="anchor" href="#client"><span class="header-link"></span></a>client</h2><p>git client</p>
-<p>.git</p>
-<p>git config --list
-git help config</p>
-<p>git init
-git status</p>
-<p>touch .gitignore
-git status</p>
-<h2><a name="分支" class="anchor" href="#分支"><span class="header-link"></span></a>分支</h2><p>查看所有分支：git branch -a
-checkout远程分支：git checkout lesson-19</p>
-<h2><a name="常用命令" class="anchor" href="#常用命令"><span class="header-link"></span></a>常用命令</h2><p>git fetch origin : harmless
-git pull = git pull + git merge</p>
+<h2><a name="分支" class="anchor" href="#分支"><span class="header-link"></span></a>分支</h2><ul>
+<li><code>git branch</code><ul>
+<li><code>--list</code> 列出本地分支，当前分支以<code>*</code>开头</li>
+<li><code>-r</code> 列出远程分支</li>
+<li><code>-a</code> 查看所有分支，包括本地和远程分支</li>
+<li><code>git branch my2.6.14 v.2.6.14</code> 以v.2.6.14 tag为基准，创建新分支my2.6.14</li>
+</ul>
+</li>
+<li><code>git checkout lesson-19</code> checkout远程分支</li>
+</ul>
+<h2><a name="常用命令" class="anchor" href="#常用命令"><span class="header-link"></span></a>常用命令</h2><ul>
+<li>git fetch origin : harmless</li>
+<li>git pull = git pull + git merge</li>
+</ul>
 <p>查看远程仓库地址</p>
 <ul>
 <li>git config --get remote.origin.url</li>

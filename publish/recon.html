@@ -36,15 +36,25 @@
         </div>
 
         <!-- auto complete by template replacement -->
-        <div class="main-content markdown-body"><p>blog</p>
-<p>不蒜子 访问计数</p>
-<p>disqus 评论</p>
-<p>https 又拍云 Lets
-又拍云可以自动创建Let’s Encrypted的证书并且支持续签</p>
-<p>代码高亮：</p>
-<ul>
-<li><a href="http://highlightjs.readthedocs.io/en/latest/css-classes-reference.html">http://highlightjs.readthedocs.io/en/latest/css-classes-reference.html</a></li>
-</ul>
+        <div class="main-content markdown-body"><h1>recon</h1><p>追踪：lib_ai:get_targets1(14)</p>
+<p>recon_trace:calls({lib_ai, get_targets1, fun([14]) -&gt; ok end}, 100).</p>
+<p>默认只trace global的函数，通过指定scope来选择。
+指定特定的进程：</p>
+<pre><code class="lang-erlang">recon_trace:calls({lib_ai, tick, '_'}, <span class="hljs-number">10</span>, [{pid, MapPid},{scope,global|local}]).
+
+recon_trace:clear().
+
+<span class="hljs-comment">%% 怀疑这种方式是因为只trace global的函数</span>
+recon_trace:calls({lib_ai, tick_cb, <span class="hljs-keyword">fun</span>(['_',#tick{monster_id=<span class="hljs-number">14</span>}]) -&gt; ok <span class="hljs-keyword">end</span>}, <span class="hljs-number">10</span>, [{pid, MapPid},{scope,local}]).
+
+
+recon_trace:calls({lib_ai, tick, <span class="hljs-keyword">fun</span>([#tick{monster_id = <span class="hljs-number">14</span>}]) -&gt; return_trace() <span class="hljs-keyword">end</span>}, <span class="hljs-number">10</span>, [{pid, MapPid}]).
+
+
+<span class="hljs-function"><span class="hljs-title">put</span><span class="hljs-params">(dic_battle_list_monster,[<span class="hljs-number">14</span>])</span></span>
+</code></pre>
+<p>结束：
+recon_trace:clear().</p>
 </div>
 
     </div>
@@ -55,8 +65,8 @@
     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
     var disqus_config = function () {
-        this.page.url = "https://wudeng.github.io//publish/blog.html";
-        this.page.identifier = "/publish/blog.html";
+        this.page.url = "https://wudeng.github.io//publish/recon.html";
+        this.page.identifier = "/publish/recon.html";
     };
     (function() { // DON'T EDIT BELOW THIS LINE
     var d = document, s = d.createElement('script');

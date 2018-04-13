@@ -36,7 +36,36 @@
         </div>
 
         <!-- auto complete by template replacement -->
-        <div class="summary-list"><div class="summary" id="2018-03-29-erlang-time" style="background-color: #ECECEC;">
+        <div class="summary-list"><div class="summary" id="2018-04-13-wordfilter" style="background-color: #ECECEC;">
+    <div class="markdown-body content">
+        <a href="publish/2018-04-13-wordfilter.html"><h1>敏感词过滤</h1>
+</a><ul>
+<li><a href="#dfa">DFA</a></li>
+<li><a href="#ac自动机">AC自动机</a></li>
+<li><a href="#erlang实现ac自动机">Erlang实现AC自动机</a></li>
+<li><a href="#binary模块">binary模块</a><ul>
+<li><a href="#参考文档">参考文档</a></li>
+</ul>
+</li>
+</ul>
+<h2><a name="dfa" class="anchor" href="#dfa"><span class="header-link"></span></a>DFA</h2>
+<p>Deterministic Finite Automation 确定有穷自动机。
+我理解其实就是一个简单的Trie树，节点带output，对于结束的节点，把对应的字符串写在output里面。
+对于字符串中的每个字符，查找Trie树中能否走到有单词结束标记的节点。匹配失败的话需要回退。</p>
+<h2><a name="ac自动机" class="anchor" href="#ac自动机"><span class="header-link"></span></a>AC自动机</h2>
+
+    </div>
+    <div class="toolbar">
+        <div class="markdown-body">
+            <a href="publish/2018-04-13-wordfilter.html">阅读全文 >> </a>
+        </div>
+        <hr>
+        <time datetime="2018-4-13">2018-4-13</time>
+    </div>
+</div>
+
+
+<div class="summary" id="2018-03-29-erlang-time" style="background-color: #F9EDED;">
     <div class="markdown-body content">
         <h2><a name="erlang时间系统" class="anchor" href="#erlang时间系统"><span class="header-link"></span></a>Erlang时间系统</h2>
 <ul>
@@ -76,7 +105,7 @@
 </div>
 
 
-<div class="summary" id="2018-02-27-docker-on-windows7" style="background-color: #F9EDED;">
+<div class="summary" id="2018-02-27-docker-on-windows7" style="background-color: #ECECEC;">
     <div class="markdown-body content">
         <a href="publish/2018-02-27-docker-on-windows7.html"><h1>docker on windows7</h1>
 </a><ul>
@@ -104,7 +133,7 @@
 </div>
 
 
-<div class="summary" id="2018-01-15-kcp" style="background-color: #ECECEC;">
+<div class="summary" id="2018-01-15-kcp" style="background-color: #F9EDED;">
     <div class="markdown-body content">
         <a href="publish/2018-01-15-kcp.html"><h1>kcp源码解析</h1>
 </a><ul>
@@ -135,7 +164,7 @@
 </div>
 
 
-<div class="summary" id="2017-11-23-skill-area" style="background-color: #F9EDED;">
+<div class="summary" id="2017-11-23-skill-area" style="background-color: #ECECEC;">
     <div class="markdown-body content">
         <a href="publish/2017-11-23-skill-area.html"><h1>技能伤害区域计算</h1>
 </a><ul>
@@ -164,7 +193,7 @@
 </div>
 
 
-<div class="summary" id="2017-10-09-tcp" style="background-color: #ECECEC;">
+<div class="summary" id="2017-10-09-tcp" style="background-color: #F9EDED;">
     <div class="markdown-body content">
         <a href="publish/2017-10-09-tcp.html"><h1>TCP那些事儿</h1>
 </a><ul>
@@ -203,7 +232,7 @@
 </div>
 
 
-<div class="summary" id="2017-09-30-ssh-key-auth" style="background-color: #F9EDED;">
+<div class="summary" id="2017-09-30-ssh-key-auth" style="background-color: #ECECEC;">
     <div class="markdown-body content">
         <a href="publish/2017-09-30-ssh-key-auth.html"><h1>ssh key auth</h1>
 </a><ul>
@@ -234,7 +263,7 @@
 </div>
 
 
-<div class="summary" id="2017-09-25-bresenham" style="background-color: #ECECEC;">
+<div class="summary" id="2017-09-25-bresenham" style="background-color: #F9EDED;">
     <div class="markdown-body content">
         <a href="publish/2017-09-25-bresenham.html"><h1>bresemham直线算法</h1>
 </a><ul>
@@ -262,7 +291,7 @@
 </div>
 
 
-<div class="summary" id="2017-09-09-special-process" style="background-color: #F9EDED;">
+<div class="summary" id="2017-09-09-special-process" style="background-color: #ECECEC;">
     <div class="markdown-body content">
         <a href="publish/2017-09-09-special-process.html"><h1>Erlang特殊进程</h1>
 </a><ul>
@@ -297,7 +326,7 @@
 </div>
 
 
-<div class="summary" id="2017-09-07-ranch" style="background-color: #ECECEC;">
+<div class="summary" id="2017-09-07-ranch" style="background-color: #F9EDED;">
     <div class="markdown-body content">
         <a href="publish/2017-09-07-ranch.html"><h1>Ranch源码分析</h1>
 </a><ul>
@@ -334,7 +363,7 @@ Ref是负责处理这个端口连接的监控树的名字，有了这个名字�
 </div>
 
 
-<div class="summary" id="2017-09-06-device-wake-up-computer" style="background-color: #F9EDED;">
+<div class="summary" id="2017-09-06-device-wake-up-computer" style="background-color: #ECECEC;">
     <div class="markdown-body content">
         <a href="publish/2017-09-06-device-wake-up-computer.html"><h1>Windows自动唤醒问题</h1>
 </a><ul>
@@ -355,7 +384,7 @@ Ref是负责处理这个端口连接的监控树的名字，有了这个名字�
 </div>
 
 
-<div class="summary" id="2017-09-01-monster-steering-behavior" style="background-color: #ECECEC;">
+<div class="summary" id="2017-09-01-monster-steering-behavior" style="background-color: #F9EDED;">
     <div class="markdown-body content">
         <a href="publish/2017-09-01-monster-steering-behavior.html"><h1>怪物包围算法</h1>
 </a><ul>
@@ -381,7 +410,7 @@ Ref是负责处理这个端口连接的监控树的名字，有了这个名字�
 </div>
 
 
-<div class="summary" id="2017-08-26-erlang-memory-management" style="background-color: #F9EDED;">
+<div class="summary" id="2017-08-26-erlang-memory-management" style="background-color: #ECECEC;">
     <div class="markdown-body content">
         <a href="publish/2017-08-26-erlang-memory-management.html"><h1>Erlang Memory Management</h1>
 </a><ul>
@@ -414,7 +443,7 @@ Ref是负责处理这个端口连接的监控树的名字，有了这个名字�
 </div>
 
 
-<div class="summary" id="2017-07-15-erlang-code-loading" style="background-color: #ECECEC;">
+<div class="summary" id="2017-07-15-erlang-code-loading" style="background-color: #F9EDED;">
     <div class="markdown-body content">
         <a href="publish/2017-07-15-erlang-code-loading.html"><h1>Erlang代码加载模式</h1>
 </a><ul>
@@ -442,7 +471,7 @@ Ref是负责处理这个端口连接的监控树的名字，有了这个名字�
 </div>
 
 
-<div class="summary" id="2017-07-11-database-transaction" style="background-color: #F9EDED;">
+<div class="summary" id="2017-07-11-database-transaction" style="background-color: #ECECEC;">
     <div class="markdown-body content">
         <a href="publish/2017-07-11-database-transaction.html"><h1>数据库事务</h1>
 </a><ul>
@@ -478,7 +507,7 @@ Ref是负责处理这个端口连接的监控树的名字，有了这个名字�
 </div>
 
 
-<div class="summary" id="2017-07-05-beam-virtual-machine" style="background-color: #ECECEC;">
+<div class="summary" id="2017-07-05-beam-virtual-machine" style="background-color: #F9EDED;">
     <div class="markdown-body content">
         <a href="publish/2017-07-05-beam-virtual-machine.html"><h1>Beam虚拟机</h1>
 </a><ul>
@@ -505,7 +534,7 @@ Ref是负责处理这个端口连接的监控树的名字，有了这个名字�
 </div>
 
 
-<div class="summary" id="2017-06-21-selective-receive" style="background-color: #F9EDED;">
+<div class="summary" id="2017-06-21-selective-receive" style="background-color: #ECECEC;">
     <div class="markdown-body content">
         <a href="publish/2017-06-21-selective-receive.html"><h1>Erlang的Selective Receive机制</h1>
 </a><ul>
@@ -550,7 +579,7 @@ end
 </div>
 
 
-<div class="summary" id="2017-06-08-behavior-tree" style="background-color: #ECECEC;">
+<div class="summary" id="2017-06-08-behavior-tree" style="background-color: #F9EDED;">
     <div class="markdown-body content">
         <a href="publish/2017-06-08-behavior-tree.html"><h1>基于Erlang的行为树实现</h1>
 </a><ul>

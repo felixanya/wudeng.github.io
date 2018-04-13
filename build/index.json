@@ -116,5 +116,12 @@
         "stamp": "2018-3-29",
         "link": "../publish/2018-03-29-erlang-time.html",
         "summary": "<h2><a name=\"erlang时间系统\" class=\"anchor\" href=\"#erlang时间系统\"><span class=\"header-link\"></span></a>Erlang时间系统</h2>\n<ul>\n<li><a href=\"#基本概念\">基本概念</a></li>\n<li><a href=\"#time-warp-mode\">Time Warp Mode</a></li>\n<li><a href=\"#time-correction\">Time Correction</a></li>\n<li><a href=\"#os-system-time\">OS System Time</a></li>\n<li><a href=\"#erlang-system-time\">Erlang System Time</a></li>\n<li><a href=\"#使用指南\">使用指南</a><ul>\n<li><a href=\"#获取系统时间\">获取系统时间</a></li>\n<li><a href=\"#测量时间差\">测量时间差</a></li>\n<li><a href=\"#事件的顺序\">事件的顺序</a></li>\n<li><a href=\"#唯一名字\">唯一名字</a></li>\n<li><a href=\"#随机数种子\">随机数种子</a></li>\n</ul>\n</li>\n<li><a href=\"#参考文档\">参考文档</a></li>\n</ul>\n<p>Erlang系统中有两套时间系统。一个是操作系统时间，一个是虚拟机时间。我们知道，操作系统时间是非常不可靠的，\n它依靠ntp跟网络上服服务器同步，也有可能被人为修改。如果依赖操作系统时间，程序可能出现异常的行为。\n比如游戏中一个设定是每天0点进行结算，如果结算完一次这时操作系统时间调整回去了，结果又会结算一次。\n因此ERTS在操作系统时间的基础之上引入了虚拟机时间。</p>\n<p>在Erlang/OTP 18(ERTS 7.0)之前，获取时间的接口主要是两个：</p>\n<ul>\n<li>erlang:now()返回虚拟机时间</li>\n<li>os:timestamp()返回操作系统时间。</li>\n</ul>\n"
+    },
+    "2018-04-13-wordfilter": {
+        "name": "2018-04-13-wordfilter",
+        "stamp": "2018-4-13",
+        "link": "../publish/2018-04-13-wordfilter.html",
+        "summary": "<a href=\"publish/2018-04-13-wordfilter.html\"><h1>敏感词过滤</h1>\n</a><ul>\n<li><a href=\"#dfa\">DFA</a></li>\n<li><a href=\"#ac自动机\">AC自动机</a></li>\n<li><a href=\"#erlang实现ac自动机\">Erlang实现AC自动机</a></li>\n<li><a href=\"#binary模块\">binary模块</a><ul>\n<li><a href=\"#参考文档\">参考文档</a></li>\n</ul>\n</li>\n</ul>\n<h2><a name=\"dfa\" class=\"anchor\" href=\"#dfa\"><span class=\"header-link\"></span></a>DFA</h2>\n<p>Deterministic Finite Automation 确定有穷自动机。\n我理解其实就是一个简单的Trie树，节点带output，对于结束的节点，把对应的字符串写在output里面。\n对于字符串中的每个字符，查找Trie树中能否走到有单词结束标记的节点。匹配失败的话需要回退。</p>\n<h2><a name=\"ac自动机\" class=\"anchor\" href=\"#ac自动机\"><span class=\"header-link\"></span></a>AC自动机</h2>\n",
+        "title": "敏感词过滤"
     }
 }

@@ -1,30 +1,28 @@
 # Git
 
-## client
-git client
+* `.git`文件夹
+* `.gitignore` 忽略文件
 
-
-.git
-
-git config --list
-git help config
-
-
-git init
-git status
-
-touch .gitignore
-git status
+* git help 获取帮助
+* git init
+* git clone
+* git add
+* git status
+* git config
 
 ## 分支
-查看所有分支：git branch -a
-checkout远程分支：git checkout lesson-19
+* `git branch`
+    - `--list` 列出本地分支，当前分支以`*`开头
+    - `-r` 列出远程分支
+    - `-a` 查看所有分支，包括本地和远程分支
+    - `git branch my2.6.14 v.2.6.14` 以v.2.6.14 tag为基准，创建新分支my2.6.14
+* `git checkout lesson-19` checkout远程分支
 
 
 ## 常用命令
 
-git fetch origin : harmless
-git pull = git pull + git merge
+* git fetch origin : harmless
+* git pull = git pull + git merge
 
 查看远程仓库地址
 * git config --get remote.origin.url

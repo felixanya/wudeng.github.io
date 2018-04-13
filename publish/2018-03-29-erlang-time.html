@@ -162,13 +162,14 @@ erlang:system_time() 等价于 erlang:monotonic_time() + erlang:time_offset()</l
 <li>erlang:timestamp() -&gt; {MegaSecs, Secs, MicroSecs} <code>Erlang system time</code>，这个函数的存在只是为了兼容现有的代码的时间格式。
 <code>Erlang system time</code>可以通过上面的函数erlang:system_time/1更加高效的获取。这个函数等价于：</li>
 </ul>
-<pre><code><span class="hljs-function"><span class="hljs-title">timestamp</span><span class="hljs-params">()</span></span> -&gt;
+<pre><code class="lang-erlang"><span class="hljs-function"><span class="hljs-title">timestamp</span><span class="hljs-params">()</span></span> -&gt;
     ErlangSystemTime = erlang:system_time(microsecond),
     MegaSecs = ErlangSystemTime <span class="hljs-selector-tag">div</span> <span class="hljs-number">1000000000000</span>,
     Secs = ErlangSystemTime <span class="hljs-selector-tag">div</span> <span class="hljs-number">1000000</span> - MegaSecs*<span class="hljs-number">1000000</span>,
     MicroSecs = ErlangSystemTime rem <span class="hljs-number">1000000</span>,
     {MegaSecs, Secs, MicroSecs}.
-</code></pre><h2><a name="使用指南" class="anchor" href="#使用指南"><span class="header-link"></span></a>使用指南</h2><p>一个总的原则就是：不要使用<code>erlang:now/0</code>。根据不同的目的，选择不同的接口。</p>
+</code></pre>
+<h2><a name="使用指南" class="anchor" href="#使用指南"><span class="header-link"></span></a>使用指南</h2><p>一个总的原则就是：不要使用<code>erlang:now/0</code>。根据不同的目的，选择不同的接口。</p>
 <h3><a name="获取系统时间" class="anchor" href="#获取系统时间"><span class="header-link"></span></a>获取系统时间</h3><p>使用erlang:system_time/1获取系统时间。如果需要erlang:now/0返回的数据格式，可以用erlang:timestamp/0。</p>
 <h3><a name="测量时间差" class="anchor" href="#测量时间差"><span class="header-link"></span></a>测量时间差</h3><p>使用erlang:monotonic_time/0之差来测量时间，结果是native时间单位，可以用erlang:convert_time_unit/3来转化为其他时间单位。
 也可以直接使用erlang:monotonic_time/1之差来测量时间，不过这种方式会损失一定的精度。</p>

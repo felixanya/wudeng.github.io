@@ -38,6 +38,7 @@
         <!-- auto complete by template replacement -->
         <div class="main-content markdown-body"><h1>天书</h1><ul>
 <li><a href="#心跳">心跳</a></li>
+<li><a href="#断线重连">断线重连</a></li>
 <li><a href="#充值相关">充值相关</a></li>
 <li><a href="#svn">svn</a></li>
 <li><a href="#登录">登录</a></li>
@@ -69,8 +70,12 @@
 </ul>
 </li>
 <li><a href="#内测问题">内测问题</a></li>
+<li><a href="#合服">合服</a></li>
 <li><a href="#疑难杂症">疑难杂症</a></li>
 </ul>
+<p>日志：
+lager_console_backend:74</p>
+<p>io:572,63</p>
 <h2><a name="心跳" class="anchor" href="#心跳"><span class="header-link"></span></a>心跳</h2><p>cs_heartbeat
     tcp_client:heartbeat()
 sc_heartbeat</p>
@@ -89,6 +94,16 @@ sc_heartbeat</p>
 加血：13,15,18
 加攻：14,17</p>
 <p>从r16b03-1升级到20.2，使用kerl管理多版本。</p>
+<h2><a name="断线重连" class="anchor" href="#断线重连"><span class="header-link"></span></a>断线重连</h2><p>PlayerPid: cs_login_reconnection
+cs_login</p>
+<p>进程字典：</p>
+<ul>
+<li>dic_reissue_count 协议补发次数。</li>
+<li>dic_client_proto_count 客户端计数器</li>
+<li>dic_server_proto_count 服务端计数器，这个count用来标记后端发送的协议索引id。</li>
+<li>dic_proto_data_buffer 协议缓存 [{Count,Msg,Bin}]</li>
+</ul>
+<p>客户端会通知服务器清除缓存。</p>
 <h2><a name="充值相关" class="anchor" href="#充值相关"><span class="header-link"></span></a>充值相关</h2><p>pay_count : 充值获得的元宝数量
 pay_lv : 付费等级</p>
 <p>diamond : 拥有的元宝数量</p>
@@ -162,15 +177,15 @@ buff变化 =&gt; 加减值，百分比变化</p>
   切换场景的时候，buff变化需要通知前端？</p>
 <h2><a name="ets表" class="anchor" href="#ets表"><span class="header-link"></span></a>ETS表</h2><ul>
 <li>ets_online<ul>
-<li>#ets_online{}</li>
+<li><h1>ets_online{}</h1></li>
 </ul>
 </li>
 <li>ets_player_pid<ul>
-<li>#ets_player_pid{}</li>
+<li><h1>ets_player_pid{}</h1></li>
 </ul>
 </li>
 <li>ets_player_battle_info<ul>
-<li>#battle_info{}</li>
+<li><h1>battle_info{}</h1></li>
 </ul>
 </li>
 </ul>
@@ -263,8 +278,7 @@ lib_offline_player:create_offline_player(BattleInfo).</p>
 </ul>
 <p><code>lists:filter(fun(Level) -&gt; case lib_offline_player:get_base_monster(Level) of [_] -&gt; false; _ -&gt; true end end, lists:seq(1, 300)).</code></p>
 <p>搭建一个敏感词过滤系统</p>
-<p>##</p>
-<p>battle_info存地图进程的理由：
+<h1>#</h1><p>battle_info存地图进程的理由：
     玩家已经离开场景，但是buff或者技能杀死了怪物，掉落物会导致前端出错</p>
 <pre><code><span class="hljs-function"><span class="hljs-title">dbgon</span><span class="hljs-params">(lib_skill,skill_action)</span></span>,dbgadd(lib_skill,do_shift).
 </code></pre><p>机器人移动：
@@ -293,6 +307,7 @@ lib_offline_player:create_offline_player(BattleInfo).</p>
 <li>野外boss是后端控制刷新。地图杀满一定数量的小怪就会刷boss出来。策划配置了复活，所以可能有多个boss。去掉复活即可。</li>
 <li>死亡后有保护buff，复活以后切换全体模式没有移除保护buff：已经修复。</li>
 </ul>
+<h2><a name="合服" class="anchor" href="#合服"><span class="header-link"></span></a>合服</h2><p>家族领地重置</p>
 <h2><a name="疑难杂症" class="anchor" href="#疑难杂症"><span class="header-link"></span></a>疑难杂症</h2><ul>
 <li>PVP，A攻击B，B死亡，原地复活，B加了保护Buff，但是A还是可以砍B。</li>
 </ul>
@@ -319,6 +334,25 @@ lib_offline_player:create_offline_player(BattleInfo).</p>
 <p>从log上看到确实只接了5次任务。定位到了修改次数的地方，发现是先检查内存，然后cast到另一个进程去修改内存。
 那么如果玩家最后一次攻击造成多个怪物死亡，那么这个地方会被调用两次。第一次的修改由于是异步的，第二次调用的时候很可能还没有修改完毕。
 所以就会出现调用两次。</p>
+<ul>
+<li>在werl shell中按下ctrl+g，前端掉线。进程卡住。
+发现是lagger的原因。lager是同步调用写log，向终端写log的时候卡住了，导致消息堆积无法处理，所有调用进程都会卡住。</li>
+</ul>
+<ul>
+<li><p>怪物不攻击.
+AI的cd用了monotonic_time，
+是因为改了用了新的时间API，初始化技能cd的时候给了时间0，结果monotonic_time返回的是负数。所以一直无法选到技能。</p>
+</li>
+<li><p>recon_trace 无法打印特定的函数。
+这是因为默认只打印global的函数，如果需要打印所有函数，需要加上{scope, local}</p>
+</li>
+</ul>
+<ul>
+<li>buff 配了回血50%，但是发现回血了100%。
+一开始以为是buff结算的问题，发现正常。用trace来看，发现多出了结算次数。用trace追踪结算函数，发现正常调用。
+分析trace的时候突然发现，调用的进程不一样。原来是有两个进程给同一个玩家回血。这么一来，bug就定位了。
+玩家切换场景以后，没有把他从buff关注列表中移除掉。所以老的进程还在关注玩家的buff状态。</li>
+</ul>
 </div>
 
     </div>

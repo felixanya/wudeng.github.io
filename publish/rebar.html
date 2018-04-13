@@ -36,14 +36,42 @@
         </div>
 
         <!-- auto complete by template replacement -->
-        <div class="main-content markdown-body"><p>blog</p>
-<p>不蒜子 访问计数</p>
-<p>disqus 评论</p>
-<p>https 又拍云 Lets
-又拍云可以自动创建Let’s Encrypted的证书并且支持续签</p>
-<p>代码高亮：</p>
+        <div class="main-content markdown-body"><p>rebar</p>
 <ul>
-<li><a href="http://highlightjs.readthedocs.io/en/latest/css-classes-reference.html">http://highlightjs.readthedocs.io/en/latest/css-classes-reference.html</a></li>
+<li><a href="#下载">下载</a></li>
+<li><a href="#编译">编译</a></li>
+</ul>
+<p>rebar编译的时候是通过读取src目录下的app.src文件来进行的。</p>
+<h2><a name="下载" class="anchor" href="#下载"><span class="header-link"></span></a>下载</h2><pre><code class="lang-bash">wget --no-check-certificate https:<span class="hljs-regexp">//</span>raw.github.com<span class="hljs-regexp">/wiki/</span>rebar<span class="hljs-regexp">/rebar/</span>rebar
+</code></pre>
+<h2><a name="编译" class="anchor" href="#编译"><span class="header-link"></span></a>编译</h2><pre><code>rebar <span class="hljs-built_in">help</span> compile
+</code></pre><pre><code><span class="hljs-string">mkdir </span><span class="hljs-string">project
+</span><span class="hljs-string">cd </span><span class="hljs-string">project
+</span><span class="hljs-string">mkdir </span>-p <span class="hljs-string">apps/</span><span class="hljs-string">echo_svr
+</span><span class="hljs-string">cd </span><span class="hljs-string">apps/</span><span class="hljs-string">echo_svr
+</span>../../<span class="hljs-string">rebar </span><span class="hljs-built_in">create-app</span> <span class="hljs-string">appid=</span><span class="hljs-string">echo_serv
+</span>
+
+<span class="hljs-string">echo </span>{<span class="hljs-string">sub_dirs,</span> [<span class="hljs-string">"apps/echo_serv"</span>, <span class="hljs-string">"rel"</span>]} &gt; <span class="hljs-string">rebar.</span><span class="hljs-string">config
+</span>
+./<span class="hljs-string">rebar </span><span class="hljs-string">compile</span>
+</code></pre><p>escript rebar get-deps
+escript rebar comile eunit</p>
+<p>{deps_dir, [&quot;deps&quot;]}.
+{cover_enabled, true}</p>
+<p>rebar的目录管理：当前目录下<code>ebin</code>，<code>deps/*/ebin</code>
+启动程序：
+可以用make来简化操作。
+<code>start werl -pa ebin deps/*/ebin  -env ERL_MAX_ETS_TABLES 10000 -setcookie abcdeft +A 8 +K true +P 120000   -name galaxy-empire@127.0.0.1 -s slg_model start</code></p>
+<p>{deps, [</p>
+<p>]}.</p>
+<p>rebar用来编译很方便，如果不想用rebar生成release。
+rebar编译后如果的各个application都有独立的ebin输出目录。
+本地启动的时候可以通过pa指定ebin目录来启动节点。
+服务器部署的时候可以提前将ebin打包。</p>
+<ul>
+<li><a href="https://github.com/rebar/rebar">https://github.com/rebar/rebar</a></li>
+<li><a href="http://blog.csdn.net/agiknight/article/details/7248624">http://blog.csdn.net/agiknight/article/details/7248624</a> 测试有效。</li>
 </ul>
 </div>
 
@@ -55,8 +83,8 @@
     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
     var disqus_config = function () {
-        this.page.url = "https://wudeng.github.io//publish/blog.html";
-        this.page.identifier = "/publish/blog.html";
+        this.page.url = "https://wudeng.github.io//publish/rebar.html";
+        this.page.identifier = "/publish/rebar.html";
     };
     (function() { // DON'T EDIT BELOW THIS LINE
     var d = document, s = d.createElement('script');
