@@ -182,9 +182,13 @@ function updateSummaryAndRss(context)
             htmls.push(convertSummary(sortedIndex[i], i % 2 ? '#F9EDED' : '#ECECEC'));
         }
         var template = __dirname + '/tmpl/index.tmpl';
+        var page_identifier = "index.html";
+        var page_url = "https://wudeng.github.io/" + page_identifier;
         var content = fs.readFileSync(template, fileOption)
                         .replace(/\${content}/gi, "<div class=\"summary-list\">" + htmls.join('\n') + "</div>")
-                        .replace(/\${assets}/gi, "publish/assets");
+                        .replace(/\${assets}/gi, "publish/assets")
+                        .replace(/\${PAGE_URL}/gi, page_url)
+                        .replace(/\${PAGE_IDENTIFIER}/gi, page_identifier);
         fs.writeFileSync(__dirname + '/../index.html', content);
     }
 
