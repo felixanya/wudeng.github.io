@@ -1,0 +1,174 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/github-markdown.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
+<link rel="stylesheet" type="text/css" href="./assets/css/atom-one-dark.min.css">
+<script src="https://use.fontawesome.com/74835083f1.js"></script>
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<title>Deng的梦呓</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="main">
+        <div class="banner">
+            <h1 class="banner-header">Deng的梦呓</h1>
+            <div class="banner-description">
+                Erlang | 开发 | 感悟 | 生活
+            </div>
+            <div class="banner-icon btn-group">
+                <a class="btn btn-default" href="https://wudeng.github.io">
+                    <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="https://github.com/wudeng">
+                    <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="./assets/rss.xml">
+                    <i class="fa fa-rss fa-2x" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default" href="mailto:wudeng256@gmail.com">
+                    <i class="fa fa-envelope-o fa-2x" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- auto complete by template replacement -->
+        <div class="main-content markdown-body"><h1>EUnit</h1><ul>
+<li><a href="#开关测试">开关测试</a></li>
+<li><a href="#macros">Macros</a></li>
+<li><a href="#simple-test-function">Simple Test Function</a></li>
+<li><a href="#test-generators">Test Generators</a></li>
+<li><a href="#fixtrues">Fixtrues</a></li>
+<li><a href="#参考文档">参考文档</a></li>
+</ul>
+<p>要使用EUnit，需要包含头文件：<code>-include_lib(&quot;eunit/include/eunit.hrl&quot;).</code>：</p>
+<ul>
+<li>自动导出<code>test()</code>函数，这个函数用来执行所有测试用例。这个函数是自动生成的，其实就是执行<code>eunit:test(Module).</code></li>
+<li>自动导出函数<code>..._test()</code>或者<code>...test_()</code></li>
+<li>引入宏</li>
+</ul>
+<p>测试代码可以直接写在模块中，也可以将测试代码分离到专门的测试模块：<code>Mod_tests.erl</code>，注意后面有s。</p>
+<h2><a name="开关测试" class="anchor" href="#开关测试"><span class="header-link"></span></a>开关测试</h2><p>关闭单元测试可以直接编译的时候定义NOTEST宏，也可以定义头文件<code>common.hrl</code>：</p>
+<pre><code class="lang-erlang"><span class="hljs-keyword">-define</span><span class="hljs-params">(NOTEST, true)</span>.
+<span class="hljs-keyword">-include_lib</span><span class="hljs-params">(<span class="hljs-string">"eunit/include/eunit.hrl"</span>)</span>.
+</code></pre>
+<p>在其他源文件包含这个头文件则默认不打开Eunit。如果需要打开，直接在编译的时候加上宏定义：
+<code>erlc -DTEST my_module.erl</code>，因为TEST优先级比NOTEST高，所以会覆盖头文件中的NOTEST定义。</p>
+<h2><a name="macros" class="anchor" href="#macros"><span class="header-link"></span></a>Macros</h2><p>通过宏的使用增强输出消息。这些宏都有对应的生成器宏，也就是下划线开头的宏。</p>
+<ul>
+<li>?assert(Expression)   true</li>
+<li>?assertNot(Expression)    false</li>
+<li>?assertEqual(Expect, Expr)</li>
+<li>?assertNotEqual(A, B)</li>
+<li>?assertMatch(Guard, Expr)</li>
+<li>?assertError(Pattern, Expression)</li>
+<li>?assertThrow(Pattern, Expression)</li>
+<li>?assertExit(Pattern, Expression)</li>
+<li>?assertException(Class, Pattern, Expression)</li>
+</ul>
+<h2><a name="simple-test-function" class="anchor" href="#simple-test-function"><span class="header-link"></span></a>Simple Test Function</h2><p><code>_test()</code> 结尾的函数。</p>
+<p><code>eunit:test(Module).</code></p>
+<h2><a name="test-generators" class="anchor" href="#test-generators"><span class="header-link"></span></a>Test Generators</h2><p>以<code>_test_()</code>结尾的函数称为测试生成函数。
+<code>?_assert(A == B)</code> 称为测试生成器（注意前面的下划线）。等价于<code>fun() -&gt; ?assert(A == B) end</code>。</p>
+<p>测试生成函数可以返回：</p>
+<ul>
+<li>测试生成器、测试生成器的列表</li>
+<li>Fixture、Fixture的列表</li>
+</ul>
+<p>只测试一部分：
+<code>eunit:test({generator, fun ops_tests:add_test_/0})</code></p>
+<p>test representation</p>
+<ul>
+<li>{generator, Fun}</li>
+<li>{moduel, Mod}</li>
+<li>{dir, Path}</li>
+<li>{file, Path}</li>
+<li>{generator, Fun}</li>
+<li>{application, AppName}</li>
+</ul>
+<h2><a name="fixtrues" class="anchor" href="#fixtrues"><span class="header-link"></span></a>Fixtrues</h2><p>Setup fixture:</p>
+<ul>
+<li>{setup, Setup, Instantiator}</li>
+<li>{setup, Setup, Cleanup, Instantiator}</li>
+<li>{setup, Where, Setup, Instantiator}</li>
+<li>{setup, Where, Setup, Cleanup, Instantiator}</li>
+</ul>
+<p>foreach fixture:</p>
+<ul>
+<li>{foreach, Where, Setup, Cleanup, [Instantiator]}</li>
+<li>{foreach, Setup, Cleanup, [Instantiator]}</li>
+<li>{foreach, Where, Setup, [Instantiator]}</li>
+<li>{foreach, Setup, [Instantiator]}</li>
+</ul>
+<p>名词解释：</p>
+<ul>
+<li>Setup: A function that takes no argument. Each of the tests will be passed the value returned by the setup function</li>
+<li>Cleanup: A function that takes the result of a setup function as an argument, and takes care of cleaning up whatever is needed</li>
+<li>Instantiator: A function that takes the result of a setup function and returns a test set</li>
+<li>Where: specifies how to run the tests:<ul>
+<li>local</li>
+<li>spawn</li>
+<li>{spwan, node()}</li>
+</ul>
+</li>
+</ul>
+<h2><a name="参考文档" class="anchor" href="#参考文档"><span class="header-link"></span></a>参考文档</h2><ul>
+<li><a href="http://learnyousomeerlang.com/eunit">http://learnyousomeerlang.com/eunit</a></li>
+<li><a href="http://erlang.org/download/eunit.hrl">http://erlang.org/download/eunit.hrl</a></li>
+<li>erl9.2/lib/eunit-2.3.5/doc/html/chapter.html</li>
+</ul>
+</div>
+
+        <div id="disqus_thread"></div>
+        <script>
+        /**
+        *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+        *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+        var disqus_config = function () {
+            this.page.url = "https://wudeng.github.io//publish/eunit.html";
+            this.page.identifier = "/publish/eunit.html";
+        };
+        (function() { // DON'T EDIT BELOW THIS LINE
+            var d = document, s = d.createElement('script');
+            s.src = 'https://wudeng.disqus.com/embed.js';
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+</div>
+</body>
+<div id="busuanzi" style="display:none">
+    <span id="busuanzi_container_page_pv"><span id="busuanzi_value_page_pv"></span></span>,
+    <span id="busuanzi_container_site_uv"><span id="busuanzi_value_site_uv"></span></span>,
+    <span id="busuanzi_container_site_pv"><span id="busuanzi_value_site_pv"></span></span>
+<div>
+<script> 
+function toggle (elements, specifiedDisplay) {
+    var element, index;
+    elements = elements.length ? elements : [elements];
+    for (index = 0; index < elements.length; index++) {
+        element = elements[index];
+        if (isElementHidden(element)) {
+            element.style.display = '';
+            if (isElementHidden(element)) {
+                element.style.display = specifiedDisplay || 'block';
+            }
+        } else {
+            element.style.display = 'none';
+        }
+    }
+    function isElementHidden (element) {
+        return window.getComputedStyle(element, null).getPropertyValue('display') === 'none';
+    }
+}
+//document.getElementById('container').addEventListener('dblclick', function () { toggle(document.querySelectorAll('#busuanzi')); });
+document.addEventListener('dblclick', function () { toggle(document.querySelectorAll('#busuanzi')); });
+</script>
+</html>

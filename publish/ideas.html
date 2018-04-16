@@ -12,7 +12,7 @@
 </head>
 
 <body>
-<div class="container" id="container">
+<div class="container">
     <div class="main">
         <div class="banner">
             <h1 class="banner-header">Deng的梦呓</h1>
@@ -93,6 +93,7 @@ function toggle (elements, specifiedDisplay) {
         return window.getComputedStyle(element, null).getPropertyValue('display') === 'none';
     }
 }
-document.getElementById('container').addEventListener('dblclick', function () { toggle(document.querySelectorAll('#busuanzi')); });
+//document.getElementById('container').addEventListener('dblclick', function () { toggle(document.querySelectorAll('#busuanzi')); });
+document.addEventListener('dblclick', function () { toggle(document.querySelectorAll('#busuanzi')); });
 </script>
 </html>

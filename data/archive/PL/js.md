@@ -54,6 +54,15 @@ var myGradeCalculate = (function(){
     }
 }());
 
+## DOM
+
+* document.addEventListener(event, function, useCapture)
+    - event 没有on前缀，如`click`，`dblclick`
+* document.removeEventListener()
+
+* element.addEventListener()
+- click
+- dblclick
 
 ## CommonJS ans AMD
 

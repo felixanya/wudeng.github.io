@@ -28,6 +28,10 @@ Navigate：
 * ctrl+shift+N 打开文件
 * ctrl + ]
 * ctrl + t
+* ctrl + b 跳到定义
+* ctrl + e 最近文件列表
+
+代码跳转：ctrl+B, ctrl+[, ctrl+] 后两个是自己添加的。默认的ctrl+alt+左右箭头 不能用
 
 窗口：
 * project窗口：alt + 1

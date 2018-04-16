@@ -39,6 +39,7 @@ max_connections
 
 ## 结构优化
 
-
+## 常用SQL
+* drop table if exists `table_name`;
 
 * https://dev.mysql.com/doc/refman/5.7/en/mysql-indexes.html
