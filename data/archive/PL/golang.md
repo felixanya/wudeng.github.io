@@ -66,8 +66,6 @@ package: 小写。
 application由不同的包package构成，每个应用有一个main包。
 一个包含有多个文件
 
-## 类型转换
-string => int ： strconv:ParseInt(s, base, bits)
 
 gopath
     查看当前GOPATH：go env GOPATH
@@ -126,8 +124,6 @@ rune // int32, unicode
 float32 float64
 complex64 complex128
 
-类型转换：
-string   to int
 
 
 ## const
@@ -186,14 +182,10 @@ nil
 
 ## 结构体
 
-## 数组
-
+## 数组和Slice
 var a [5]int
 [...]string{"hello", "world"}
 
-## slices
-
-make([]int, 5)
 
 ## map
 map[KeyType]ValueType
@@ -203,6 +195,10 @@ map[KeyType]ValueType
 使用之前必须用make来创建，值为nil的map是空的，并且不能对其赋值。
 var m map[string]int
 m = make(map[string]int)
+m[key] = value
+`_, prs = m[key]`
+len(m)
+delete(m, key)
 
 key equality operator is defined
     integers
@@ -236,7 +232,7 @@ This statement asserts that the interface value i holds the concrete type T and 
     * NewReader()
 * strconv
     * func ParseUint(s string, base int, bitSize int) (uint64, error)
-* math
+* math 定义了数据类型的最大最小值
     * math/rand
     * math/cmplx
     * MaxInt32

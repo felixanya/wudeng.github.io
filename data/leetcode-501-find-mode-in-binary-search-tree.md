@@ -1,0 +1,56 @@
+# Leetcode (501) Find Mode in Binary Search Tree
+
+遍历树，可以求出每个数字出现的次数。用map来统计每个数字出现的频率很合适。
+但是得到这个map以后呢，怎么按照频率排序？
+
+两次遍历即可：
+可以先遍历map，找出最大的频率。然后再次遍历，将等于最大频率的加入数组即可。
+
+个人感觉这个题目对于二叉搜索树的定义有点问题：
+>
+- The left subtree of a node contains only nodes with keys less than or equal to the node's key.
+- The right subtree of a node contains only nodes with keys greater than or equal to the node's key.
+- Both the left and right subtrees must also be binary search trees.
+
+出现多个相等的时候，按照这个定义左孩子右孩子都可以包含父节点的数据？
+这个貌似不对吧。
+
+```go
+/**
+ * Definition for a binary tree node.
+ * type TreeNode struct {
+ *     Val int
+ *     Left *TreeNode
+ *     Right *TreeNode
+ * }
+ */
+func findMode(root *TreeNode) []int {
+    m := make(map[int]int)
+    inorder(root, &m)
+    maxv := 0
+    for _, v := range m {
+        if v > maxv {
+            maxv = v
+        }
+    }
+    ans := make([]int, 0)
+    for k, v := range m {
+        if v == maxv {
+            ans = append(ans, k)
+        }
+    }
+    return ans
+}
+
+func inorder(root *TreeNode, m *map[int]int) {
+    if root != nil {
+        inorder(root.Right, m)
+        (*m)[root.Val]++
+        inorder(root.Left, m)
+    }
+}
+```
+
+## O(1)空间方法
+
+遍历两次，第一次找出最大的值，和最大值的个数。第二次收集最大值到数组。遍历因为要O(1)空间，可以用莫里斯遍历。
