@@ -16,7 +16,7 @@ hash(key) % N
 * 分布式存储
 
 
-每个节点有唯一ID，于Key同构。映射到一个环上。根据Key在环上的位置顺时钟查找Node.
+每个节点有唯一ID，与Key同构。映射到一个环上。根据Key在环上的位置顺时钟查找Node.
 
 ```
 package consistent_hashing

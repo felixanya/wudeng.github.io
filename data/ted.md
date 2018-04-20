@@ -102,3 +102,7 @@ http://liespotting.com/
 * 学到能够自我纠正
 * 排除干扰
 * 练习至少20小时
+
+## 提升记忆力
+* modify the information - which make it easy for our brain to memorize
+* reprogramming our mind - to be more active and attentive to the important aspect

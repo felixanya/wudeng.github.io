@@ -60,13 +60,13 @@ func helper(arr []int, i, size, min int, out []int, acc1, acc2 int) bool {
 			tmp := acc1*10 + j
 			if tmp <= acc2 {
 				out[i] = j
-                // 递推推进，失败的话尝试下一个值
+        // 递推推进，失败的话尝试下一个值
 				if helper(arr, i+1, size, j, out, tmp, acc2) {
 					return true
 				}
 			}
 		}
-        // 如果遍历了所有可能性都没有找到解，返回false
+    // 如果遍历了所有可能性都没有找到解，返回false
 		return false
 	}
 	return true

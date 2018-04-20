@@ -33,7 +33,7 @@ ar rs libstack.a stack.o push.o pop.o is_empty.o
 组成共享库的目标文件和一般的目标文件有所不同，在编译时要加-fPIC选项。
 -f后面跟一些编译选项，PIC是其中一种。表示生成位置无关代码（Position Independent Code）。
 
-ldd main 产看main可执行文件依赖哪些共享库。
+ldd main 查看main可执行文件依赖哪些共享库。
 
 ldd模拟运行一遍main，在运行过程中做动态链接，从而得知这个可执行文件依赖于哪些共享库，每个共享库都在什么路径下，加载到进程地址空间的什么地址。
 /lib/ld-linux.so.2是动态链接器，它的路径是在编译链接时指定的，gcc在做链接时用-dynamic-linker指定动态链接器的路径，它也像其它共享库一样加载到进程的地址空间中。
