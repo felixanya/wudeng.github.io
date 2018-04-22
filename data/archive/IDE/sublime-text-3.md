@@ -229,3 +229,5 @@ Ctrl+k+2 折叠注释和方法
 Ctrl+k+3 折叠if
 
 Ctrl+k+4 折叠switch
+
+ctrl + b 打开命令行

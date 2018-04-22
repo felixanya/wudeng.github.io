@@ -2,6 +2,8 @@
 
 go env [-json] [var ...] 打印环境变量
 
+godoc fmt Println
+
 vim .bashrc
 export GOROOT=/usr/local/go
 export PATH=$PATH:$GOROOT/bin
@@ -75,7 +77,7 @@ gopath
 
     internal
         import "foo/internal/baz"
-    vendor  
+    vendor
         优先级更高
         import "baz"
 
@@ -448,6 +450,14 @@ IntelliJ IDEA Community 2017.2
         t.Log(args ...interface{})  fmt.Sprintln(args...)
         t.Fail
     *testing.B
+
+## 语言特性
+垃圾回收 标记-清除，不适合实时性要求很高的软件
+没有类和继承，通过intrface实现多态
+强类型
+交叉编译
+完全支持utf-8
+从1.0.3开始不再使用8g,8l之类的指令进行构建，统一用go build, go install等命令，这些命令会自动调用相关的编译和链接器。
 
 ### 未解决
 
