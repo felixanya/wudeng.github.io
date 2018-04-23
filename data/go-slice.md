@@ -57,5 +57,21 @@ append([]T{x}, a...)
 比如往后面append一个元素。这种情况下只能通过传递指针来实现。
 
 
+## 排序
+
+[sort](https://golang.org/pkg/sort/)模块
+
+Len() int
+Swap(i, j int)
+Less(i, j int) bool
+
+sort.Sort()
+
+sort.Slice()
+
+原地排序
+func Ints(a []int)
+
+
 ## 参考文档
 * https://nanxiao.gitbooks.io/golang-101-hacks/content/posts/pass-slice-as-a-function-argument.html

@@ -102,3 +102,14 @@ http://liespotting.com/
 * 学到能够自我纠正
 * 排除干扰
 * 练习至少20小时
+
+## change your mindset, change the game
+
+mindset: a lens or a frame of mind through which we view the world.
+placebo
+
+stress
+
+fixed mindset -> growing mindset
+
+望梅止渴

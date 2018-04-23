@@ -1,5 +1,9 @@
 # word list
 
+* ghrelin 胃饥饿素
+* metabolism 新陈代谢
+* milkshake 奶昔
+* placebo 安慰剂
 * manor 庄园，领地
 * garner 获得；储存
 * stifle    压制，忍住，控制（感情或行为）
