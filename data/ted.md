@@ -113,3 +113,6 @@ stress
 fixed mindset -> growing mindset
 
 望梅止渴
+## 提升记忆力
+* modify the information - which make it easy for our brain to memorize
+* reprogramming our mind - to be more active and attentive to the important aspect
