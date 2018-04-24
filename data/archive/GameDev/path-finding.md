@@ -13,7 +13,7 @@
 * OnlyWhenNoObstacles 仅当没有障碍
 
 这四种策略决定了一个节点的子节点个数，以及启发函数的选择。
-```
+```js
 /**
  * Get the neighbors of the given node.
  *
@@ -112,10 +112,10 @@ Grid.prototype.getNeighbors = function(node, diagonalMovement) {
     * 不允许对角线移动
 * euclidean(欧几里德)
 * octile
-    * 计算简答
+    * 计算简单
 * chebyshev(切比雪夫)
 
-```
+```js
 manhattan: function(dx, dy) {
   return dx + dy;
 },
@@ -137,7 +137,7 @@ chebyshev: function(dx, dy) {
 ```
 
 当不允许对角移动的时候，默认选择曼哈顿，当允许对角移动时默认选择Octile.
-```
+```js
 // When diagonal movement is allowed the manhattan heuristic is not
 //admissible. It should be octile instead
 if (this.diagonalMovement === DiagonalMovement.Never) {
@@ -158,7 +158,7 @@ if (this.diagonalMovement === DiagonalMovement.Never) {
 
 跟A*的区别在于对评估函数的定义。A*算是一种BFS的一种特殊情况。如果不考虑g，只考虑h评估函数，则成为贪心BFS或者纯启发搜索。
 
-```
+```js
 function BestFirstFinder(opt) {
     AStarFinder.call(this, opt);
 

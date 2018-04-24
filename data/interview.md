@@ -54,6 +54,12 @@ map_nodes([{M,F,A}|Tail],[Node|MoreNodes], Original) ->
 
 * 设计手机扫码登陆
 
+* 设计Rate Limiter
+    - Token Bucket Algorithm， leaky bucket
+    - 只需要记录{LastUpdate, Value} https://www.smyte.com/blog/stopping-account-takeover?hs_preview=SqfhHtvj-5674313679
+    - refill time
+    bucket.value = min(maxAmount, value+refillCount*refillAmount)
+
 * [设计短Url系统](https://www.zhihu.com/question/29270034)
     - 自增
     - 多个实例，如单双

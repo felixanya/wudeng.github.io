@@ -9,7 +9,14 @@
 
 ## 执行优化
 
+大翻页：尽可能的使用索引覆盖查询。而不是查询所有列。
+select * from test limit 10000,10;
 
+变为子查询：
+select * from test where id >= (select id from test order by id limit 10000,1) limit 10;
+
+或者：
+select * from test inner join (select id from test order by id limit 10000,10) t2 using (id);
 ## 聚集索引 clustered index
 
 Innodb数据存储方式，既存储索引，也存储行值，数据存储在索引的叶子页。每个表有且只有一个聚集索引。

@@ -10,7 +10,7 @@
 
 Erlang模拟栈式虚拟机
 ----
-```
+```erlang
 -module(stack_machine).
 -compile(export_all).
 
@@ -45,7 +45,7 @@ generate_code({float, _, Arg1}) -> [push, Arg1].
 虚拟机通过case语句来分派指令。下面我们来实现一个基于字节码的虚拟机。
 
 首先需要生成字节码，还是利用Erlang来编译表达式，生成文件。
-```
+```erlang
 -module(bytecode_generator).
 
 -compile([export_all]).
@@ -57,11 +57,11 @@ gen(String) ->
     file:write_file("bytecode", [ByteCode, stop()]),
     ok.
 
-generate_code({op, _, '+', Arg1, Arg2}) -> 
+generate_code({op, _, '+', Arg1, Arg2}) ->
     generate_code(Arg1) ++ generate_code(Arg2) ++ [add()];
-generate_code({op, _, '*', Arg1, Arg2}) -> 
+generate_code({op, _, '*', Arg1, Arg2}) ->
     generate_code(Arg1) ++ generate_code(Arg2) ++ [multiply()];
-generate_code({integer, _, Arg1}) -> 
+generate_code({integer, _, Arg1}) ->
     [push() | integer(Arg1)].
 
 add() -> 1.
@@ -79,7 +79,7 @@ integer(Num) ->
 switch-case指令分派
 ----
 
-```
+```c
 #include <cstdio>
 #include <cstdlib>
 
@@ -93,7 +93,7 @@ char *read_file(char *filename) {
     if (!file) {exit(-1);}
     fseek(file, 0, SEEK_END);
     long size = ftell(file);
-    char *code = (char *)calloc(size, 1); 
+    char *code = (char *)calloc(size, 1);
     if(!code) {exit(-1);}
     fseek(file, 0, SEEK_SET);
     fread(code, size, size, file);
@@ -110,20 +110,20 @@ int run(char *code) {
 
     while (*ip != STOP) {
         switch (*ip++) {
-            case ADD: 
+            case ADD:
                 op1 = stack[--sp];
                 op2 = stack[--sp];
                 stack[sp++] = op1 + op2;
                 break;
-            case MUL: 
+            case MUL:
                 op1 = stack[--sp];
                 op2 = stack[--sp];
                 stack[sp++] = op1 * op2;
                 break;
             case PUSH:
-                size = *ip++; 
+                size = *ip++;
                 val = 0;
-                while (size--) { 
+                while (size--) {
                     val = (val << 8) + *ip++;
                 }   
                 stack[sp++] = val;
@@ -150,7 +150,7 @@ token-threaded code
 ----
 要去掉switch-case语句，我们需要在加载代码的时候做更多的工作。
 
-```
+```c
 #include <cstdlib>
 #include <cstdio>
 
@@ -173,19 +173,19 @@ int sp = 0;
 
 void add() {
     int x, y;  
-    x = pop(); 
-    y = pop(); 
+    x = pop();
+    y = pop();
     push(x+y);
 }
 void multiply() {
     int x, y;  
-    x = pop(); 
-    y = pop(); 
+    x = pop();
+    y = pop();
     push(x*y);
 }
 void pushi() {
     long x;  
-    x = (long) (*ip++); 
+    x = (long) (*ip++);
     push(x);
 }
 

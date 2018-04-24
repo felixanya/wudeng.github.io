@@ -55,6 +55,50 @@ func inorder(root *TreeNode, m *map[int]int) {
 }
 ```
 
+可以将递归遍历改为莫里斯遍历：
+```go
+func findMode(root *TreeNode) []int {
+    m := make(map[int]int)
+    morrisInorder(root, &m)
+    maxv := 0
+    for _, v := range m {
+        if v > maxv {
+            maxv = v
+        }
+    }
+    ans := make([]int, 0)
+    for k, v := range m {
+        if v == maxv {
+            ans = append(ans, k)
+        }
+    }
+    return ans
+}
+
+func morrisInorder(root *TreeNode, m *map[int]int) {
+    for root != nil {
+        if root.Left == nil {
+            (*m)[root.Val]++
+            root = root.Right
+        } else {
+            prev := root.Left
+            for prev.Right != nil && prev.Right != root {
+                prev = prev.Right
+            }
+            if prev.Right == nil {
+                (*m)[root.Val]++
+                prev.Right = root
+                root = root.Left
+            }
+            if prev.Right == root {
+                prev.Right = nil
+                root = root.Right
+            }
+        }
+    }
+}
+```
+
 ## O(1)空间方法
 
 遍历两次，第一次找出最大的值，和最大值的个数。第二次收集最大值到数组。遍历因为要O(1)空间，可以用莫里斯遍历。
