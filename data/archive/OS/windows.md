@@ -19,6 +19,32 @@ sc query zhudongfangyu
 
 https://chocolatey.org/ package manager for windows
 
+
+## windows 7 密码
+* 直接拔电源
+* 重启
+* 需要出现“修复启动”
+
+startup repair
+view problem details, 找到最后的记事本链接。
+
+
+### c:\\windows\\system32\\utilman.exe
+
+启动windows进度条的时候按住电源。或者reset。重启。出现修复选项。Launch Startup Repaire(recommend)
+进入记事本。修改cmd为utilman.exe
+
+
+net user
+
+whoami
+
+net user
+
+
+### 老毛桃
+
+
 ## 一些好用的windows工具
 
 * everything

@@ -24,7 +24,7 @@ hash(key) % N
 * 删除节点
 * 根据key查找环上对应的节点
 
-```
+```go
 package consistent_hashing
 import (
     "crypto/md5"
@@ -98,7 +98,7 @@ func hash(key string) int {
 ```
 
 
-```
+```go
 package main
 import (
     "consistent_hashing"
@@ -122,16 +122,6 @@ func main() {
     http.ListenAndServe(":8080", nil)
 }
 ```
-
-怎样创建多个虚拟节点：
-    replicas
-    for i := 0; i < replicas; i++ {
-        k := hash(node.id + "_" + strconv:Itoa(i))
-        nodes[id] = node
-    }
-
-怎样找到key对应的节点
-    排序，遍历
 
 
 * http://www.zsythink.net/archives/1182

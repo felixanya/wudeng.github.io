@@ -14,7 +14,7 @@
 The following assumes a response object { "bar" : "baz" },
 
 json:
-```
+```js
 var xhr = new XMLHttpRequest();
 
 xhr.onreadystatechange = function () {
@@ -29,7 +29,7 @@ xhr.send();
 
 
 jsonp:
-```
+```js
 function foo(response) {
   document.getElementById("output").innerHTML = response.bar;
 };
@@ -41,7 +41,7 @@ document.getElementsByTagName("head")[0].appendChild(tag);
 ```
 
 不使用script标签，直接使用jQuery来发起jsonp请求也是可以的：
-```
+```js
 $.ajax({
   url: 'http://otherdomain.com/datasource',
   dataType: 'jsonp',
@@ -53,7 +53,7 @@ $.ajax({
 这种方式jQuery会在请求后面加一个callback参数，便于后端返回。
 
 jsonp需要服务器获取callback函数以后，需要配合前端返回`callback(data)`这种形式，不能直接返回data。
-```
+```erlang
 case get_str("callback", QueryString, "") of
     "" ->
         Req:ok({
@@ -112,7 +112,7 @@ jsonp只支持GET方法，且存在潜在的安全问题，我们应该尽可能
 
 CORS请求默认不发送cookie和HTTP认证信息。如果要把Cookie发到服务器，一方面要服务器同意，另一方面开发者必须在
 AJAX请求中打开withCredentials属性。
-```
+```js
 xhr = new XMLHttpRequest();
 xhr.withCredentials = true
 ```

@@ -14,3 +14,15 @@ s.add(i)
 s.isEmpty()
 s.getLast()
 s.pollLast()
+
+## Arrays
+sort()
+
+## PriorityQueue
+PriorityQueue<Integer>
+offer(val)
+poll()
+
+
+## Math
+max()
