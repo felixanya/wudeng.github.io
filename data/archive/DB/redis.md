@@ -3,6 +3,28 @@
 
 速度快：10w每秒
 
+* sds: simple dynamic string
+  * int len
+  * int free
+  * char buff[]
+O(1) 获取长度
+杜绝缓冲区溢出
+减少修改字符串带来的内存分配次数：空间预分配，惰性空间释放
+
+* 链表
+  * 双端，无环，头，尾，长度
+* 字典
+  - 哈希表
+- 跳跃表
+  - 有序集合键
+  - 集群节点
+
+
+redis设计与实现
+
+
+key:string
+
 value:
 string,hash,list,set,zset,Bitmaps,HyperLogLog,GEO
 
