@@ -132,6 +132,10 @@ extract 从数组中将变量导入到当前符号表
 * Liskov substitution principle，里氏替换原则
 * Interface segregation principle，接口隔离
 * Dependency inversion principle，依赖反转原则。依赖于抽象而不是一个实例。依赖注入是该原则的一种实现方法。
+上层模块不应该依赖底层模块，它们都应该依赖于抽象。
+抽象不应该依赖于细节，细节应该依赖于抽象。
+
+https://blog.csdn.net/briblue/article/details/75093382
 
 S单一功能比较好理解。降低类的复杂度，一个类只负责一项职责。
   - 逻辑简单
