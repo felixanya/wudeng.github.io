@@ -182,12 +182,14 @@ If the current goroutine is panicking, a call to recover will capture the value 
 
 nil
 
+go 函数返回局部变量的引用是安全的。编译器自动将其提升为堆变量。
 ## 结构体
 
 ## 数组和Slice
 var a [5]int
 [...]string{"hello", "world"}
 
+slice和map都包含内部指针。go中所有的赋值都是拷贝。
 
 ## map
 map[KeyType]ValueType
@@ -327,6 +329,9 @@ http无状态热更新，已有成熟方案。
 Gorouting
 channel
 
+go run -race src/main.go
+
+runtime.GOMAXPROCS
 
 
 gofmt自动排版
