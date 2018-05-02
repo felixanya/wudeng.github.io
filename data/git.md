@@ -107,6 +107,14 @@
 * 私有GitLab
 
 
+## 常见问题
+* git clone https的时候报错："fatal: HTTP request failed"
+方案一：把https改成git，这种方法治标不治本。
+方案二：sudo yum update -y nss curl libcurl
+
+出错原因：GitHub Permanently disable deprecated algorithms in February 22, 2018 19:00 UTC
+https://githubengineering.com/crypto-removal-notice/
+
 ## 参考文档
 
 * https://www.git-tower.com/learn/git/ebook/cn/command-line/advanced-topics/git-flow

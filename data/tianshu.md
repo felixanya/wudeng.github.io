@@ -1,11 +1,7 @@
 # 天书
 
 
-日志：
-lager_console_backend:74
-
-
-io:572,63
+日志
 
 ## 心跳
 cs_heartbeat
