@@ -3,6 +3,7 @@
 ## 查看当前系统版本
 * `cat /etc/*release`
 * rpm --query centos-release
+* lsb_release -a
 
 ## 升级glibc
 执行程序的时候遇到错误：`libc.so.6: version GLIBC_2.14 not found`
@@ -103,9 +104,19 @@ yum install PACKAGE-VERSION
 
 http://ju.outofmemory.cn/entry/173260
 
-国内源：http://mirrors.163.com/.help/centos.html
+国内源：
+* http://mirrors.163.com/.help/centos.html
+* http://mirros.sohu.com
 
 yum install -y tree
+yum install -y zsh
+yum remove zsh
+安装一组软件包：
+yum grouplist
+yum groupinstall "Development tools"
+yum list z*
+yum search zsh
+
 
 配置开机启动
 /etc/rc.d/rc.local
@@ -175,17 +186,7 @@ www.rpmseek.com
   rpm -qpi 查看一个包的作用
   rpm --import RPM-GPG-KEY-redhat-release
 
-  yum install zsh
-    -y 回答yes
-    http://mirros.sohu.com
-    i686
-    x86_64 (aka amd64)
-  yum remove zsh
-安装一组软件包：
-  yum grouplist
-  yum groupinstall "Development tools"
-  yum list z*
-  yum search zsh
+
 
 
   rpmbuild --rebuild `*.src.rpm`
@@ -193,6 +194,19 @@ www.rpmseek.com
 
 tar --help
 
+
+## CentOS 6
+
+
+安装autoconf2.69
+```bash
+curl -L -O http://ftp.gnu.org/gnu/autoconf/autoconf-2.69.tar.gz
+tar zxf autoconf-2.69.tar.gz
+cd autoconf-2.69
+yum install -y openssl-devel
+./configure
+make && make install
+```
 
 
 
