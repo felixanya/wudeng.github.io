@@ -66,3 +66,45 @@ map_nodes([{M,F,A}|Tail],[Node|MoreNodes], Original) ->
     - 301永久重定向，压力小，但是无法统计
     - 302临时重定向，大数据分析
     - 短时间的缓存长连接到短连接的映射，解决每次请求给出不同的url
+
+
+
+
+
+ACID
+
+原子性能够保证一致性？不能，缺乏隔离性
+事务原子性怎么实现？
+
+rr 不可重复读：mvcc, 版本号
+
+
+隔离性：为什么不用序列化？
+
+varchar, int 后面数字的意义
+
+redis 10000000个key，找出10000个key以固定字符串开头。
+
+mongo：为什么用mongo，跟mysql有什么区别
+
+mysql，集群？
+
+tcp vs rpc vs rest api
+
+mysql隔离级别：分别解决了什么问题
+
+select  from where id = ... for update
+id不存在是否加锁？gap锁
+
+死锁的案例
+
+处理死锁。超时，wait for graph
+
+
+git: commit, 切换分支？权限控制？
+svn:
+
+vim: wx权限，没有写权限的文件。能读不能写。如何强制写。w! 能不能写 目录有写和执行权限。目录有写权限。
+替换。vim: s
+
+10个磁盘，1个进程，1m,10m,100m, O(1)

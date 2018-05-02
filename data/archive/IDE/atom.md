@@ -29,4 +29,6 @@
 * 下面插入行：ctrl+enter, cmd + enter
 * 删除行：ctrl+shift+k
 * 复制行：ctrl+shift+d
-* 移动行： ctrl+up/down, cmd+ctrl+up
+* 移动行：
+  - mac： cmd+ctrl+up/down
+  - windows：ctrl+up/down

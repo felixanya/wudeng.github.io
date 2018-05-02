@@ -1,5 +1,8 @@
 # Linux
 
+ulimit -c unlimited
+程序出错时输出coredump
+
 ## 查看系统版本
 * lsb_release -a
 * `cat /etc/*release`

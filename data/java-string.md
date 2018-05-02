@@ -26,3 +26,4 @@ poll()
 
 ## Math
 max()
+min()
