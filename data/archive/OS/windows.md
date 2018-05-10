@@ -41,6 +41,8 @@ whoami
 
 net user
 
+# windows 10
+
 
 ### 老毛桃
 
