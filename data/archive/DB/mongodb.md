@@ -8,6 +8,10 @@
 mongod --dbpath c:\data\db
 ```
 
+```
+/usr/bin/mongod --config /etc/mongodb.conf
+```
+
 # client
 
 mongo.exe

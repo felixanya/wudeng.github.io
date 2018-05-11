@@ -115,6 +115,12 @@
 出错原因：GitHub Permanently disable deprecated algorithms in February 22, 2018 19:00 UTC
 https://githubengineering.com/crypto-removal-notice/
 
+
+使用ssh，而不是默认的https：
+git remote set-url origin git@github.com:wudeng/vimrc-1.git
+
+这样git push的时候不需要提供账号密码。
+
 ## 参考文档
 
 * https://www.git-tower.com/learn/git/ebook/cn/command-line/advanced-topics/git-flow

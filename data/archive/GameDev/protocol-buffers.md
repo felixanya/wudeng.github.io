@@ -107,8 +107,14 @@ msg_code(Atom) -> Type;
 decoder_for(Type) -> riak_pb 路由
 
 
+## 对比
+* capn proto
+* json: schemaless
+* bson: schemaless
+* msgpack: schemaless
 
 
 * https://developers.google.com/protocol-buffers/
 * https://github.com/google/protobuf/releases
-* https://github.com/tomas-abrahamsson/gpb
+* https://github.com/tomas-abrahamsson/gpbs
+* https://capnproto.org/ 比protobuff更快

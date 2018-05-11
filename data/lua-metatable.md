@@ -66,3 +66,18 @@ string internalized
 
 GC
 标记清除
+
+
+设置__index 为table自己有什么用？
+
+保持继承链。
+
+
+weak table, __mode
+* weak key  "k"
+* weak value "v"
+
+weak key, strong value : ephemeron table
+
+__mode="kv"
+

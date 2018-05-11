@@ -103,3 +103,71 @@ bash: /proc/sys/fs/inotify/max_user_instances: Read-only file system
 
 修改内核参数。
 sysctl variable
+
+
+## locale
+
+安装zh_CN.UTF-8：
+sudo apt-get install language-pack-zh-hans
+
+
+
+wudeng@s3-10-80-0-160:~/S3Server$ locale -a
+locale: Cannot set LC_CTYPE to default locale: No such file or directory
+locale: Cannot set LC_MESSAGES to default locale: No such file or directory
+locale: Cannot set LC_COLLATE to default locale: No such file or directory
+C
+C.UTF-8
+POSIX
+zh_CN.utf8
+zh_SG.utf8
+
+没有安装en_US.utf8
+
+安装en_US.utf8:
+
+wudeng@s3-10-80-0-160:~/S3Server$ sudo locale-gen en_US.UTF-8
+/bin/bash: warning: setlocale: LC_ALL: cannot change locale (en_US.UTF-8)
+Generating locales (this might take a while)...
+  en_US.UTF-8... done
+Generation complete.
+
+再检查一下，正常了：
+wudeng@s3-10-80-0-160:~/S3Server$ locale -a                  
+C
+C.UTF-8
+en_US.utf8
+POSIX
+zh_CN.utf8
+zh_SG.utf8
+
+
+
+查看当前系统语言环境：
+
+locale
+
+vim /etc/default/locale
+```
+LANG="en_US.UTF-8"
+LANGUAGE="en_US:en"
+```
+
+vim ~/.bashrc
+```
+export LC_TYPE=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+```
+
+
+sudo locale-gen -en_US:en
+sudo locale-gen --purge
+
+/usr/share/i18n/SUPPORTED
+
+
+
+sudo vim /etc/locale.gen
+sudo locale-gen
+
+
