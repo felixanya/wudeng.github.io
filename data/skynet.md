@@ -235,6 +235,21 @@ datacenter.set(key1, key2, ..., value)
 datacenter.get(key1, key2, ...)
 datacenter.wait(key1, key2, ...)
 
+## ShareData
+
+sharedata.new(name, value)
+* key
+    - string
+    - 整数
+* value 
+    - lua table 无环
+    - lua 文本代码
+    - @文件名
+
+sharedata.update(name, value)
+sharedata.delete(name)
+sharedata.query(name)
+
 * http://gad.qq.com/content/coursedetail?id=467
 * http://github.com/cloudwu/skynet
 * QQ: 340504014

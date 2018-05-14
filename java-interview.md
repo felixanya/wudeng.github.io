@@ -9,6 +9,7 @@ array 非线程安全
 
 HashMap 非线程安全，允许null key
 HashTable 线程安全，不允许null key
+hashset 用hashmap实现。允许一个null
 
 ## vilotile
 * 对变量的写不依赖当前值，so，不能用作线程安全计数器
