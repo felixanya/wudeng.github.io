@@ -116,10 +116,37 @@
 https://githubengineering.com/crypto-removal-notice/
 
 
+## git push without password
 使用ssh，而不是默认的https：
-git remote set-url origin git@github.com:wudeng/vimrc-1.git
+`git remote set-url origin git@github.com:wudeng/vimrc-1.git`
 
-这样git push的时候不需要提供账号密码。
+[参考](https://help.github.com/articles/changing-a-remote-s-url/#switching-remote-urls-from-https-to-ssh)
+
+ssh-keygen -t rsa -C "wudeng256@gmail.com" 生成id_rsa, id_rsa.pub文件。
+把公钥放到github，将id_rsa秘钥放到`c:\Users\ejoy\.ssh\`目录下，这样git push的时候不需要提供账号密码。
+
+或者缓存https密码：
+git config credential.helper store
+
+```
+git config --global credntial.helper 'cache --timeout 7200'
+```
+缓存2小时。
+
+git config --global user.name 'wudeng'
+git config --global user.email 'wudeng256@gmail.com'
+
+
+## origin & upstream    
+
+upstream: a link with the original repo
+origin: your own fork
+
+## submodule
+
+git submodule init
+git submodule update
+
 
 ## 参考文档
 

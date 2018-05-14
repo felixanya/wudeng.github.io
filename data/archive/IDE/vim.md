@@ -65,7 +65,7 @@ export LC_ALL=zh_CN.UTF-8
 echo  &runtimepath
 
 
-apt-get install ack-grep
+sudo apt-get install ack-grep
 
 
 纯perl 5，所以支持windows。

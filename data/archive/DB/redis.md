@@ -42,6 +42,8 @@ string,hash,list,set,zset,Bitmaps,HyperLogLog,GEO
 
 
 ## 安装
+
+### 从源码安装
 ```
 $ wget http://download.redis.io/releases/redis-3.0.7.tar.gz
 $ tar xzf redis-3.0.7.tar.gz
@@ -53,5 +55,28 @@ $ make install
 第三步建立了一个redis的软连接，这样做事为了不把redis目录固定在指定版本上，有利于未来版本升级，算是安装软件的一种好习惯。
 
 
+### 从ATP安装
+安装：
+sudo apt install redis-server
+启动：
+sudo service redis-server start
+验证：
+redis-cli
+设置开机自动启动：
+sudo update-rc.d redis-server defaults
+查看状态：
+sudo service --status-all
+
+关闭：
+redis-cli 
+shutdown
+
+配置文件：
+/etc/redis/redis.conf
+
 ## BOOK
 Redis开发与运维
+
+
+## 参考文档
+* https://redis.io/

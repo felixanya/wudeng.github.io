@@ -235,6 +235,11 @@ datacenter.set(key1, key2, ..., value)
 datacenter.get(key1, key2, ...)
 datacenter.wait(key1, key2, ...)
 
+## 问题
+skynet服务和snax服务，如何选择？
+
+
+## 参考文献
 * http://gad.qq.com/content/coursedetail?id=467
 * http://github.com/cloudwu/skynet
 * QQ: 340504014
