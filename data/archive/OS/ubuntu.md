@@ -65,7 +65,17 @@ sudo hwclock --systohc //修改硬件时间。非常重要，如果没有这一�
 * zdump /usr/share/timezone/Asia/Shanghai
 
 ## 国内源
-* http://mirrors.163.com/
+
+* http://mirrors.163.com/ 网易镜像已经很久没更新了
+
+修改文件：/etc/apt/sources.list
+
+推荐使用阿里云镜像：
+* https://opsx.alibaba.com/mirror
+
+
+sudo apt-get update
+sudo apt-get install build-essential
 
 
 ## 问题
@@ -99,11 +109,15 @@ bash: /proc/sys/fs/inotify/max_user_instances: Read-only file system
 
 ```
 
-# sysctl
+## sysctl
 
 修改内核参数。
 sysctl variable
 
+## systemd
+unit file
+
+/etc/systemd/system/redis.service
 
 ## locale
 

@@ -18,7 +18,7 @@ root ALL=(ALL:ALL) ALL
 The root user can execute from ALL terminals, acting as ALL(any) users, and run ALL(any) command.
 
 ```
-go2linux ALL=(ALL) NOPASSWD: ALL
+go2linux ALL=(ALL) NOPASSWD:ALL
 ```
 not to be asked password
 
@@ -275,7 +275,7 @@ ip link set dev tap-r up
 exit
 
 
-screen
+# screen
   -l
   ctrl+a,d
 * https://lug.ustc.edu.cn/wiki/start

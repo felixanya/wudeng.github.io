@@ -14,7 +14,11 @@ sc query service_name
 sc query zhudongfangyu
 
 
+## netsh
+netsh winsock reset
 
+netsh 
+> help
 
 
 https://chocolatey.org/ package manager for windows
@@ -41,7 +45,17 @@ whoami
 
 net user
 
-# windows 10
+## windows 10
+
+windows subsystem for linux
+
+```powershell
+Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
+```
+
+* Ubuntu
+* OpenSUSE
+* Debian GNU/LINUX
 
 
 ### 老毛桃

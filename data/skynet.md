@@ -250,6 +250,11 @@ sharedata.update(name, value)
 sharedata.delete(name)
 sharedata.query(name)
 
+## 问题
+skynet服务和snax服务，如何选择？
+
+
+## 参考文献
 * http://gad.qq.com/content/coursedetail?id=467
 * http://github.com/cloudwu/skynet
 * QQ: 340504014

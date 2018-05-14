@@ -41,6 +41,8 @@
     - kill() 强行杀掉一个服务
     - filter() 过滤消息在处理
 
+    - newservice(name)
+
 
     - self() 用于获取服务自己的地址
     - harbor() 服务所属的节点
