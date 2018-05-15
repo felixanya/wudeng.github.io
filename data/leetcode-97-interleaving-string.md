@@ -26,6 +26,59 @@ class Solution {
 }
 ```
 
-dp[i][j] 表示 s1的前i个字符，s2的前j个字符是否能表示 s3的前i+j个字符。
+动态规划，二维空间：
 
-dp[i][j] 
+```java
+class Solution {
+    public boolean isInterleave(String s1, String s2, String s3) {
+        int m = s1.length();
+        int n = s2.length();
+        if (m + n != s3.length()) {
+            return false;
+        }
+        boolean dp[][] = new boolean[m+1][n+1];
+        for (int i=0; i<=m; i++) {
+            for (int j=0; j<=n; j++) {
+                if (i==0 && j==0) {
+                    dp[i][j] = true;
+                } else if (i == 0) {
+                    dp[i][j] = dp[i][j-1] && s2.charAt(j-1) == s3.charAt(i+j-1);
+                } else if (j == 0) {
+                    dp[i][j] = dp[i-1][j] && s1.charAt(i-1) == s3.charAt(i+j-1);
+                } else {                
+                    dp[i][j] = (dp[i][j-1] && s2.charAt(j-1) == s3.charAt(i+j-1)) || (dp[i-1][j] && s1.charAt(i-1) == s3.charAt(i+j-1));
+                }
+            }
+        }
+        return dp[m][n];
+    }
+}
+```
+
+由于只动态规划的过程只依赖当前行和上一行，可以优化掉一维空间：
+```java
+class Solution {
+    public boolean isInterleave(String s1, String s2, String s3) {
+        int m = s1.length();
+        int n = s2.length();
+        if (m + n != s3.length()) {
+            return false;
+        }
+        boolean dp[] = new boolean[n+1];
+        for (int i=0; i<=m; i++) {
+            for (int j=0; j<=n; j++) {
+                if (i==0 && j==0) {
+                    dp[j] = true;
+                } else if (i == 0) {
+                    dp[j] = dp[j-1] && s2.charAt(j-1) == s3.charAt(i+j-1);
+                } else if (j == 0) {
+                    dp[j] = dp[j] && s1.charAt(i-1) == s3.charAt(i+j-1);
+                } else {                
+                    dp[j] = (dp[j-1] && s2.charAt(j-1) == s3.charAt(i+j-1)) || (dp[j] && s1.charAt(i-1) == s3.charAt(i+j-1));
+                }
+            }
+        }
+        return dp[n];
+    }
+}
+```

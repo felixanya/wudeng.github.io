@@ -27,7 +27,8 @@ fn + delete 删除光标后面的元素
 ## Finder
 
 ### 快捷键
-option + command + delete
+* option + command + delete delete without trash
+* command + delete 删除文件
 * ⌘ + up 上一级目录
 * ⌘ + ⇧ + G 可以跳转到指定目录，包括隐藏目录 比如指定intelliJ Idea的sdk时需要用到。
 
