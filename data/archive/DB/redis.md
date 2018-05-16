@@ -1,3 +1,10 @@
+# Redis
+* string (字符串)
+* hash (哈希)
+* list (列表)
+* set (集合)
+* zset (sorted set)
+
 
 所有数据放在内存。
 
@@ -74,9 +81,28 @@ shutdown
 配置文件：
 /etc/redis/redis.conf
 
+## 查看帮助
+redis-cli
+* help
+* config get *
+* config get loglevel
+* config set loglevel "notice"
+
+
+## Key
+## String
+## LIST
+## Set S
+## SortedSet Z
+* zrange key start stop [withscores]
+* zrevrange key start stop [withscores]
+
+
 ## BOOK
 Redis开发与运维
 
 
 ## 参考文档
 * https://redis.io/
+* http://redisdoc.com/
+* http://www.runoob.com/redis/redis-tutorial.html

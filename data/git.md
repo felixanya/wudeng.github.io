@@ -16,7 +16,7 @@
     - `-r` 列出远程分支
     - `-a` 查看所有分支，包括本地和远程分支
     - `git branch my2.6.14 v.2.6.14` 以v.2.6.14 tag为基准，创建新分支my2.6.14
-* `git checkout lesson-19` checkout远程分支
+* `git checkout lesson-19` checkout分支
 
 
 ## 常用命令
@@ -33,8 +33,19 @@
 
 ## [branching model (Vicent Driessen)](http://nvie.com/posts/a-successful-git-branching-model/)
 
-* develope 内网开发环境，汇总下个版本的提交。
-* master 生产环境。
+两个主要分支：
+* master 生产环境。只用来发布重大版本。
+* develope 日常开发环境，汇总下个版本的提交。 
+
+git checkout -b develop master
+...
+git checkout master
+git merge --no-ff develop           --no-ff是为了保证版本演进的清晰
+
+三个临时性分支：
+* feature 功能分支
+* hotfix 热更新分支，修复maser上的bug。需要merge到master以及develop分支。
+* release 预发布，测试环境 
 
 
 | branch  | branch from | merge          |
@@ -44,12 +55,12 @@
 | hotfix  | master      | develop,master |
 
 * feature
-    - git checkout -b myfeature develop
-    - commit...
-    - git checkout develop
-    - git merge --no-ff myfeature
-    - git branch -d myfeature
-    - git push origin develop
+    - git checkout -b myfeature develop 从develop分支创建一个myfeature的分支，并切换过去
+    - commit...         在新分支上开发并commit
+    - git checkout develop  回到develop分支
+    - git merge --no-ff myfeature merge新分支上的变化
+    - git branch -d myfeature   删除新分支
+    - git push origin develop   将develop推送到仓库
 * release 测试环境，基于develope创建，修复bug，最后合并到develope和master分支，并发布master到生产环境，然后删除release分支。
     - git checkout -b release-1.2 develop
     - ./bump-version.sh 1.2
@@ -103,9 +114,24 @@
 [https]
 	proxy = 'socks5://127.0.0.1:1080'
 
+## stash
+
+git stash save
+git checkout branch
+git stash pop
+
+放弃本地修改：
+git reset --hard HEAD
 
 * 私有GitLab
 
+
+## log
+```
+git config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+```
+
+git lg
 
 ## 常见问题
 * git clone https的时候报错："fatal: HTTP request failed"
@@ -148,6 +174,13 @@ git submodule init
 git submodule update
 
 
+## 虚拟机共享文件
+```
+忽略文件mode变化
+git config --global core.filemode false
+忽略^M
+git config --global core.autocrlf true
+```
 ## 参考文档
 
 * https://www.git-tower.com/learn/git/ebook/cn/command-line/advanced-topics/git-flow

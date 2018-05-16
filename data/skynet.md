@@ -231,10 +231,14 @@ snax.loginserver
 
 配套的客户端：examples/login/client.lua
 
-* server.auth_handler(token)
-* server.login_handler(server, uid, secret)
+回调函数：
+* server.auth_handler(token) 对客户端发过来的token进行验证
+    - 验证不通过，通过error抛出异常
+    - 验证通过，返回登陆点和用户名
+* server.login_handler(server, uid, secret) 验证通过后，通知具体的登陆点，得到确认才可以返回
     - server 具体的登陆点
-* server.command_handler(command, ...)
+    - 如果关闭了multilogin，那么对于同一个uid，框架不会同时调用多次login_handler
+* server.command_handler(command, ...) 接受一些内部控制指令，比如通知玩家下线、动态注册新的登陆点
 
 
 ## Coroutine
@@ -287,6 +291,28 @@ sharedata.update(name, value)
 sharedata.delete(name)
 sharedata.query(name)
 
+## 组播
+multicastd
+
+## socket
+```lua
+local socket = require "skynet.socket"
+
+
+```
+* id = open(address, port)
+* close(id)
+
+## service
+service.init(mod)
+
+* command 此服务的lua消息处理函数
+* mod.data
+* mod.info 需要debug的数据
+* mod.require 前置服务
+* mod.init 此服务的初始化函数
+
+
 ## 问题
 skynet服务和snax服务，如何选择？
 
@@ -296,3 +322,4 @@ skynet服务和snax服务，如何选择？
 * http://github.com/cloudwu/skynet
 * QQ: 340504014
 * skynet-users@googlegroups.com
+* https://blog.csdn.net/qq769651718/article/category/7480207

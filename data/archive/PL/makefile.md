@@ -51,19 +51,20 @@ Make是为了解决文件依赖的，默认的目标都是文件。PHONY就是�
 CC=gcc -Wall -c
 LD=gcc
 
-`$@` : 依赖的对象
-$^ : 被依赖的对象，依赖列表的所有文件
-$< : 依赖列表的第一个文件
+`$@` : 依赖的对象，冒号左边
+`$^` : 被依赖的对象，依赖列表的所有文件
+`$<` : 依赖列表的第一个文件
 
 
 
 通配符：
 ```makefile
+target=app
+objs=$(patsubst %.c, %.o, $(wildcard *.c))
+$(target):$(objs)
+	$(CC) $^ -o $@
 %o :%c
   $(CC) $^ -o $@
-foo.o : foo.c
-woo.o : woo.c
-main.o : main.c
 ```
 gnumake默认如果.c存在，.o就依赖对应的.c，而.o到.c的rule，是通过宏默认定义的。
 你只要修改CC，LDLIBS这类的宏，就能解决大部分问题了。

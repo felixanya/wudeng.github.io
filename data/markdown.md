@@ -21,4 +21,10 @@ http://chart.googleapis.com/chart?cht=tx&chl=这里填写LaTex公式
 ![E=mc^2](http://chart.googleapis.com/chart?cht=tx&amp;chl=E=mc^2)
 
 
+```markdown
+~~~ 删除线 ~~~
+
+```
+
 * https://wo1fsea.github.io/2016/11/26/Survival_Skill_Markdown_and_LaTex_Formulas/
+* http://xianbai.me/learn-md/article/extension/table.html
