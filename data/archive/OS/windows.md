@@ -58,6 +58,17 @@ Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-L
 * Debian GNU/LINUX
 
 
+## UAC
+UserAccountControl
+此电脑->属性->安全和维护->更改用户控制设置。
+
+## windows工具
+
+* 启动项：msconfig
+* 组策略：regeidt
+* 设备管理器：devmgmt.msc
+* 任务管理器：taskmgr
+
 ### 老毛桃
 
 
@@ -101,3 +112,19 @@ REGEDIT4
 [HKEY_CLASSES_ROOT\Directory\Background\shell\Cmder\command]
 @="D:\\soft\\cmder\\Cmder.exe /start \"%V\""
 ```
+
+
+## 其他windows提供的工具
+
+* [Process Explorer](https://docs.microsoft.com/en-us/sysinternals/downloads/process-explorer)
+    - 可以查看进程打开了哪些文件
+
+## 遇到的一些奇葩问题
+
+windows 10 休眠以后无法连接网络，重启才行。
+
+尝试方法：
+* 更新网卡驱动，重启。发现网卡属性面板发生了变化。简洁了很多。
+* 设备管理器->网卡->属性->高级
+    - 电源管理：允许计算机关闭此设备以节省电源 去掉勾选，~~（感觉主要是这个问题，有待验证）~~ 更新：确实是这个问题，今天没有遇到这个问题了。
+    - 速度与双工 自动协商 改为100M全双工

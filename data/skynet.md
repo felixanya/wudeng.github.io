@@ -195,7 +195,7 @@ gateserver
 * openclient(fd)    fd只有在openclient调用以后才能发送消息过来
 * closeclient(fd)   主动踢掉一个连接
 
-handler，提供一些回调函数
+handler，为网关服务提供一些回调函数
 - connect(fd, ipaddr)   新连接建立后的回调
 - disconnect(fd)        连接断开是的回调
 - error(fd, msg)        连接异常时的回调
@@ -214,18 +214,44 @@ handler，提供一些回调函数
 service/gate.lua实现了一个完整的网关服务器。
 examples/watchdog.lua 启动了一个service/gate.lua服务，并将处理外部连接的消息转发处理。
 
+## MsgServer
+
+snax.msgserver(M) 网关服务器模板。
+与LoginServer(L)一起使用。
+
+* server.login_handler(uid, secret)
+* server.logout_handler(uid, subid)
+* server.kick_handler(uid, subid)
+* server.disconnect_handler(username)
+* server.request_handler(username, msg, sz)
+
 
 ## 登录服务器
 snax.loginserver
 
-
 配套的客户端：examples/login/client.lua
+
+* server.auth_handler(token)
+* server.login_handler(server, uid, secret)
+    - server 具体的登陆点
+* server.command_handler(command, ...)
+
 
 ## Coroutine
 
 skynet.fork
 skynet.wait
 skynet.wakeup
+
+## skynet
+skynet.call()
+
+## CriticalSection
+
+```lua
+local queue = require "skynet.queue"
+local cs = queue()
+```
 
 ## DataCenter
 
@@ -234,6 +260,18 @@ skynet.wakeup
 datacenter.set(key1, key2, ..., value)
 datacenter.get(key1, key2, ...)
 datacenter.wait(key1, key2, ...)
+
+watchdog
+    - start(conf)
+    - close(fd)
+
+cmd:
+    * socket
+        - open(fd, addr)
+        - close(fd)
+        - error(fd, msg)
+        - warning(fd, size)
+        - data(fd, msg)
 
 ## 问题
 skynet服务和snax服务，如何选择？

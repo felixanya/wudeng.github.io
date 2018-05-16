@@ -2,6 +2,15 @@
 
 虚拟机管理软件，区别于Docker的虚拟机容器，更加重量级。用于开发环境搭建。
 
+## 安装
+
+windows：
+安装vagrant。
+安装Virtualbox.
+
+vagrant init ubuntu/xenial64
+vagrant up
+
 ## box
 相当于虚拟机镜像。直接下载不了，用迅雷或者FDM等下载工具下载好box，添加进去。
 vagrant box
@@ -55,3 +64,4 @@ Defaults:vagrant !requiretty
 
 ## 参考文档
 * http://www.vagrantbox.es/
+* https://pan.baidu.com/s/1gfNCud1

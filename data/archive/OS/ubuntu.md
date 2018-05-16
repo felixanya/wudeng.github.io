@@ -78,6 +78,11 @@ sudo apt-get update
 sudo apt-get install build-essential
 
 
+## sshd
+第一次运行要生成host key：
+sudo ssh-keygen -A
+sudo /etc/init.d/ssh start
+
 ## 问题
 Failed to allocate directory watch: Too many open files
 
