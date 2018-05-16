@@ -272,6 +272,20 @@ cmd:
         - error(fd, msg)
         - warning(fd, size)
         - data(fd, msg)
+## ShareData
+
+sharedata.new(name, value)
+* key
+    - string
+    - 整数
+* value 
+    - lua table 无环
+    - lua 文本代码
+    - @文件名
+
+sharedata.update(name, value)
+sharedata.delete(name)
+sharedata.query(name)
 
 ## 问题
 skynet服务和snax服务，如何选择？

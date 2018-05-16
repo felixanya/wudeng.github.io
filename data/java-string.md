@@ -1,5 +1,7 @@
 # Java
 
+## 二维数组
+boolean dp[][] = new boolean[3][4];
 
 ## String
 
