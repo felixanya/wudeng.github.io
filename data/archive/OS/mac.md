@@ -31,6 +31,8 @@ fn + delete 删除光标后面的元素
 * command + delete 删除文件
 * ⌘ + up 上一级目录
 * ⌘ + ⇧ + G 可以跳转到指定目录，包括隐藏目录 比如指定intelliJ Idea的sdk时需要用到。
+* command+c 复制 option+command+v 移动到当前位置 command+v 复制到当前位置
+* command+opt+i 查看占用空间
 
 ### 配置
 标题栏显示完整路径：
