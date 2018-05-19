@@ -45,6 +45,19 @@ whoami
 
 net user
 
+
+
+## net 命令
+帮助：net help | more
+
+* net user 用户管理。创建、修改、删除
+    - net user administrator /active:yes 管理员权限
+* net accounts 更新用户账户
+* net config 
+    - net config server
+    - net config workstation
+* net stop [service] 关闭服务
+
 ## windows 10
 
 windows subsystem for linux
@@ -62,12 +75,15 @@ Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-L
 UserAccountControl
 此电脑->属性->安全和维护->更改用户控制设置。
 
-## windows工具
+
+## win+r
 
 * 启动项：msconfig
 * 组策略：regeidt
 * 设备管理器：devmgmt.msc
 * 任务管理器：taskmgr
+* 控制面板：control
+* 用户账户 control userpasswords2
 
 ### 老毛桃
 

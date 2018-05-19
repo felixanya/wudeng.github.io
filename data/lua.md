@@ -1,6 +1,12 @@
 # lua
 
 ## 安装
+
+Ubuntu 16.04 安装依赖：
+```shell
+sudo apt install libreadline-dev autoconf
+```
+
 ```
 curl -R -O http://www.lua.org/ftp/lua-5.3.4.tar.gz
 tar zxf lua-5.3.4.tar.gz
@@ -89,6 +95,15 @@ end
     - `for word in string.gmatch("") do print(word) end`
 * string.match(str, pattern, init) 只寻找第一个配对，init指定搜索的起点，默认为1，成功配对返回所有捕获结果，如果没有设置捕获标记，返回整个配对字符串，没有成功配对返回nil
     - ()用于捕获
+* string.pack(fmt, v1, v2, ...) 返回一个打包了v1, v2等值的二进制字符串
+    - < 小端编码 
+    - > 大端编码
+    - = 大小端遵循本地设置
+    - l 一个有符号long
+    - L 一个无符号long
+    - s[n] 长度加内容的字符串，长度为一个n字节长的无符号整数
+    - i[n] 一个n字节长的有符号int
+    - I[n] 一个n字节长的无符号int
 
 
 匹配模式
@@ -210,8 +225,18 @@ stub文件，对应二进制库的实际路径。将stub文件所在的目录加
 
 ## 文件IO
 
+两种风格：
+* 隐式的文件句柄，设置默认输入文件和输出文件，所有操作都针对这些默认文件，所有操作由io提供
+* 显式文件句柄，通过文件句柄来操作。文件句柄通过io.open返回。
+
+io.stdin, io.stdout, io.stderr 预定义文件句柄。可以直接使用：
+```lua
+io.stderr:write(message)
+```
+大多数系统中io.stderr没有buffer，而io.stdout为line buffer。
+
 * 简单模式
-    * `file = io.open(filename [,mode])`
+    * `local file = assert(io.open(filename [,mode]))`
         - r
         - w
         - a
@@ -220,22 +245,31 @@ stub文件，对应二进制库的实际路径。将stub文件所在的目录加
         - a+
         - b
         - +
-    * io.input(file)
-    * io.read(arg)
-        - "*n" 读取一个数字并返回它
-        - "*a" 从当前位置读取整个文件
-        - "*l" 默认，读取下一行，EOF处返回nil
+    * io.input([file])
+        - 以文件名调用，以文本模式打开该名字的文件，并将文件句柄设为默认输入文件
+        - 以文件句柄调用，将该句柄设为默认输入文件
+        - 不传参数，返回当前的默认输入文件
+    * io.read(...) 从5.3开始，选项名不再以*开头，忽略
+        - 等价于io.input():read(args)
+        - "n" 读取一个数字并返回它
+        - "a" 从当前位置读取整个文件
+        - "l" 小L，读取一行，并忽略行结束标记，读取下一行，EOF处返回nil
+        - "L" 读取一行，保留结束标记
         - number 返回指定字符个数的字符串
     * io.close(file)
     * io.output(file)
-    * io.write("")
+    * io.write(...)
+        - 等价于io.output():write(...)
+        - 避免io.write(a..b..c)，尽量使用io.write(a,b,c)可以达到相同的效果而不需要拼接
     * io.tmpfile() 临时文件，程序结束时自动删除
     * io.type(file) 检测obj是否一个可用的文件句柄
     * io.flush() 向文件写入缓冲中的所有数据
     * io.lines(optional file name) 返回一个迭代函数，每次调用获取一行内容，文件尾部返回nil，但不关闭文件
+        - 从5.2开始跟io.read接受同样的选项参数
+        - 如果没有指定格式，使用默认值"l",即不保留换行符。如果需要保留换行符，传入参数"L"
 
 * 完全模式
-    - 用file:function_name()代替io:function_name
+    - 用file:function_name()代替io:function_name file是由io.open或者io.input返回的文件句柄
 
 ## 错误处理
 * assert(bool, msg) 先检查第一个参数没有问题不做任何事情，否则以第二个参数作为错误信息抛出
@@ -310,6 +344,11 @@ Modules
 * LPeg
 
 ## LuaJIT
+
+## Compilation
+
+* loadfile() load lua chunk from a file
+* dofile()
 
 
 * https://luarocks.org/

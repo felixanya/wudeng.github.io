@@ -33,6 +33,7 @@ test/pingserver.lua
 * snax.kill(obj, ...)
 * snax.self()   等价于snax.bind(skynet.self(), SERVER_NAME)
 * snax.exit(...) 等价于 snax.kill(snax.self(), ...)
+* snax.printf(...)
 
 
 ## RPC调用

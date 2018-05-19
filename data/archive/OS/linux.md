@@ -274,6 +274,8 @@ ip link set dev tap-r up
 
 exit
 
+## 查看十六进制
+xxd < file
 
 # screen
   -l

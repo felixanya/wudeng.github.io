@@ -123,15 +123,38 @@ git stash pop
 放弃本地修改：
 git reset --hard HEAD
 
+
+git reset HEAD file 放弃暂存区修改
+git checkout -- file 放弃工作区修改
+
 * 私有GitLab
 
+
+## tag
+
+* 命令git push origin <tagname>可以推送一个本地标签；
+* 命令git push origin --tags可以推送全部未推送过的本地标签；
+* 命令git tag -d <tagname>可以删除一个本地标签；
+* 命令git push origin :refs/tags/<tagname>可以删除一个远程标签。
 
 ## log
 ```
 git config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 ```
 
+git commit --amend -m "New Commit message" 修改commit message。做这步之前索引区是干净的。否则会一起提交。
+git push --force
+
+https://stackoverflow.com/questions/179123/how-to-modify-existing-unpushed-commits?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
+https://help.github.com/articles/changing-a-commit-message/
+https://sethrobertson.github.io/GitFixUm/fixup.html
+
 git lg
+
+
+* https://jonas.github.io/tig/ Tig is an ncurses-based text-mode interface for git.
+
+sudo apt-get install libncurses-dev
 
 ## 常见问题
 * git clone https的时候报错："fatal: HTTP request failed"
@@ -173,6 +196,37 @@ origin: your own fork
 git submodule init
 git submodule update
 
+忽略子模块的变化
+.gitmodules
+```
+[submodule "bundle/fugitive"]
+	path = bundle/fugitive
+	url = git://github.com/tpope/vim-fugitive.git
+    ignore = dirty
+```
+
+## merge && rebase
+
+rebase 衍合，将一个分支上的修改在当前分支上重放。log上只有一条线。
+merge 合并，讲一个分支上的修改合并到当前分支。log体现为两个链条合一。
+
+当在一个分支上工作时，需要把主分支的修改同步到当前分支就使用rebase。
+这个时候不适合用merge。在将特性分支merge到主分支之前使用rebase，能够保证merge不会出现冲突。
+
+
+现在想把experiment上的修改合到master上面。
+1. 检出experiment分支，对master进行衍合。
+```
+git checkout experiment
+git rebase master
+```
+2. 回到master分支，进行一个快进合并。 
+```
+git checkout master
+git merge experiment
+```
+
+
 
 ## 虚拟机共享文件
 ```
@@ -181,6 +235,11 @@ git config --global core.filemode false
 忽略^M
 git config --global core.autocrlf true
 ```
+
+git config --global core.editor "vim"
+
+
+
 ## 参考文档
 
 * https://www.git-tower.com/learn/git/ebook/cn/command-line/advanced-topics/git-flow
@@ -190,3 +249,5 @@ git config --global core.autocrlf true
 * http://danielkummer.github.io/git-flow-cheatsheet/
 * https://gitee.com
 * http://git.oschina.net/progit/
+* http://gitready.com/ 学习网站
+* https://git-scm.com/book/zh/v2

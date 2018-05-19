@@ -300,8 +300,26 @@ local socket = require "skynet.socket"
 
 
 ```
-* id = open(address, port)
-* close(id)
+* id = socket.open(address, port) 建立tcp连接，返回一个数字id
+* socket.close(id) 关闭一个连接，可能阻塞执行流
+* socket.close_fd(id) 直接关闭，避免阻塞
+* socket.shutdown(id) 强行关闭一个连接。不等待。适合在__gc元方法中关闭连接，gc过程无法切换coroutine
+* socket.read(id,sz) 读指定的字节数
+* socket.readall(id) 读所有数据
+* socket.readline(id, sep) 读到的数据不包含这个分隔符
+* socket.block(id) 等待一个socket可读
+* socket.write(id, str) 把字符串置入正常的写队列，框架会在可写时发送它
+* socket.lwrite(id, str) 把字符串写入低优先级队列
+* socket.listen(address, port) 监听一个端口，返回一个id，供start使用
+* socket.start(id, accept) 监听的id上有连接接入时调用，accept函数会得到连接的id和ip地址
+* socket.start(id) start以后才能读到socket上的数据，向一个socket id写数据也要先调用start
+* socket.abandon(id) 清除id在本服务内的数据结构，但并不关闭这个socket。用于转交socket的控制权
+* socket.warning(id, callback) 待发送数据超过1M，系统调用callback以示警告，function callback(id, size) size单位是k
+
+
+## socketChannel
+
+
 
 ## service
 service.init(mod)

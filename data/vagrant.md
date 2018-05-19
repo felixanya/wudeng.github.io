@@ -81,6 +81,12 @@ config.vm.provider "virtualbox" do |vb|
     vb.customize ["setextradata", :id, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/v-root", "1"]
 end
 ```
+
+> SharedFoldersEnableSymlinksCreate (boolean) 
+    - If false, will disable the ability to create symlinks with the given virtualbox shared folder. 
+    - Defaults to true if the option is not present.
+
+
 这个v-root我也不知道是啥，改成自己的共享文件夹名字应该也是可以的。
 
 打开VirtualBox，可以找到vagrant对应的虚拟机名字，然后通过名字可以查询相应的配置，发现都已经是1了。怀疑这个配置已经是默认的了。

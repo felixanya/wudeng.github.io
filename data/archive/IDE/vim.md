@@ -56,7 +56,7 @@ git pull --rebase
 
 在vim里面使用ack的时候总是报locale的warning，只要在.bashrc中配置：
 ```
-export LC_TYPE=zh_CN.UTF-8
+export LC_CTYPE=zh_CN.UTF-8
 export LC_ALL=zh_CN.UTF-8
 ```
 即可。使用locale查看的时候，如果是定义了环境变量的是没有引号的。其他都是带引号的。
@@ -114,6 +114,10 @@ zi
 
 ## ctags
 ctags -R .
+
+
+## 文件编码
+:set bomb 添加bom头
 
 ## 参考文档
 * https://github.com/amix/vimrc.git
