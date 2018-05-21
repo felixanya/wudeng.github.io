@@ -226,6 +226,8 @@ git checkout master
 git merge experiment
 ```
 
+将master push到远程分支之前，如果远程分支已经发生了变化，可以先rebase远程分支：git pull -r
+最后再git push
 
 
 ## 虚拟机共享文件

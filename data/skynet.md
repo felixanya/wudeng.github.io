@@ -216,7 +216,42 @@ examples/watchdog.lua 启动了一个service/gate.lua服务，并将处理外部
 
 ## MsgServer
 
-snax.msgserver(M) 网关服务器模板。
+msgserver   -   gen_server
+gated       -   Module
+skynet提供的一个登陆框架，这个框架需要使用者提供一些回调函数，而gated提供了一些回调函数，注入到msgserver中。
+
+u = user_online[username]
+    - fd
+    - ip
+    - version
+    - secret
+    - index
+    - username
+    - response = {session} session 在message中
+connection[u.fd] = u
+
+
+msgserver提供的接口：
+* userid(username)
+    - return uid, subid, server
+* username(uid, subid, server)  `base64(uid)@base64(server)#base64(subid)`
+    - return username
+* login(username, secret)
+    - update user secret
+* logout(username)
+    - user logout
+* ip(username)
+    - return ip when connection establish, or nil
+* start(conf)
+    - start server
+
+snax.msgserver(M) 网关服务器模板。定义了一组API，用来启动gateserver。
+* **connect(fd, msg)**
+* **message(fd, msg, sz)**
+* open(source, conf)
+* disconnect(fd)
+* error(fd, msg)
+
 与LoginServer(L)一起使用。
 
 * server.login_handler(uid, secret)
@@ -225,9 +260,24 @@ snax.msgserver(M) 网关服务器模板。
 * server.disconnect_handler(username)
 * server.request_handler(username, msg, sz)
 
+* server.register_handler(servername)
+
+
+## gateserver
+
+gateserver提供一个框架，由外部提供一组回调函数，这里是由msgserver提供回调函数。
+监听端口，处理客户端过来的连接请求。socket类型的消息主要分为几类：
+* data
+* more()
+* open(fd, msg)
+* close(fd)
+* error(fd, msg)
+* warning(fd, size)
+
+connection[fd] = true | false
 
 ## 登录服务器
-snax.loginserver
+snax.loginserver 登陆框架，需要一组回调函数，由logind提供。
 
 配套的客户端：examples/login/client.lua
 
@@ -329,6 +379,45 @@ service.init(mod)
 * mod.info 需要debug的数据
 * mod.require 前置服务
 * mod.init 此服务的初始化函数
+
+
+## DebugConsole
+
+启动：
+```
+skynet.newservice("debug_console", 8000)
+```
+
+登陆：
+
+在~/.bashrc中增加：
+```bash
+#rlwrap 增加上下键编辑历史功能
+alias nc='rlwrap nc'
+```
+
+nc localhost 8000
+
+* help
+
+针对所有服务的指令：
+* list 列出所有服务
+* gc 强制让所有服务都执行一次垃圾回收，并报告回收后的内存
+* mem 让所有lua服务汇报自己占用的内存。只能获取lua服务的内存占用情况
+* stat 列出所有lua服务的消息队列长度，以及挂起的请求数量，处理的消息总数。如果在Config中设置profile为true，还会报告服务使用的cpu时间
+* service 列出所有的唯一lua服务
+
+针对单个服务的指令：服务地址如`:01000001`，以冒号开头的8位16进制数字，或者省略前面两个数字的harbor id，以及接下来的0，比如:01000001可以简写为1。
+* exit address 让一个lua服务退出
+* kill address 强制终止一个服务
+* info address 让一个服务汇报自己的内部信息
+* signal address sig 向服务发送一个信号，sig默认为0
+* task adress 显示一个服务中所有被挂起的请求的调用栈
+* debug address
+* logon/logoff address 记录一个服务所有的输入消息到文件。需要在Config里配置logpath
+* inject address script 将script名字对应的脚本插入指定的服务中运行（通常可用于热更新补丁）
+* call address 调用一个服务的lua类型接口，格式为call address "foo",arg1,...
+    - 接口名和string类型的参数必须加引号，且以逗号隔开
 
 
 ## 问题

@@ -2,10 +2,6 @@
 
 island_explorer ctrl+r 刷新
 
-
-script/data
-    - characters.lua 
-
 explorer  
     - ope_panel 面板
         - warrior_panel 战斗列表
@@ -47,3 +43,6 @@ world.lua
 global.scene_mgr:create_troop(2200, 2200, name, lv, 1)
 unit.delay_appear()
 ```
+
+
+通过事件触发一个添加战斗单位的行为：
