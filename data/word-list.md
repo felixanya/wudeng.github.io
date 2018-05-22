@@ -1,5 +1,8 @@
 # word list
 
+* conundrum 难题，谜语
+* innocuous 无害的，无伤大雅的
+* judicious 明智的，头脑精明的；判断正确的
 * coalesce 合并，联合
 * ghrelin 胃饥饿素
 * metabolism 新陈代谢

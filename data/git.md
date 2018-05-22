@@ -154,7 +154,18 @@ git lg
 
 * https://jonas.github.io/tig/ Tig is an ncurses-based text-mode interface for git.
 
-sudo apt-get install libncurses-dev
+安装tig：必须安装wide字符版，否则无法显示中文。
+
+```bash
+##sudo apt install libncurses5 libncurses5-dev
+sudo apt install libncursesw5 libncursesw5-dev
+cd tig-2.3.3
+make configure
+./configure
+make 
+sudo make install
+```
+
 
 ## 常见问题
 * git clone https的时候报错："fatal: HTTP request failed"
@@ -237,6 +248,11 @@ git config --global core.filemode false
 忽略^M
 git config --global core.autocrlf true
 ```
+
+autocrlf:
+    - true   checkout代码的时候自动转换lf为crlf，提交时自动将crlf转换成lr。在windows上设置为true
+    - input  提交的时候自动将crlf转换成lr，检出的时候不转换。linux以及mac上设置
+    - false  提交和检出都不转换，windows only
 
 git config --global core.editor "vim"
 

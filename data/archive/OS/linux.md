@@ -276,6 +276,13 @@ exit
 
 ## 查看十六进制
 xxd < file
+xxd：make a hexdump or do the reverse
+
+
+转换编码：
+file -b --mime-encoding server/core/clib/lworld.c 
+ack -f | xargs file -b --mime-encoding
+
 
 # screen
   -l

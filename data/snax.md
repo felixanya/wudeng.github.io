@@ -10,8 +10,8 @@
 test/pingserver.lua
 
 回调函数，参数的类型不受限，而skynet服务只接受字符串参数。
-* init()    启动服务
-* exit()    服务退出
+* init(...)    启动服务
+* exit(...)    服务退出
 
 启动snax服务的三种方式：
 * snax.newservice(name, ...)        只能用地址与之通信

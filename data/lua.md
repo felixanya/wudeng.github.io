@@ -107,6 +107,8 @@ end
 
 
 匹配模式
+
+字符类：
 * .     任意字符
 * %a    任意字母
 * %c    任意控制符
@@ -118,6 +120,22 @@ end
 * [数个字符类]  与任意字符类配对 
 * [^数个字符类] 与任意不包含在[]中的字符类配对
 * 用大写时，表示与非此字符类的任意字符匹配
+
+模式条目：
+* `*` 零或多个，尽可能长
+* `+` 一或多个，尽可能长
+* `-` 零或多个，尽可能短
+* `?` 零或一个
+* `%n` 1-9，n号捕获的子串
+* `%bxy` xy保持平衡
+* `%f[set]` 边境模式
+
+模式：
+* `^`
+* `$`
+
+捕获：
+* 小括号括起来的子模式；
 
 ## 数组
 索引值从1开始。
@@ -347,11 +365,39 @@ Modules
 
 ## Compilation
 
-* loadfile() load lua chunk from a file
+* loadfile() load lua chunk from a file，并不执行它。所以文件里面声明的函数并不会自动声明。直到这个返回的函数被执行。
+```lua
+loaded_chunk = loadfile("foo.lua")
+-- 当foo.lua没有错误的时候，可以理解为
+loaded_chunk = function(...) 
+    -- <<Contents of foo.lua here>>
+end
+```
+
+* load(chunk [, chunkname [, mode [, env]]])
+    - chunk 是字符串或者函数
+    - 以函数的形式返回编译好的代码块；否则返回nil加上错误消息
+    - 如果结果函数有上值，env被设置成第一个上值，若不提供该参数，将全局环境替代它。所有其他上值初始化为nil。
+    - mode 控制代码块是文本还是二进制（即预编译代码块）
+        - b 只能是二进制代码块
+        - t 只能是文本代码块
+        - bt 可以是二进制也可以是文本，默认值
 * dofile()
+```lua
+function dofile(name)
+    local loaded_chunk = assert(loadfile(name))
+    return loaded_chunk()
+end
+```
+
+
+
+自有名字：任何层级都未被声明的名字
 
 
 * https://luarocks.org/
 * http://www.runoob.com/manual/lua53doc/
 * http://www.runoob.com/manual/lua53doc/contents.html
 * http://www.runoob.com/manual/lua53doc/manual.html
+* https://github.com/forhappy/awesome-lua
+* https://github.com/LewisJEllis/awesome-lua

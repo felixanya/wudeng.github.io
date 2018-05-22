@@ -13,7 +13,7 @@ util
 ## sprotoloader
 * register(filename, index)
 * load(index)
-* save(bin index)
+* save(bin, index)
 
 ## sprotoparser
 * sparser.dump(str)

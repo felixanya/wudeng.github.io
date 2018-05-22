@@ -9,6 +9,9 @@
     - command /?
 * setlocal
     - setlocal enabledelayedexpansion
+* setx /? 在用户或系统环境创建或修改环境变量
+    - setx UsrVariable abc 设置用户环境变量，记录在HKEY_CURRENT_USER
+    - setx /M OSVraible abc 设置系统环境变量，记录在HKEY_LOCAL_MACHINE
 * 注释
     - `REM`
     - `::`
@@ -27,7 +30,7 @@
 * 特殊变量
     - `%*` 参数列表
     - `%0` 脚本文件名
-    - `%ERRORLEVEL%`
+    - `%ERRORLEVEL%` 0
     - `%TEMP%` `C:\Users\ADMINI~1\AppData\Local\Temp`
     - `%PATH%`
 * 变量修改、替换
@@ -37,21 +40,21 @@
     - `if "%1"=="" (goto WERL) else (goto ERL)`
 * 循环：for /?
     - `for /D %a in (deps/*) do @echo %a` D打印deps下的所有文件夹名字
-    - `for /R deps %a in (*) do @echo %a` R递归打印deps目录下的所有问价
+    - `for /R deps %a in (*) do @echo %a` R递归打印deps目录下的所有文件
     - `for /L %A in (1, 1, 10) DO @echo hello` L增量(start,step,end)
     - 在脚本文件中使用的变量需要带两个%
     - 路径处理：dpnx分别代表Driver、Path、Name、Extension，可以组合
         - `%~dp0` 变量0即脚本文件所在目录，d表示driver，p表示path
         - `%~I ` - expands %I removing any surrounding quotes (")
-        - `%~fI`  - expands %I to a fully qualified path name
-        - `%~dI`  - expands %I to a drive letter only，变量i的所在驱动，Driver
-        - `%~pI`  - expands %I to a path only，变量i代表文件所在的路径：Path
-        - `%~nI`  - expands %I to a file name only，变量i代表文件的名称：Name
-        - `%~xI`  - expands %I to a file extension only，变量i代表文件的扩展名：Extension，包括点
-        - `%~sI`  - expanded path contains short names only
-        - `%~aI`  - expands %I to file attributes of file
-        - `%~tI`  - expands %I to date/time of file
-        - `%~zI`  - expands %I to size of file
+        - `%~fI`  - expands %I to a **fully** qualified path name
+        - `%~dI`  - expands %I to a **drive** letter only，变量i的所在驱动，Driver
+        - `%~pI`  - expands %I to a **path** only，变量i代表文件所在的路径：Path
+        - `%~nI`  - expands %I to a file **name** only，变量i代表文件的名称：Name
+        - `%~xI`  - expands %I to a file **extension** only，变量i代表文件的扩展名：Extension，包括点
+        - `%~sI`  - expanded path contains **short** names only
+        - `%~aI`  - expands %I to file **attributes** of file
+        - `%~tI`  - expands %I to date/**time** of file
+        - `%~zI`  - expands %I to **size** of file
 * 标签
     - `:label` 开启一段，用`goto lable`实现跳转
     - `goto :eof` 一般使用标签将代码分段。每段后面跟一个`goto :eof`结束当前段落。

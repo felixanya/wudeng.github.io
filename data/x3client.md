@@ -24,5 +24,6 @@ ej2dx.exe
     -u {login_ip,login_port,game_port,user}
     -r 默认是script，可以指定explorer
 
-world
+world.lua
     - fight_start(session, data)
+    - ai

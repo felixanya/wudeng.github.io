@@ -14,6 +14,9 @@ ssr
 * https://portal.shadowsocks.to
 * https://www.s6z.net/index.php 试用套餐优惠码：4GFFO9ZC86
 
+### iphone
+Potatso Lite
+
 ## vultr
 
 

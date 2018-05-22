@@ -83,6 +83,12 @@ sudo apt-get install build-essential
 sudo ssh-keygen -A
 sudo /etc/init.d/ssh start
 
+
+sudo apt install openssh-client openssh-server
+man sshd_config
+
+
+
 ## 问题
 Failed to allocate directory watch: Too many open files
 
@@ -190,3 +196,6 @@ sudo vim /etc/locale.gen
 sudo locale-gen
 
 
+
+
+sudo apt-get install pkg-config

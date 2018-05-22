@@ -55,8 +55,29 @@ import.lua
 
 玩家登陆进来，启动一个agent服务。
 
-## 编码
+room是一个snax服务，
+每个房间room对应了一个world，world保存游戏双方的数据。提供一些接口。
 
-file -b --mime-encoding server/core/clib/lworld.c 
+当所有对战双方都进入房间room以后，开启战斗。
+启动一个frame服务，frame以定时器的方式驱动room的update。并创建一个island。
 
-ack -f | xargs file -b --mime-encoding
+
+房间每帧update，向客户端发送消息。
+调用 world.island:tick(world.frame)
+
+simmain，修改config默认启动simmain，通过simmain启动一个房间，并且接受外部传入的指令（debug_console）。
+
+`call 8 "exit"`
+`call 8 "REQ" "is_fighting"`
+
+
+
+warrior
+    - type
+    - player
+
+
+meld:
+    - man_type
+    - type
+    - tiles

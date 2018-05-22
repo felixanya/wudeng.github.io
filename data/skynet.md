@@ -186,6 +186,24 @@ config配置
 
 入口：skynet_main.c
 
+## 源码分析
+
+服务模块：
+* create
+* init
+* signal
+* release
+
+四种线程
+* monitor 检测节点内的消息是否堵住
+* timer 定时器
+* socket 网络数据收发
+* worker 对消息队列进行调度，数量可配置
+    - 全局消息队列
+    - 次级消息队列，消息，自旋锁
+
+
+lua服务收到消息产生一条协程。每个服务都有一个协程池。
 
 ## 网关服务器
 lualib/snax/gateserver.lua
@@ -236,9 +254,9 @@ msgserver提供的接口：
     - return uid, subid, server
 * username(uid, subid, server)  `base64(uid)@base64(server)#base64(subid)`
     - return username
-* login(username, secret)
+* login(username, secret) 在login_handler中调用它，注册一个登录名对应的secret
     - update user secret
-* logout(username)
+* logout(username) 让一个登陆名失效（登出），通常在logout_handler中调用
     - user logout
 * ip(username)
     - return ip when connection establish, or nil
@@ -254,11 +272,11 @@ snax.msgserver(M) 网关服务器模板。定义了一组API，用来启动gates
 
 与LoginServer(L)一起使用。
 
-* server.login_handler(uid, secret)
-* server.logout_handler(uid, subid)
-* server.kick_handler(uid, subid)
-* server.disconnect_handler(username)
-* server.request_handler(username, msg, sz)
+* server.login_handler(uid, secret) 用户登录后，登录服务器转交uid和secret
+* server.logout_handler(uid, subid) 用户登出
+* server.kick_handler(uid, subid) 当外界（通常是登录服务器）希望一个玩家登出时
+* server.disconnect_handler(username) 用户的通讯连接断开以后
+* server.request_handler(username, msg, sz) 用户发起一个请求
 
 * server.register_handler(servername)
 
@@ -380,6 +398,11 @@ service.init(mod)
 * mod.require 前置服务
 * mod.init 此服务的初始化函数
 
+## Console
+
+可以用于启动服务：
+* 启动snax服务：snax name
+* 普通服务：name
 
 ## DebugConsole
 
@@ -410,19 +433,84 @@ nc localhost 8000
 针对单个服务的指令：服务地址如`:01000001`，以冒号开头的8位16进制数字，或者省略前面两个数字的harbor id，以及接下来的0，比如:01000001可以简写为1。
 * exit address 让一个lua服务退出
 * kill address 强制终止一个服务
-* info address 让一个服务汇报自己的内部信息
+* info address 让一个服务汇报自己的内部信息，数据通过skynet.info_func生成
 * signal address sig 向服务发送一个信号，sig默认为0
 * task adress 显示一个服务中所有被挂起的请求的调用栈
 * debug address
+    - ... 当前消息
+    - watch("lua", function(_,_,cmd) return cmd == "get" end)
+    - watch("lua")
+    - lua表达式以及lua指令（输入的语句会放在当前位置执行）
+    - c 继续处理这条消息。离开关注状态
+    - n 单步运行一行，如果是函数调用，会跟踪进去
+    - s 单步运行一行，如果是函数调用，不会跟踪进去
+    - debug.traceback(_CO)
+    - cont
 * logon/logoff address 记录一个服务所有的输入消息到文件。需要在Config里配置logpath
 * inject address script 将script名字对应的脚本插入指定的服务中运行（通常可用于热更新补丁）
 * call address 调用一个服务的lua类型接口，格式为call address "foo",arg1,...
     - 接口名和string类型的参数必须加引号，且以逗号隔开
+    - `call 18 "start",1`
+
+
 
 
 ## 问题
 skynet服务和snax服务，如何选择？
 
+是否可以直接通过debug_console向snax服务发送消息？
+    - 间接起一个普通服务，然后通过向普通服务发消息的方法可以实现向snax服务发消息。但是是否有直接发消息的方法呢
+    - 看起来snax并没有注册lua消息处理？
+
+服务间发送消息的类型：是否包括函数？
+    - 比如A服务是否可以向B服务发送一个函数？
+    - 如果只能发string，是否可以将string加载一下，变成函数来执行？
+        - 可以是可以，不过貌似能传递值非常有限。无法传递table。
+
+call 
+
+
+如果服务没有启动，但是服务里面调用queryservice()去请求它，会一直阻塞。（被坑过）
+
+
+有匿名服务的地址，如何拿到object。
+    - snax.bind(tonumber(address), namestr)
+
+
+热更snax代码，需要遍历一遍所有的服务？
+
+## 总结
+* 启动skynet的时候带上rlwrap可以方便在console中输入指令
+    - 启动普通服务直接输入文件名，不含后缀
+    - 启动snax服务需要输入：snax name
+* 可以通过服务地址获取服务的object
+    - snax.bind(address, name) address必须是数字，如果是字符串需要用tonumber转化为数字。name必须是字符串。
+* 有两种与运行中的系统交互的形式
+    - concole 新建一个脚本，然后在console中运行。更加强大。console中启动服务也可以提供参数。
+    - debug_console 用nc练上去
+
+* 可以通过snax的hotfix来检查服务的内部状态
+    - 新建一个服务来热更
+```lua
+local address = "0000000c"
+local name = "simroom"
+local patch = [[
+  local world
+  function hotfix(...)
+      return world.island_data.players
+  end
+]]
+
+skynet.start(
+	function()
+		handler = assert(tonumber("0x" .. address))
+		obj = snax.bind(handler, name)
+		local r = snax.hotfix(obj, patch)
+		tprint(r)
+		skynet.exit()
+	end
+)
+```
 
 ## 参考文献
 * http://gad.qq.com/content/coursedetail?id=467
@@ -430,3 +518,5 @@ skynet服务和snax服务，如何选择？
 * QQ: 340504014
 * skynet-users@googlegroups.com
 * https://blog.csdn.net/qq769651718/article/category/7480207
+* https://github.com/ximenpo/hello-skynet
+ 
