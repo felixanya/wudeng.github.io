@@ -174,6 +174,12 @@ table操作：
 模块：table，创建table，把常量、函数放入其中，最后返回这个table。
 
 require函数：加载模块，返回table，并定义一个包含该table的全局变量。
+require找到文件，利用loadfile加载文件得到一个loader函数，并执行这个函数。将结果存在package.loaded表中。如果返回nil，当成true处理。
+所以require只加载一次。如果需要强制加载将package.loaded[modulename] = nil即可。require只需要一个参数。不能为一个模块加载提供参数。
+这于require的初衷是违背的。
+
+> It is kind of an unspoken standard to call that file mymodule/init.lua. Most people have ?/init.lua included on their path, 
+> so you can just write require('modules/bgui') and init.lua will be loaded automatically.
 
 加载路径：package.path, LUA_PATH，如果没有定义这个环境变量则使用编译时定义的默认路径来初始化。
 .profile或者.bashrc中：
@@ -314,6 +320,27 @@ debug库：
     - 当前钩子函数
     - 当前钩子掩码
     - 当前钩子计数
+* getinfo([thread,] f [, what])
+    - 直接提供该函数，或者一个数字表示f，0表示当前函数（getinfo自身）；1表示调用getinfo的函数。如果f是一个比活动函数数量还大的数字，返回nil
+    - what: 参考：lua_getinfo
+        - "n" name,namewhat
+        - "S" source, short_src, linedefined, lastlinedefined,what
+        - "l" currentline
+        - "t" istailcall
+        - "f" 把正在运行中指定层次处函数压栈
+        - "L" 将一张表压栈
+        - "u" nups, nparams, isvararg
+    - nups
+    - currentline
+    - func
+    - istailcall
+    - nparams
+    - short_src
+    - namewhat
+    - what
+    - isvararg
+    - lastlinedefined
+    - source
 
 * 命令行调试
     - RemDebug

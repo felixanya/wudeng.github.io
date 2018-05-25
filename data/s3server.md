@@ -39,7 +39,7 @@
     - wait()
     - abort() 退出skynet进程
     - kill() 强行杀掉一个服务
-    - filter() 过滤消息在处理
+    - filter() 过滤消息再处理
 
     - newservice(name)
 

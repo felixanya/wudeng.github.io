@@ -144,3 +144,23 @@ windows 10 休眠以后无法连接网络，重启才行。
 * 设备管理器->网卡->属性->高级
     - 电源管理：允许计算机关闭此设备以节省电源 去掉勾选，~~（感觉主要是这个问题，有待验证）~~ 更新：确实是这个问题，今天没有遇到这个问题了。
     - 速度与双工 自动协商 改为100M全双工
+
+
+
+* win + x, a 管理员方式打开powershell
+
+
+系统进程占用高CPU：
+windows 10, 1709
+
+* 关闭windows search服务：已经关闭
+* Dism /Online /Cleanup-Image /RestoreHealth
+
+安装windows performance toolkit, adksetup
+* xperf -on latency -stackwalk profile -buffersize 1024 -MaxFile 256 -FileMode Circular && timeout -1 && xperf -d cpuusage.etl
+
+修复完那些系统文件后即将还原为官方版的源文件，只是系统文件，其他的第三方软件和用户设置完全保留，当然，这是要花费15-20分钟的时间的
+```
+DISM.exe /Online /Cleanup-image /Scanhealth 扫描你全部系统文件并和官方系统文件对比
+DISM.exe /Online /Cleanup-image /Restorehealth 把那些不同的系统文件还原成系统官方源文件，跟重装差不多
+```

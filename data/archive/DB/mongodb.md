@@ -1,8 +1,17 @@
+# mongodb
 
+## 安装
+
+Ubuntu 16.04:
+```
+sudo apt install mongodb
+
+mongo
+```
 
 27017
 
-# server
+## server
 
 ```
 mongod --dbpath c:\data\db

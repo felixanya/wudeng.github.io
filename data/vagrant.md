@@ -32,6 +32,8 @@ vagrant box
 * 网络
 * 文件挂载
     - config.vm.synced_folder "../data", "/vagrant_data"
+* 主机名
+    - config.vm.hostname = "deng"
 
 ## 命令
 

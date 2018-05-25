@@ -278,7 +278,7 @@ snax.msgserver(M) 网关服务器模板。定义了一组API，用来启动gates
 * server.disconnect_handler(username) 用户的通讯连接断开以后
 * server.request_handler(username, msg, sz) 用户发起一个请求
 
-* server.register_handler(servername)
+* server.register_handler(servername) 向登陆网关注册登陆点
 
 
 ## gateserver
@@ -296,6 +296,28 @@ connection[fd] = true | false
 
 ## 登录服务器
 snax.loginserver 登陆框架，需要一组回调函数，由logind提供。
+
+启动1个master，注册名字，监听端口，收到连接转发给slave进行认证。默认8个slave（可配置instance），实现认证逻辑。
+
+x3server中，登陆服务器配置通过logind模块提供。
+
+master会记录登陆玩家的信息在user_online中。主要包括：user_online[uid] = {address,subid,server}
+* address 网关服务的地址
+* subid
+* 网关服务的编号
+
+master需要的配置：
+* instance slave的个数，存放在slave表里面。
+* host 主机
+* port 端口
+* command_handler 进行lua消息处理，主要是两类消息：
+    - register_gate(server, address) 由网关服务调用，网关服务向登陆服务注册自己的地址。
+    - logout(uid, subid) 由网关服务调用。表示玩家离线了。
+
+master接收lua消息。
+
+slave 需要的配置：
+* auth_handler
 
 配套的客户端：examples/login/client.lua
 

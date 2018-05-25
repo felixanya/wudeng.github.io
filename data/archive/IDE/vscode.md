@@ -13,6 +13,8 @@
 * 展开所有 ctrl+k,ctrl+j
 * 块注释 ctrl+/
 
+* 下一个查找项 ctrl+k,ctrl+d
+
 * 回退 alt+left
 * 前进 alt+right
 

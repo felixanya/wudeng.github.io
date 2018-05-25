@@ -130,6 +130,10 @@ unit file
 
 /etc/systemd/system/redis.service
 
+systemctl
+man systemctl
+systemctl list-units
+
 ## locale
 
 安装zh_CN.UTF-8：

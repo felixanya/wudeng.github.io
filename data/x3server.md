@@ -71,6 +71,7 @@ simmain，修改config默认启动simmain，通过simmain启动一个房间，�
 `call 8 "REQ" "is_fighting"`
 
 
+服务内部如何获取.type, .handle
 
 warrior
     - type
