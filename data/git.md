@@ -166,6 +166,8 @@ make
 sudo make install
 ```
 
+mac下面直接：
+brew install tig
 
 ## 常见问题
 * git clone https的时候报错："fatal: HTTP request failed"

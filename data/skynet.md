@@ -221,9 +221,9 @@ handler，为网关服务提供一些回调函数
     - cmd 通常约定为一个字符串，指明是什么指令
     - source 是消息的来源地址
     - 这个方法的返回值，会通过skynet.ret/skynet.pack返回来源服务
-- open(source, conf) 打开监听时的回调，可以坐一些初始化工作
+- open(source, conf) 打开监听时的回调，可以做一些初始化工作
 - message(fd, msg, sz)  完整的包被切分以后，message方法被回调
-    - msg是一个c指针，处理完毕后要迪奥要skynet_free释放
+    - msg是一个c指针，处理完毕后要skynet_free释放
     - sz是一个数字，表示包的长度
 - warning(fd, size) 当fd上待发送的数据累计超过1M字节以后，将回调这个方法
 
