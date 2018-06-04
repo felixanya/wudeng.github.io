@@ -52,7 +52,10 @@ xcrun error: xcode-select --install
 ## Chrome
 ⌘ +
 
+## 外接鼠标
 
+滚动方向
+* https://pilotmoon.com/scrollreverser/
 
 
 ## 参考文档 * https://ss64.com/osx/

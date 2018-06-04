@@ -19,7 +19,7 @@ Actor模式
 - 创建Actor，处理消息，发送消息
 - 发送的消息和发送者解耦，异步通讯
 
-没有Actor的语言提供的框架：
+m, mb nbbhy6
 - Akka by Scala
 - CAF: C++ Actor Framework by C++
 - Remact.Net by .net
