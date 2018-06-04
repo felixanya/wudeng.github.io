@@ -1,5 +1,14 @@
 # mongodb
 
+基于分布式文件存储的数据库。NoSQL (Not Only SQL)
+
+CAP理论：一个分布式系统不可能同时很好的满足一致性，可用性和分区容错性这三个需求，最多只能同时较好的满足两个。
+* 一致性 Consisstency
+* 可用性 Availability
+* 分隔容忍 Partition tolerance
+
+BASE：Basically Available, Soft-state, Eventually Consistent。
+
 ## 安装
 
 Ubuntu 16.04:
@@ -34,3 +43,7 @@ help 帮助
 
 
 database/collection(table)/document(row)/field(column)/index/primary key
+
+
+
+* http://www.runoob.com/mongodb/mongodb-tutorial.html

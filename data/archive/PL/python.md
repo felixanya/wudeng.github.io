@@ -65,6 +65,12 @@ wget https://bootstrap.pypa.io/get-pip.py --no-check-certificate
 python get-pip.py
 ```
 
+ubuntu:
+```
+sudo apt install python-pip
+```
+python -m pip install --force-reinstall pip
+
 使用pip安装包：
 pip install flask
 pip install -r requirements.txt

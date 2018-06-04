@@ -1,5 +1,9 @@
 # word list
 
+* interspersed 点缀的，散置的
+* omnipresent 无所不在的
+* disregard 忽视，不理
+* interlude 插曲
 * conundrum 难题，谜语
 * innocuous 无害的，无伤大雅的
 * judicious 明智的，头脑精明的；判断正确的

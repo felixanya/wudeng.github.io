@@ -417,6 +417,11 @@ function dofile(name)
 end
 ```
 
+## 加密
+
+支持源代码加载和二进制加载。
+
+luac
 
 
 自有名字：任何层级都未被声明的名字
@@ -428,3 +433,9 @@ end
 * http://www.runoob.com/manual/lua53doc/manual.html
 * https://github.com/forhappy/awesome-lua
 * https://github.com/LewisJEllis/awesome-lua
+
+book:
+* The Implementation of Lua 5.0
+* a-no-frills-introduction-to-lua-5.1-vm-instructions.pdf
+* https://github.com/middlefeng/LuaVMRead
+* https://techsingular.net/category/lua/

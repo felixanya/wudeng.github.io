@@ -142,7 +142,11 @@ git checkout -- file 放弃工作区修改
 git config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 ```
 
-git commit --amend -m "New Commit message" 修改commit message。做这步之前索引区是干净的。否则会一起提交。
+amend之前如果有需要修改的提交，add到stage，然后运行：
+* git commit --amend -m "New Commit message" 修改commit message。做这步之前索引区是干净的。否则会一起提交。
+* git commit --amend 打开默认编辑器编辑上一条提交记录
+* git commit --amend --no-eidt 无需编辑直接提交
+
 git push --force
 
 https://stackoverflow.com/questions/179123/how-to-modify-existing-unpushed-commits?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
@@ -206,6 +210,8 @@ origin: your own fork
 
 ## submodule
 
+git submodule add git@github.com/url_to/awesome_submodule.git path_to_awesome_submodule
+
 git submodule init
 git submodule update
 
@@ -217,6 +223,12 @@ git submodule update
 	url = git://github.com/tpope/vim-fugitive.git
     ignore = dirty
 ```
+
+更新所有：
+git submodule foreach --recursive git pull origin master
+
+
+git submodule update --remote --merge
 
 ## merge && rebase
 
@@ -243,12 +255,58 @@ git merge experiment
 最后再git push
 
 
+将最新的两条commit合并成一条：如果仅有两条提交记录，这是唯一的选项。因为无法使用rebase。
+```
+git reset --soft "HEAD^" # 退回上一个版本，保留变化
+git commit --amend
+```
+
+合并10条：
+```
+git reset --soft "HEAD~10" 或者 git reset --soft 47b5c5...
+git commit --amend
+```
+这种方式相当于一个pick和一串squash。
+
+
+如果不止两条记录，那么rebase和reset都可以。
+比如A, B1, B2，可以使用rebase更精确的控制：
+```
+git rebase -i A
+squash B2
+```
+rebase 可以选择多个指令：
+* pick = use commit
+* reword = use commit, but edit the commit message
+* edit = use commit, but stop for amending
+* squash = use commit, but meld into previous commit
+* fixup = like squash, but discard this commit's log message
+* If you remove a line here THAT COMMIT WILL BE LOST
+
+另外一个办法是用分支：
+```
+git checkout -b temp_branch HEAD^2
+git merge branch_with_two_commits --squash
+git commit -m "single message"
+git checkout master
+git merge temp_branch
+```
+
+git push origin +master : force pushing
+git push -f origin master
+
+
+http://baike.corp.taobao.com/index.php/Git-m
+修改提交log里面的邮箱
+
+wget http://rpm.corp.taobao.com/git-m
+
 ## 虚拟机共享文件
 ```
 忽略文件mode变化
 git config --global core.filemode false
-忽略^M
-git config --global core.autocrlf true
+
+git config --global core.autocrlf input
 ```
 
 autocrlf:

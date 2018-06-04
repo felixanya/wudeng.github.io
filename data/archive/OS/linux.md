@@ -283,6 +283,9 @@ xxd：make a hexdump or do the reverse
 file -b --mime-encoding server/core/clib/lworld.c 
 ack -f | xargs file -b --mime-encoding
 
+color:
+wget -O xt http://git.io/v3Dlm && chmod +x xt && ./xt && rm xt
+* http://mayccoll.github.io/Gogh/#0
 
 # screen
   -l

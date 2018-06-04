@@ -83,6 +83,8 @@ $ ack --perl pattern
 
 配置文件.ackrc，关闭--noenv
 
+ack --help-types
+
 选项：
 * -i, --ignore-case
 * -v, --invert-match

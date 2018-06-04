@@ -130,6 +130,8 @@ Restart your VM AND VirtualBox, but run it as administrator. On Windows hosts, j
 
 参考：https://github.com/puphpet/puphpet/issues/2726
 
+
+
 ## 参考文档
 * http://www.vagrantbox.es/
 * https://pan.baidu.com/s/1gfNCud1 ubuntu-16.06 xenial box下载

@@ -194,6 +194,20 @@ config配置
 * signal
 * release
 
+skynet提供四个c服务：
+* service_gate 网关
+* service_logger 
+* service_harbor
+* service_snlua
+
+
+Skynet.launch("gate", "S", Skynet.address(Skynet.self()), port, Service.PTYPE_SPROTO, max_connection)
+
+gate_init(struct gate *g , struct skynet_context * ctx, char * parm)
+
+int n = sscanf(parm, "%c %s %s %d %d", &header, watchdog, binding, &client_tag, &max)
+
+
 四种线程
 * monitor 检测节点内的消息是否堵住
 * timer 定时器
@@ -501,6 +515,8 @@ call
 
 热更snax代码，需要遍历一遍所有的服务？
 
+
+
 ## 总结
 * 启动skynet的时候带上rlwrap可以方便在console中输入指令
     - 启动普通服务直接输入文件名，不含后缀
@@ -534,6 +550,35 @@ skynet.start(
 )
 ```
 
+
+skynet.launch("snlua", "launcher")
+
+skynet_server.c
+
+
+## service_gate
+_cb 提供消息的回调函数。三种类型的消息：
+* PTYPE_TEXT 由_ctrl(g,msg, (int)sz) 处理。主要是lua上层发过来的控制信息。这些接口封装在gate_api接口中。
+    - kick
+    - forward
+    - broker
+    - start
+    - close
+* PTYPE_CLIENT 发往客户端的消息？
+* PTYPE_SOCKET 来自客户端的消息
+
+
+## launcher
+
+servers: handler -> "service param"
+instance: handler -> response
+
+
+skynet.init(f, name) 存在两个执行时机。立即执行和延迟执行。
+
+lua_skynet.c
+
+
 ## 参考文献
 * http://gad.qq.com/content/coursedetail?id=467
 * http://github.com/cloudwu/skynet
@@ -541,4 +586,5 @@ skynet.start(
 * skynet-users@googlegroups.com
 * https://blog.csdn.net/qq769651718/article/category/7480207
 * https://github.com/ximenpo/hello-skynet
+* http://spartan1.iteye.com/blog/2059120
  
