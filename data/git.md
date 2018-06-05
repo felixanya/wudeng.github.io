@@ -2,6 +2,8 @@
 
 * `.git`文件夹
 * `.gitignore` 忽略文件
+* `.gitmodules` 子模块
+* `.gitconfig` home目录下。配置文件
 
 * git help 获取帮助
 * git init
@@ -106,8 +108,6 @@ git merge --no-ff develop           --no-ff是为了保证版本演进的清晰
 * git flow release finish v1.1.0
 * git push origin master
 
-## .gitconfig
-
 ### socks代理
 [http]
 	proxy = 'socks5://127.0.0.1:1080'
@@ -163,8 +163,8 @@ git lg
 ```bash
 ##sudo apt install libncurses5 libncurses5-dev
 sudo apt install libncursesw5 libncursesw5-dev
+wget https://github.com/jonas/tig/releases/download/tig-2.3.3/tig-2.3.3.tar.gz
 cd tig-2.3.3
-make configure
 ./configure
 make 
 sudo make install
@@ -358,6 +358,9 @@ git stash apply (stash reference) = apply a specific stash point
 git stash save "(description)" = create a stash point, be more descriptive
 ```
 
+git diff的时候经常看到`\ No newline at end of file`，解决办法如下：
+对于vscode，可以配置自动在文件末尾加一行。
+`"files.insertFinalNewline": true`
 
 ## 参考文档
 

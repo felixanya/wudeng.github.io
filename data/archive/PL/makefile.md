@@ -1,5 +1,11 @@
 # Makefile 那些事儿
 
+## order only 依赖
+
+targets : normal prerequisites | order only prerequisites
+
+targets的更新值依赖normal依赖，而非order-only依赖。当且仅当order only依赖不存在的时候才会触发目标重建。
+比如我们需要将目标文件放在目标文件夹。那么目标文件夹就是一个order only的依赖。文件夹的更新不会引起目标重建。
 
 
 ## 变量

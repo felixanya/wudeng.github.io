@@ -86,7 +86,10 @@ meld:
 
 
 ## 问题
+monitor做啥的？manager.lua中定义。
+x3只有一个服务器。需要拆分成两个：center + game。
+center维护server list，在线玩家。
 
-青蛙的中心服起了啥作用？
-
-关于多重登陆：青蛙并没有限制多重登陆。
+中心服，
+game和center之间通信还是用的json。这个无需改变。
+登陆验证在game上做。

@@ -69,3 +69,9 @@ EOF
 ```bash
 tr a-z A-Z <<< 'one two three'
 ```
+
+## seq
+```bash
+seq -w 16 ## print a sequence of numbers
+```
+* -w : equalize width by padding with leading zeroes

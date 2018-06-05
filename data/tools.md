@@ -2,6 +2,8 @@
 
 * [HTTPie](https://httpie.org/) http命令行客户端，比curl更好用
 * [mitmproxy](https://mitmproxy.org/) HTTPS proxy，可以拦截http请求
+* SecureCRT
+    - emulation选择linux。选ansi的时候发现tig显示无法刷新。
 
 ## tar
 * tar cvzf result.tar.gz -C /path/to/dir1/ . -C /path/to/dir2/ .
